@@ -22,6 +22,8 @@ namespace Exp1
         public MainWindow()
         {
             InitializeComponent();
+            //FIXME
+            ConnectionManager.filename = @"C:\Users\Артем\Desktop\Exp1\Exp1\data.db";
         }
 
         private void rulesButton_Click(object sender, RoutedEventArgs e)

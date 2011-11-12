@@ -26,6 +26,7 @@ namespace Exp1
                 {
                     _connection = new SQLiteConnection("Data Source = " + filename);
                     _connection.Open();
+                    ConnectionManager.ExecuteNonQuery("PRAGMA foreign_keys = ON;");
                 }
                 return _connection;
             }

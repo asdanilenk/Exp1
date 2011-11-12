@@ -31,8 +31,17 @@ namespace Exp1
         List<param> parameters = new List<param>();
         int rule_id = 0;
 
+        public EditRuleWindow()
+        {
+            this.Title = "New Rule";
+            InitializeComponent();
+            ReadParametersList();
+            InitializeResult();
+        }
+
         public EditRuleWindow(int rule_id)
         {
+            this.Title = "Edit Rule";
             this.rule_id = rule_id;
 
             InitializeComponent();
@@ -90,6 +99,8 @@ namespace Exp1
 
             if (result_id != null)
                 result.SelectedIndex = parameters.IndexOf(parameters.First(a => a.param_id == result_id));
+            else
+                result.SelectedIndex = 0;
             if (result_value != null)
             {
                 if (wp.Children.FindByName(valuecontrol) is ComboBox)
@@ -268,7 +279,10 @@ namespace Exp1
 
         private void saveButton_Click(object sender, RoutedEventArgs e)
         {
-            ConnectionManager.ExecuteNonQuery(@"delete from rule where rule_id=" + rule_id);
+            if (rule_id != 0)
+            {
+                ConnectionManager.ExecuteNonQuery(@"delete from rule where rule_id=" + rule_id);
+            }
             foreach (UIElement uie in editRule.Children)
             {
                 if (uie is WrapPanel)
@@ -278,17 +292,28 @@ namespace Exp1
                     {
                         using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
                         {
-                            command.CommandText = "insert into rule (rule_id, rule_result_param_id, rule_result_param_value) values (@rule_id, @rule_result_param_id, @rule_result_param_value)";
-                            command.Parameters.Add(new SQLiteParameter("@rule_id", rule_id));
-                            command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((wp.Children.FindByName(resultparamcombo) as ComboBox).SelectedItem as ComboBoxItem).Tag));
-                            var _valuecontrol = wp.Children.FindByName(valuecontrol);
-                            command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).SelectedValue.ToString() : (_valuecontrol as TextBox).Text)));
-                            command.ExecuteNonQuery();
+                            if (rule_id != 0)
+                            {
+                                command.CommandText = "insert into rule (rule_id, rule_result_param_id, rule_result_param_value) values (@rule_id, @rule_result_param_id, @rule_result_param_value)";
+                                command.Parameters.Add(new SQLiteParameter("@rule_id", rule_id));
+                                command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((wp.Children.FindByName(resultparamcombo) as ComboBox).SelectedItem as ComboBoxItem).Tag));
+                                var _valuecontrol = wp.Children.FindByName(valuecontrol);
+                                command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).SelectedValue.ToString() : (_valuecontrol as TextBox).Text)));
+                                command.ExecuteNonQuery();
+                            }
+                            else
+                            {
+                                command.CommandText = "insert into rule (rule_result_param_id, rule_result_param_value) values (@rule_result_param_id, @rule_result_param_value);SELECT last_insert_rowid() AS [ID]";
+                                command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((wp.Children.FindByName(resultparamcombo) as ComboBox).SelectedItem as ComboBoxItem).Tag));
+                                var _valuecontrol = wp.Children.FindByName(valuecontrol);
+                                command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).SelectedValue.ToString() : (_valuecontrol as TextBox).Text)));
+                                rule_id = int.Parse(command.ExecuteScalar().ToString());
+                            }
                         }
                     }
                 }
             }
-
+            
             foreach (UIElement uie in editRule.Children)
             {
                 if (uie is WrapPanel)

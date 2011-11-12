@@ -1,8 +1,8 @@
 ﻿<Window x:Class="Exp1.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="552" Width="728" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Button Content="Rules" Height="23" HorizontalAlignment="Left" Margin="408,18,0,0" Name="rulesButton" VerticalAlignment="Top" Width="75" Click="rulesButton_Click" />
+        <Button Content="Rules" Height="23" HorizontalAlignment="Left" Margin="595,28,0,0" Name="rulesButton" VerticalAlignment="Top" Width="75" Click="rulesButton_Click" />
     </Grid>
 </Window>
