@@ -1,4 +1,4 @@
-﻿<Window x:Class="Exp1.ManageParametersWindow"
+﻿<Window x:Class="Exp1.ManageCreditParametersWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="ManageParametersWindow" Height="241" Width="420" MinWidth="420" MinHeight="241">

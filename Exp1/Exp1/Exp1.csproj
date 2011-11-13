@@ -63,6 +63,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ConnectionManager.cs" />
+    <Compile Include="ManageCreditParametersWindow.xaml.cs">
+      <DependentUpon>ManageCreditParametersWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="EditRule.xaml.cs">
       <DependentUpon>EditRule.xaml</DependentUpon>
     </Compile>
@@ -75,6 +78,10 @@
     <Compile Include="Rules.xaml.cs">
       <DependentUpon>Rules.xaml</DependentUpon>
     </Compile>
+    <Page Include="ManageCreditParametersWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="EditRule.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

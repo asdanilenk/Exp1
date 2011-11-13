@@ -4,5 +4,6 @@
         Title="MainWindow" Height="552" Width="728" WindowStartupLocation="CenterScreen">
     <Grid>
         <Button Content="Rules" Height="23" HorizontalAlignment="Left" Margin="595,28,0,0" Name="rulesButton" VerticalAlignment="Top" Width="75" Click="rulesButton_Click" />
+        <Button Content="Credit params" Height="23" HorizontalAlignment="Left" Margin="575,69,0,0" Name="button1" VerticalAlignment="Top" Width="100" Click="button1_Click" />
     </Grid>
 </Window>

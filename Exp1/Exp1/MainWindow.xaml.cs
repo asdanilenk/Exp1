@@ -30,5 +30,10 @@ namespace Exp1
         {
             (new Rules()).ShowDialog();
         }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            (new ManageCreditParametersWindow()).ShowDialog();
+        }
     }
 }
