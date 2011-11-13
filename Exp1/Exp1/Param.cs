@@ -20,7 +20,9 @@ namespace Exp1
         public int param_id;
         public string param_name;
         public Param_type param_type;
-        public param(int id, string name, string type)
+        public bool param_used;
+
+        public param(int id, string name, string type, int used)
         {
             param_id = id;
             param_name = name;
@@ -29,6 +31,11 @@ namespace Exp1
                 case "int": param_type = Param_type.p_int; break;
                 case "string": param_type = Param_type.p_string; break;
                 case "bool": param_type = Param_type.p_bool; break;
+            }
+            switch (used)
+            {
+                case 1: param_used = true; break;
+                case 0: param_used = false; break;
             }
         }
     }

@@ -157,5 +157,10 @@ namespace Exp1
         {
             (new EditRuleWindow()).ShowDialog();
         }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            (new ManageParametersWindow()).ShowDialog();
+        }
     }
 }

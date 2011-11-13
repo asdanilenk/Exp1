@@ -17,5 +17,11 @@
                 <TextBlock Margin="5,0,0,0">Add Rule</TextBlock>
             </StackPanel>
         </Button>
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,6,127,0" Name="button1" VerticalAlignment="Top" Width="150" Click="button1_Click">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/edit.png" />
+                <TextBlock Margin="5,0,0,0">Manage parameters</TextBlock>
+            </StackPanel>
+        </Button>
     </Grid>
 </Window>

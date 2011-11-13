@@ -68,6 +68,9 @@
     </Compile>
     <Compile Include="EnumHelper.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="ManageParametersWindow.xaml.cs">
+      <DependentUpon>ManageParametersWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Param.cs" />
     <Compile Include="Rules.xaml.cs">
       <DependentUpon>Rules.xaml</DependentUpon>
@@ -88,6 +91,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ManageParametersWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Rules.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -125,6 +132,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\delete.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\cancel.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ok.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
