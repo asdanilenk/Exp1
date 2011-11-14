@@ -19,7 +19,7 @@ namespace Exp1
     /// <summary>
     /// Interaction logic for EditRule.xaml
     /// </summary>
-    public partial class EditRuleWindow : Window
+    public partial class RuleEditWindow : Window
     {
         private const string resultparamcombo = "resultparamcombo";
         private const string parameterpanel = "parameterpanel";
@@ -29,26 +29,26 @@ namespace Exp1
         private const string resultpanel = "resultpanel";
 
         List<param> parameters;
-        List<param> credit_parameters;
+        List<creditparam> credit_parameters;
         int rule_id = 0;
 
-        public EditRuleWindow()
+        public RuleEditWindow()
         {
-            this.Title = "New Rule";
+            this.Title = "Новое правило";
             InitializeComponent();
-            parameters = Helpers.ReadParametersList(Helpers.ParameterScope.user);
-            credit_parameters = Helpers.ReadParametersList(Helpers.ParameterScope.credit);
+            parameters = Helpers.ReadParametersList();
+            credit_parameters = Helpers.ReadCreditParametersList();
             InitializeResult();
         }
 
-        public EditRuleWindow(int rule_id)
+        public RuleEditWindow(int rule_id)
         {
-            this.Title = "Edit Rule";
+            this.Title = "Редактирование правила";
             this.rule_id = rule_id;
 
             InitializeComponent();
-            parameters = Helpers.ReadParametersList(Helpers.ParameterScope.user);
-            credit_parameters = Helpers.ReadParametersList(Helpers.ParameterScope.credit);
+            parameters = Helpers.ReadParametersList();
+            credit_parameters = Helpers.ReadCreditParametersList();
 
             using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
             {
@@ -81,7 +81,7 @@ namespace Exp1
             editRule.Children.Add(wp);
 
             TextBlock textBox = new TextBlock();
-            textBox.Text = "Result:";
+            textBox.Text = "Вывод:";
             wp.Children.Add(textBox);
 
             ComboBox result = new ComboBox();
@@ -173,12 +173,12 @@ namespace Exp1
             if (param_id != null)
             {
                 param par = parameters.First(a => a.param_id == (int)param_id);
-                foreach (param p in credit_parameters)
+                foreach (creditparam p in credit_parameters)
                     if (par.param_type == p.param_type)
                         value.Items.Add(new ComboBoxItem() { Content = p.param_name, Tag = p.param_id });
             }
             else
-                foreach (param p in credit_parameters)
+                foreach (creditparam p in credit_parameters)
                     value.Items.Add(new ComboBoxItem() { Content = p.param_name, Tag = p.param_id });
         }
 

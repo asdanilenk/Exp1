@@ -15,14 +15,14 @@ namespace Exp1
         p_bool
     }
 
-    public class param
+    public class creditparam
     {
         public int param_id;
         public string param_name;
         public Param_type param_type;
         public bool param_used;
 
-        public param(int id, string name, string type, int used)
+        public creditparam(int id, string name, string type, int used)
         {
             param_id = id;
             param_name = name;
@@ -37,6 +37,16 @@ namespace Exp1
                 case 1: param_used = true; break;
                 case 0: param_used = false; break;
             }
+        }
+    }
+
+    public class param : creditparam
+    {
+        public string question;
+
+        public param(int id, string name, string type, int used, string question) : base(id,name,type,used)
+        {
+            this.question = question;
         }
     }
 

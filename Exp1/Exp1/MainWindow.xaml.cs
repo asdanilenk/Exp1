@@ -19,21 +19,47 @@ namespace Exp1
     /// </summary>
     public partial class MainWindow : Window
     {
+        List<credit> credits;
+        private const string creditname = "creditname";
         public MainWindow()
         {
             InitializeComponent();
             //FIXME
             ConnectionManager.filename = @"C:\Users\Артем\Desktop\Exp1\Exp1\data.db";
+            credits = Helpers.ReadCreditsList();
+            foreach (credit c in credits)
+            {
+                Credits.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+                WrapPanel wp = new WrapPanel();
+                Grid.SetRow(wp, Credits.RowDefinitions.Count - 1);
+                Credits.Children.Add(wp);
+
+                wp.Children.Add(new TextBlock() { Name = creditname, Text = c.name });
+                Image editImage = new Image() { Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.edit)};
+                Button editBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(5, 0, 0, 0), Tag = c.id, Content = editImage };
+                editBox.Click += new RoutedEventHandler(editBox_Click);
+                wp.Children.Add(editBox);
+            }
+        }
+
+        void editBox_Click(object sender, RoutedEventArgs e)
+        {
+            (new CreditEditWindow((int)(sender as Button).Tag)).ShowDialog();
         }
 
         private void rulesButton_Click(object sender, RoutedEventArgs e)
         {
-            (new Rules()).ShowDialog();
+            (new RulesManagementWindow()).ShowDialog();
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            (new ManageCreditParametersWindow()).ShowDialog();
+            (new CreditParametersManagementWindow()).ShowDialog();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

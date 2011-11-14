@@ -17,15 +17,16 @@ namespace Exp1
     /// <summary>
     /// Interaction logic for ManageParametersWindow.xaml
     /// </summary>
-    public partial class ManageCreditParametersWindow : Window
+    public partial class ParametersManagementWindow : Window
     {
         List<param> parameters;
         private const string paramname = "paramname";
         private const string paramtype = "paramtype";
         private const string paramedit = "paramedit";
         private const string paramdelete = "paramdelete";
-
-        public ManageCreditParametersWindow()
+        private const string paramquestion = "paramquestion";
+        
+        public ParametersManagementWindow()
         {
             InitializeComponent();
             UpdateTable();
@@ -36,28 +37,37 @@ namespace Exp1
             paramEdit.RowDefinitions.Clear();
             paramEdit.Children.Clear();
 
-            parameters = Helpers.ReadParametersList(Helpers.ParameterScope.credit);
+            parameters = Helpers.ReadParametersList();
             foreach (param parameter in parameters)
             {
                 RowDefinition row = new RowDefinition();
                 row.Height = GridLength.Auto;
                 paramEdit.RowDefinitions.Add(row);
 
-                WrapPanel wp = new WrapPanel();
+                WrapPanel wp = new WrapPanel() { MinHeight = 20 };
                 wp.Tag = parameter.param_id;
                 Grid.SetRow(wp, paramEdit.RowDefinitions.Count - 1);
                 paramEdit.Children.Add(wp);
 
                 TextBlock nameBox = new TextBlock();
+                nameBox.MinWidth = 200;
                 nameBox.Name = paramname;
                 nameBox.Text = parameter.param_name;
                 wp.Children.Add(nameBox);
 
                 TextBlock typeBox = new TextBlock();
                 typeBox.Name = paramtype;
+                typeBox.MinWidth = 50;
                 typeBox.Text = parameter.param_type.GetStringValue();
                 typeBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(typeBox);
+
+                TextBlock questionBox = new TextBlock();
+                questionBox.Name = paramquestion;
+                questionBox.MinWidth = 300;
+                questionBox.Text = parameter.question;
+                questionBox.Margin = new Thickness(5, 0, 0, 0);
+                wp.Children.Add(questionBox);
 
                 Button editButton = new Button();
                 editButton.Name = paramedit;
@@ -122,6 +132,17 @@ namespace Exp1
                 typeBox.Width = 100;
                 wp.Children.Insert(1, typeBox);
             }
+
+            TextBlock parquestion = wp.Children.FindByName(paramquestion) as TextBlock;
+            string quest = parquestion.Text;
+
+            wp.Children.Remove(parquestion);
+            TextBox questionBox = new TextBox();
+            questionBox.Name = paramquestion;
+            questionBox.Text = quest;
+            questionBox.Width = 300;
+            wp.Children.Insert(2, questionBox);
+
             Button paredit = wp.Children.FindByName(paramedit) as Button;
             wp.Children.Remove(parname);
 
@@ -175,7 +196,8 @@ namespace Exp1
             WrapPanel wp = okButton.Parent as WrapPanel;
 
             param p = parameters.First(a => a.param_id == paramId);
-            string query = "update credit_param set param_name=\'" + (wp.Children.FindByName(paramname) as TextBox).Text + "\'";
+            string query = "update param set param_name=\'" + (wp.Children.FindByName(paramname) as TextBox).Text + "\'";
+            query += ",question=\'" + (wp.Children.FindByName(paramquestion) as TextBox).Text + "\'";
             if (!p.param_used)
                 query += ",param_type=\'" + ((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString() + "\' ";
             query += "where param_id=" + paramId;
@@ -190,9 +212,10 @@ namespace Exp1
 
             using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
             {
-                command.CommandText = "insert into credit_param (param_name,param_type) values (@param_name,@param_type)";
+                command.CommandText = "insert into param (param_name,param_type,question) values (@param_name,@param_type,@question)";
                 command.Parameters.Add(new SQLiteParameter("@param_name",(wp.Children.FindByName(paramname) as TextBox).Text));
                 command.Parameters.Add(new SQLiteParameter("@param_type",((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString()));
+                command.Parameters.Add(new SQLiteParameter("@question", (wp.Children.FindByName(paramquestion) as TextBox).Text));
                 command.ExecuteNonQuery();
             }
             UpdateTable();
@@ -200,10 +223,10 @@ namespace Exp1
 
         void deleteButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show("Are you sure that you want to delete selected parameter?", "Delete?", MessageBoxButton.YesNo);
+            MessageBoxResult result = MessageBox.Show("Вы уверены что хотите удалить данный параметр?", "Удалить?", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                ConnectionManager.ExecuteNonQuery("delete from credit_param where param_id=" + (sender as Button).Tag);
+                ConnectionManager.ExecuteNonQuery("delete from param where param_id=" + (sender as Button).Tag);
                 UpdateTable();
             }
         }
@@ -231,6 +254,12 @@ namespace Exp1
             typeBox.Width = 100;
             typeBox.SelectedIndex = 0;
             wp.Children.Add(typeBox);
+
+            TextBox questionBox = new TextBox();
+            questionBox.Name = paramquestion;
+            questionBox.MinWidth = 300;
+            questionBox.Margin = new Thickness(5, 0, 0, 0);
+            wp.Children.Add(questionBox);
 
             foreach (UIElement uie in paramEdit.Children)
                 if (uie is WrapPanel)

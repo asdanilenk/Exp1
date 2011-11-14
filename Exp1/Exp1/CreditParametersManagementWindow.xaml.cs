@@ -17,15 +17,15 @@ namespace Exp1
     /// <summary>
     /// Interaction logic for ManageParametersWindow.xaml
     /// </summary>
-    public partial class ManageParametersWindow : Window
+    public partial class CreditParametersManagementWindow : Window
     {
-        List<param> parameters;
+        List<creditparam> parameters;
         private const string paramname = "paramname";
         private const string paramtype = "paramtype";
         private const string paramedit = "paramedit";
         private const string paramdelete = "paramdelete";
-        
-        public ManageParametersWindow()
+
+        public CreditParametersManagementWindow()
         {
             InitializeComponent();
             UpdateTable();
@@ -36,25 +36,27 @@ namespace Exp1
             paramEdit.RowDefinitions.Clear();
             paramEdit.Children.Clear();
 
-            parameters = Helpers.ReadParametersList(Helpers.ParameterScope.user);
-            foreach (param parameter in parameters)
+            parameters = Helpers.ReadCreditParametersList();
+            foreach (creditparam parameter in parameters)
             {
                 RowDefinition row = new RowDefinition();
                 row.Height = GridLength.Auto;
                 paramEdit.RowDefinitions.Add(row);
 
-                WrapPanel wp = new WrapPanel();
+                WrapPanel wp = new WrapPanel() { MinHeight = 20 };
                 wp.Tag = parameter.param_id;
                 Grid.SetRow(wp, paramEdit.RowDefinitions.Count - 1);
                 paramEdit.Children.Add(wp);
 
                 TextBlock nameBox = new TextBlock();
                 nameBox.Name = paramname;
+                nameBox.MinWidth = 200;
                 nameBox.Text = parameter.param_name;
                 wp.Children.Add(nameBox);
 
                 TextBlock typeBox = new TextBlock();
                 typeBox.Name = paramtype;
+                typeBox.MinWidth = 50;
                 typeBox.Text = parameter.param_type.GetStringValue();
                 typeBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(typeBox);
@@ -92,7 +94,7 @@ namespace Exp1
         {
             Button editButton = sender as Button;
             int tag = (int)editButton.Tag;
-            param p = parameters.First(a => a.param_id == tag);
+            creditparam p = parameters.First(a => a.param_id == tag);
 
             WrapPanel wp = editButton.Parent as WrapPanel;
             TextBlock parname = wp.Children.FindByName(paramname) as TextBlock;
@@ -174,8 +176,8 @@ namespace Exp1
             int paramId = (int)okButton.Tag;
             WrapPanel wp = okButton.Parent as WrapPanel;
 
-            param p = parameters.First(a => a.param_id == paramId);
-            string query = "update param set param_name=\'" + (wp.Children.FindByName(paramname) as TextBox).Text + "\'";
+            creditparam p = parameters.First(a => a.param_id == paramId);
+            string query = "update credit_param set param_name=\'" + (wp.Children.FindByName(paramname) as TextBox).Text + "\'";
             if (!p.param_used)
                 query += ",param_type=\'" + ((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString() + "\' ";
             query += "where param_id=" + paramId;
@@ -190,7 +192,7 @@ namespace Exp1
 
             using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
             {
-                command.CommandText = "insert into param (param_name,param_type) values (@param_name,@param_type)";
+                command.CommandText = "insert into credit_param (param_name,param_type) values (@param_name,@param_type)";
                 command.Parameters.Add(new SQLiteParameter("@param_name",(wp.Children.FindByName(paramname) as TextBox).Text));
                 command.Parameters.Add(new SQLiteParameter("@param_type",((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString()));
                 command.ExecuteNonQuery();
@@ -200,10 +202,10 @@ namespace Exp1
 
         void deleteButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show("Are you sure that you want to delete selected parameter?", "Delete?", MessageBoxButton.YesNo);
+            MessageBoxResult result = MessageBox.Show("Вы уверены что хотите удалить данный параметр?", "Удалить?", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                ConnectionManager.ExecuteNonQuery("delete from param where param_id=" + (sender as Button).Tag);
+                ConnectionManager.ExecuteNonQuery("delete from credit_param where param_id=" + (sender as Button).Tag);
                 UpdateTable();
             }
         }
