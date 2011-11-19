@@ -25,83 +25,49 @@ namespace Exp1
             InitializeComponent();
             BuildRulesTable();
         }
+        private List<Rule> ruleslist;
 
         private void BuildRulesTable()
         {
-            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
+            ruleslist = Helpers.ReadRulesList();
+
+            foreach (Rule rule in ruleslist)
             {
-                RowDefinition gridRow;
+                this.rules.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+
+                WrapPanel wp = new WrapPanel();
+                Grid.SetColumn(wp, 0);
+                Grid.SetRow(wp, this.rules.RowDefinitions.Count - 1);
+                this.rules.Children.Add(wp);
+
                 TextBlock textBlock = new TextBlock();
-
-                int rules_count = 1;
-                int rule_id = 0;
-
-                command.CommandText = @"select * from vrule_left order by rule_id";
-                SQLiteDataReader DataReader = command.ExecuteReader();
-                while (DataReader.Read())
+                AddInline(textBlock, rule.rule_priority+": IF", Colors.Blue);
+                foreach (Condition rl in rule.conditions)
                 {
-                    if (rule_id==0) 
-                        rule_id = int.Parse(DataReader["rule_id"].ToString());
-                    if (rule_id != int.Parse(DataReader["rule_id"].ToString()))
-                    {
-                        AppendRightPart(textBlock, rule_id);
-                        rule_id = int.Parse(DataReader["rule_id"].ToString());
-                        rules_count++;
-                    }
-
-                    if (rules_count > this.rules.RowDefinitions.Count)
-                    {
-                        gridRow = new RowDefinition();
-                        gridRow.Height = GridLength.Auto;
-                        this.rules.RowDefinitions.Add(gridRow);
-
-                        WrapPanel wp = new WrapPanel();
-                        Grid.SetColumn(wp, 0);
-                        Grid.SetRow(wp, rules_count - 1);
-                        rules.Children.Add(wp);
-
-                        Button editBox = new Button();
-                        editBox.Height = 20;
-                        editBox.Width = 20;
-                        editBox.Margin = new Thickness(10, 0, 0, 0);
-                        editBox.Tag = rule_id;
-                        editBox.Click += new RoutedEventHandler(edit_Click);
-                        Image editImage = new Image();
-                        BitmapSource editsource = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.edit);
-                        editImage.Source = editsource;
-                        editBox.Content = editImage;
-
-                        Button deleteBox = new Button();
-                        deleteBox.Height = 20;
-                        deleteBox.Width = 20;
-                        deleteBox.Margin = new Thickness(5, 0, 0, 0);
-                        deleteBox.Tag = rule_id;
-                        deleteBox.Click += new RoutedEventHandler(deleteBox_Click);
-                        Image deleteImage = new Image();
-                        BitmapSource deletesource = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.delete);
-                        deleteImage.Source = deletesource;
-                        deleteBox.Content = deleteImage;
-
-                        textBlock = new TextBlock();
-                        Grid.SetRow(textBlock, rules_count - 1);
-                        Grid.SetColumn(textBlock, 0);
-                        AddInline(textBlock, "IF ", Colors.Blue);
-
-                        wp.Children.Add(textBlock);
-                        wp.Children.Add(editBox);
-                        wp.Children.Add(deleteBox);
-                    }
-                    else
-                    {
-                        AddInline(textBlock, " AND ", Colors.Blue);
-                    }
                     AddInline(textBlock, "( ", Colors.Blue);
-                    AddInline(textBlock, DataReader["param_name"].ToString() + " ", Colors.Black);
-                    AddInline(textBlock, DataReader["compare_type"].ToString() + " ", Colors.Blue);
-                    AddInline(textBlock, DataReader["value"].ToString(), Colors.Black);
+                    AddInline(textBlock, rl.par.param_name + " ", Colors.Black);
+                    AddInline(textBlock, rl.comparision.GetStringValue() + " ", Colors.Blue);
+                    AddInline(textBlock, rl.value.ToString(), Colors.Black);
                     AddInline(textBlock, " )", Colors.Blue);
+                    if (rule.conditions.IndexOf(rl)!=rule.conditions.Count-1)
+                        AddInline(textBlock, " AND ", Colors.Blue);
                 }
-                AppendRightPart(textBlock, rule_id);
+
+                AddInline(textBlock, " THEN ", Colors.Blue);
+                AddInline(textBlock, rule.result.param_name, Colors.Black);
+                AddInline(textBlock, " = ", Colors.Blue);
+                AddInline(textBlock, rule.resultvalue.ToString(), Colors.Black);
+                wp.Children.Add(textBlock);
+                
+                Button editBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0), Tag = rule.rule_id };
+                editBox.Click += new RoutedEventHandler(edit_Click);
+                editBox.Content = new Image() { Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.edit) };
+                wp.Children.Add(editBox);
+
+                Button deleteBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0), Tag = rule.rule_id };
+                deleteBox.Click += new RoutedEventHandler(deleteBox_Click);
+                deleteBox.Content = new Image() { Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.delete) };
+                wp.Children.Add(deleteBox);
             }
         }
 
@@ -118,7 +84,9 @@ namespace Exp1
         void edit_Click(object sender, RoutedEventArgs e)
         {
             int rule_id = (int)(sender as Button).Tag;
-            (new RuleEditWindow(rule_id)).ShowDialog();
+            Rule r = ruleslist.Find(rr => rr.rule_id == rule_id);
+            (new RuleEditWindow(r)).ShowDialog();
+            RefreshTable();
         }
 
         private void AddInline(TextBlock txtBlock, string text, Color color)
@@ -129,23 +97,8 @@ namespace Exp1
             txtBlock.Inlines.Add(run);
         }
 
-        private void AppendRightPart(TextBlock txtBlock, int rule_id)
-        {
-            using (SQLiteCommand command_inner = new SQLiteCommand(ConnectionManager.connection))
-            {
-                command_inner.CommandText = @"select * from vrule_right where rule_id=" + rule_id;
-                SQLiteDataReader DataReader_inner = command_inner.ExecuteReader();
-                DataReader_inner.Read();
-                AddInline(txtBlock, " THEN ", Colors.Blue);
-                AddInline(txtBlock, DataReader_inner["param_name"].ToString(), Colors.Black);
-                AddInline(txtBlock, " = ", Colors.Blue);
-                AddInline(txtBlock, DataReader_inner["rule_result_param_value"].ToString(), Colors.Black);
-            }
-        }
-
         private void Window_Activated(object sender, EventArgs e)
-        {
-            RefreshTable();
+        {   
         }
 
         private void RefreshTable()

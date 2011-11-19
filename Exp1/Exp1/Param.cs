@@ -38,6 +38,10 @@ namespace Exp1
                 case 0: param_used = false; break;
             }
         }
+        public override string ToString()
+        {
+            return param_name;
+        }
     }
 
     public class param : creditparam

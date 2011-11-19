@@ -15,6 +15,8 @@
                     <Button Width="20" Height="20" Margin="10,0,0,0" Click="Button_Click">
                         <Image Source="Resources\add.png" Height="16" />
                     </Button>
+                    <TextBlock Margin='30,0,0,0' Text="Приоритет:" VerticalAlignment="Center" />
+                    <TextBox Width="50" Text="0" Name="PriorityBox" TextChanged="value_TextChanged" />
                 </WrapPanel>
             </Grid>
         </ScrollViewer>

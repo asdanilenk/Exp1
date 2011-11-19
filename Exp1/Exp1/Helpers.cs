@@ -97,7 +97,33 @@ namespace Exp1
         }
 
 
+        public static List<Rule> ReadRulesList()
+        {
+            List<param> pars = Helpers.ReadParametersList();
+            List<Rule> rules = new List<Rule>();
+            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
+            {
+                command.CommandText = @"select * from vrule_right";
+                SQLiteDataReader DataReader = command.ExecuteReader();
+                while (DataReader.Read())
+                {
+                    rules.Add(new Rule(int.Parse(DataReader["rule_id"].ToString()), pars.Find(a => a.param_id == int.Parse(DataReader["param_id"].ToString())),
+                        DataReader["rule_result_param_value"].ToString(), int.Parse(DataReader["rule_priority"].ToString())));
+                }
+            }
 
+            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
+            {
+                command.CommandText = @"select * from vrule_left";
+                SQLiteDataReader DataReader = command.ExecuteReader();
+                while (DataReader.Read())
+                {
+                    rules.Find(r => r.rule_id == int.Parse(DataReader["rule_id"].ToString())).conditions.Add(new Condition(
+                        pars.Find(a => a.param_id == int.Parse(DataReader["param_id"].ToString())), DataReader["compare_type"].ToString(), DataReader["value"].ToString()));
+                }
+            }
+            return rules;
+        }
 
 
     }

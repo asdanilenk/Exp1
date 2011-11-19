@@ -76,7 +76,8 @@ namespace Exp1
                     wp.Children.Add(value);
                     if (paramvalues.Keys.ToList().Find(pp => pp.param_id == p.param_id) !=null)
                         value.Text = paramvalues.First(pp => pp.Key.param_id == p.param_id).Value;
-                    value.TextChanged += new TextChangedEventHandler(value_TextChanged);
+                    if (p.param_type == Param_type.p_int)
+                        value.TextChanged += new TextChangedEventHandler(value_TextChanged);
                 }
             }
 
@@ -91,7 +92,7 @@ namespace Exp1
             if (success & num >= 0)
                 previousText = text;
             else
-                ((ComboBox)sender).Text = previousText;
+                ((TextBox)sender).Text = previousText;
         }
 
         private void cancelButton_Click(object sender, RoutedEventArgs e)
