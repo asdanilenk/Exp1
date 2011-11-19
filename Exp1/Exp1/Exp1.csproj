@@ -73,6 +73,10 @@
     <Compile Include="CreditParametersManagementWindow.xaml.cs">
       <DependentUpon>CreditParametersManagementWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Logger.cs" />
+    <Compile Include="ResultsWindow.xaml.cs">
+      <DependentUpon>ResultsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ReverseChain.cs" />
     <Compile Include="Rule.cs" />
     <Compile Include="RuleEditWindow.xaml.cs">
@@ -98,6 +102,10 @@
     <Page Include="CreditParametersManagementWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ResultsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RuleEditWindow.xaml">
       <SubType>Designer</SubType>

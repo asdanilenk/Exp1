@@ -46,6 +46,10 @@ namespace Exp1
                 else this.value = value;
             }
         }
+        public override string ToString()
+        {
+            return par.param_name + " " + comparision.GetStringValue() + " " + value.ToString();
+        }
     }
 
     public class Rule
@@ -66,7 +70,18 @@ namespace Exp1
             else if (result.param_type == Param_type.p_int)
                 this.resultvalue = int.Parse(resultvalue);
             else this.resultvalue = resultvalue;
-
+        }
+        public override string ToString()
+        {
+            string rule = rule_priority + ": IF";
+            foreach (Condition rl in conditions)
+            {
+                rule += "( " + rl.ToString() + " )";
+                if (conditions.IndexOf(rl) != conditions.Count - 1)
+                    rule+=" AND ";
+            }
+            rule+=" THEN " + result.param_name + " = " + resultvalue.ToString();
+            return rule;
         }
     }
 }

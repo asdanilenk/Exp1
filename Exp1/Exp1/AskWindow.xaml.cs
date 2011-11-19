@@ -18,60 +18,61 @@ namespace Exp1
     /// </summary>
     public partial class AskWindow : Window
     {
-        public object Answer 
+        public object Ask(param par)
         {
-            get 
-            { 
+            var vlc = main.Children.FindByName(valuecontrol);
+            if (vlc != null)
+                main.Children.Remove(vlc);
+            Question.Text = "";
+            foreach (string s in par.question.Split(new string[] { "\\n" }, StringSplitOptions.None))
+            {
+                Question.Inlines.Add(new Run() { Text = s });
+                Question.Inlines.Add(new LineBreak());
+            }
+            if (par.param_type == Param_type.p_bool)
+            {
+                ComboBox value = new ComboBox() { Width = 100, Height = 20, Name = valuecontrol, Margin = new Thickness(5, 0, 0, 0) };
+                Grid.SetRow(value, 1);
+                main.Children.Add(value);
+                value.Items.Add(Boolean.TrueString);
+                value.Items.Add(Boolean.FalseString);
+            }
+            else
+            {
+                TextBox value = new TextBox() { Width = 400, Name = valuecontrol, Margin = new Thickness(5, 0, 0, 0) };
+                Grid.SetRow(value, 1);
+                main.Children.Add(value);
+                if (par.param_type == Param_type.p_int)
+                {
+                    value.TextChanged += new TextChangedEventHandler(value_TextChanged);
+                    value.Tag = Param_type.p_int;
+                }
+                else
+                    value.Tag = Param_type.p_string;
+            }
+
+            if (this.ShowDialog() == true)
+            {
+
                 UIElement uie = main.Children.FindByName(valuecontrol);
                 if (uie is TextBox)
                 {
-                    if ((string)(uie as TextBox).Tag == "int")
+                    if ((Param_type)(uie as TextBox).Tag == Param_type.p_int)
                         return int.Parse((uie as TextBox).Text);
                     else
                         return (uie as TextBox).Text;
                 }
                 else if (uie is ComboBox)
                     return bool.Parse((uie as ComboBox).Text);
-                return null;
             }
+            return null;
         }
 
         public string valuecontrol = "valuecontrol";
 
-        public AskWindow(param par)
+        public AskWindow()
         {
             InitializeComponent();
-            Question.Text = par.question;
-            if (par.param_type == Param_type.p_bool)
-            {
-                ComboBox value = new ComboBox();
-                value.Width = 100;
-                value.Height = 20;
-                value.Name = valuecontrol;
-                value.Margin = new Thickness(5, 0, 0, 0);
-                Grid.SetRow(value, 1);
-                main.Children.Add(value);
-                value.Items.Add("");
-                value.Items.Add("true");
-                value.Items.Add("false");
-            }
-            else
-            {
-                TextBox value = new TextBox();
-                value.Width = 400;
-                value.Name = valuecontrol;
-                value.Margin = new Thickness(5, 0, 0, 0);
-                Grid.SetRow(value, 1);
-                main.Children.Add(value);
-                if (par.param_type == Param_type.p_int)
-                {
-                    value.TextChanged += new TextChangedEventHandler(value_TextChanged);
-                    value.Tag = "int";
-                }
-                else
-                    value.Tag = "string";
-            }
-            
         }
 
 

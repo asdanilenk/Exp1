@@ -10,75 +10,82 @@ namespace Exp1
     class ReverseChain
     {
         List<Rule> rules;
+        List<param> parameters;
         Dictionary<param, object> paramValues;
         Dictionary<creditparam,string> cparam;
-
+        Logger log;
+        
 
         public ReverseChain(int credit_id)
         {
             cparam = Helpers.ReadCreditParams(credit_id);
             rules = Helpers.ReadRulesList();
             paramValues = new Dictionary<param, object>();
-            List<param> pars = Helpers.ReadParametersList();
-            foreach (param par in pars)
-                paramValues.Add(par, null);
+            parameters = Helpers.ReadParametersList();
+            log = new Logger();
 
+            foreach (param par in parameters)
+                paramValues.Add(par, null);
             
-            Stack<param> needed = new Stack<param>();
             //FIXME
-            bool result = ReccurentSearch(pars.First(p => p.param_name == "Кредит"));
+            param kredit = parameters.First(p => p.param_name == "Кредит");
+            bool result = ReccurentSearch(kredit, 0);
             if (result == true)
-            {
-                KeyValuePair<param,object> kvp = paramValues.First(a => a.Key.param_name == "Кредит");
-                MessageBox.Show("Результат определен:" + kvp.Value.ToString());
-            }
+                (new ResultsWindow("Результат определен:" + paramValues[kredit], log)).ShowDialog();
+            else
+                (new ResultsWindow("Ваши данные не подходят для определения результата", log)).ShowDialog();
         }
 
-        private bool ReccurentSearch(param needed)
+        private bool ReccurentSearch(param needed, int level)
         {
+            log.Add("Searching for " + needed.param_name + " :", level);
             List<Rule> goodrules = rules.FindAll(r => r.result.param_id == needed.param_id);
+            log.Add("Rules found: " + goodrules.Count, level);
             if (goodrules.Count==0)
             {
                 if (!String.IsNullOrEmpty(needed.question))
                 {
-                    AskWindow ask = new AskWindow(needed);
-                    if (ask.ShowDialog() == true)
-                    {
-                        param p = paramValues.First(a => a.Key.param_id == needed.param_id).Key;
-                        paramValues[p] = ask.Answer;
+                    log.Add("Asking user...", level);
+                    AskWindow ask = new AskWindow();
+                    paramValues[needed] = ask.Ask(needed);
+                    if (paramValues[needed] != null)
                         return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
+                }    
                     return false;
-                }
-
             }
 
             foreach (Rule r in goodrules)
             {
+                log.Add("Processing rule:" + r.ToString(), level);
                 bool ruleOK = true;
                 foreach (Condition rl in r.conditions)
                 {
-                    param p = paramValues.Keys.First(a => a.param_id == rl.par.param_id);
+                    log.Add("Processing condition:" + rl.ToString(), level);
+                    param p = parameters.First(a => a.param_id == rl.par.param_id);
                     if (paramValues[p] == null)
-                        if (ReccurentSearch(rl.par) == false)
+                        if (ReccurentSearch(p, level + 1) == false)
                             return false;
                     if (!CheckCondition(rl))
-                        ruleOK=false;
+                    {
+                        log.Add("Condition failed", level);
+                        ruleOK = false;
+                    }
+                    else
+                    {
+                        log.Add("Condition passed", level);
+                    }
                 }
                 if (ruleOK == true)
                 {
                     rules.Remove(r);
-                    param p = paramValues.First(a => a.Key.param_id == r.result.param_id).Key;
+                    param p = parameters.First(a => a.param_id == r.result.param_id);
                     paramValues[p] = r.resultvalue;
-                    
+                    log.Add("Rule passed => "+ p.param_name +"="+r.resultvalue.ToString(), level);
                     return true;
+                }
+                else
+                {
+                    log.Add("Rule failed", level);
                 }
             }
             return false;
@@ -86,14 +93,16 @@ namespace Exp1
 
         public bool CheckCondition(Condition rl)
         {
-            param p = paramValues.Keys.First(pp => pp.param_id == rl.par.param_id);
-
+            param p = parameters.First(pp => pp.param_id == rl.par.param_id);
+            
             switch (rl.par.param_type)
             {
                 case Param_type.p_bool:
                     {
                         switch (rl.comparision)
                         {
+                            case Comparision.Greater: return (((bool)paramValues[p]).CompareTo((bool)rl.value) > 0);
+                            case Comparision.Less: return (((bool)paramValues[p]).CompareTo((bool)rl.value) < 0);
                             case Comparision.Equals: return ((bool)paramValues[p] == (bool)rl.value);
                             case Comparision.NotEquals: return ((bool)paramValues[p] != (bool)rl.value);
                         }
@@ -103,12 +112,13 @@ namespace Exp1
                     {
                         if (rl.value is creditparam)
                         {
+                            creditparam crp = cparam.Keys.First(cp => cp.param_id == (rl.value as creditparam).param_id);
                             switch (rl.comparision)
                             {
-                                case Comparision.Equals: return ((int)paramValues[p] == int.Parse(cparam[rl.value as creditparam]));
-                                case Comparision.NotEquals: return ((int)paramValues[p] != int.Parse(cparam[rl.value as creditparam]));
-                                case Comparision.Greater: return ((int)paramValues[p] > int.Parse(cparam[rl.value as creditparam]));
-                                case Comparision.Less: return ((int)paramValues[p] < int.Parse(cparam[rl.value as creditparam]));
+                                case Comparision.Equals: return ((int)paramValues[p] == int.Parse(cparam[crp]));
+                                case Comparision.NotEquals: return ((int)paramValues[p] != int.Parse(cparam[crp]));
+                                case Comparision.Greater: return ((int)paramValues[p] > int.Parse(cparam[crp]));
+                                case Comparision.Less: return ((int)paramValues[p] < int.Parse(cparam[crp]));
                             }
                         }
                         else
