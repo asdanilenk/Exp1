@@ -76,7 +76,7 @@ namespace Exp1
                     wp.Children.Add(value);
                     if (paramvalues.Keys.ToList().Find(pp => pp.param_id == p.param_id) !=null)
                         value.Text = paramvalues.First(pp => pp.Key.param_id == p.param_id).Value;
-                    if (p.param_type == Param_type.p_int)
+                    if (p.param_type == Param_type.p_double)
                         value.TextChanged += new TextChangedEventHandler(value_TextChanged);
                 }
             }

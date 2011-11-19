@@ -79,7 +79,16 @@ namespace Exp1
                 {
                     rules.Remove(r);
                     param p = parameters.First(a => a.param_id == r.result.param_id);
-                    paramValues[p] = r.resultvalue;
+                    if (p.param_type == Param_type.p_double)
+                    {
+                        Parser x = new Parser();
+                        x.Parse((string)r.resultvalue, parameters.ConvertAll<string>(a => a.param_name));
+                        paramValues[p] = x.Calculate(paramValues.ToValueList());
+                    }
+                    else
+                    {
+                        paramValues[p] = r.resultvalue;
+                    }
                     log.Add("Rule passed => "+ p.param_name +"="+r.resultvalue.ToString(), level);
                     return true;
                 }
@@ -101,34 +110,34 @@ namespace Exp1
                     {
                         switch (rl.comparision)
                         {
-                            case Comparision.Greater: return (((bool)paramValues[p]).CompareTo((bool)rl.value) > 0);
-                            case Comparision.Less: return (((bool)paramValues[p]).CompareTo((bool)rl.value) < 0);
-                            case Comparision.Equals: return ((bool)paramValues[p] == (bool)rl.value);
-                            case Comparision.NotEquals: return ((bool)paramValues[p] != (bool)rl.value);
+                            case Comparision.Greater: return ((bool.Parse((string)paramValues[p])).CompareTo((bool)rl.value) > 0);
+                            case Comparision.Less: return ((bool.Parse((string)paramValues[p])).CompareTo((bool)rl.value) < 0);
+                            case Comparision.Equals: return (bool.Parse((string)paramValues[p]) == (bool)rl.value);
+                            case Comparision.NotEquals: return (bool.Parse((string)paramValues[p]) != (bool)rl.value);
                         }
                         break;
                     }
-                case Param_type.p_int:
+                case Param_type.p_double:
                     {
                         if (rl.value is creditparam)
                         {
                             creditparam crp = cparam.Keys.First(cp => cp.param_id == (rl.value as creditparam).param_id);
                             switch (rl.comparision)
                             {
-                                case Comparision.Equals: return ((int)paramValues[p] == int.Parse(cparam[crp]));
-                                case Comparision.NotEquals: return ((int)paramValues[p] != int.Parse(cparam[crp]));
-                                case Comparision.Greater: return ((int)paramValues[p] > int.Parse(cparam[crp]));
-                                case Comparision.Less: return ((int)paramValues[p] < int.Parse(cparam[crp]));
+                                case Comparision.Equals: return ((double)paramValues[p] == double.Parse(cparam[crp]));
+                                case Comparision.NotEquals: return ((double)paramValues[p] != double.Parse(cparam[crp]));
+                                case Comparision.Greater: return ((double)paramValues[p] > double.Parse(cparam[crp]));
+                                case Comparision.Less: return ((double)paramValues[p] < double.Parse(cparam[crp]));
                             }
                         }
                         else
                         {
                             switch (rl.comparision)
                             {
-                                case Comparision.Equals: return ((int)paramValues[p] == (int)rl.value);
-                                case Comparision.NotEquals: return ((int)paramValues[p] != (int)rl.value);
-                                case Comparision.Greater: return ((int)paramValues[p] > (int)rl.value);
-                                case Comparision.Less: return ((int)paramValues[p] < (int)rl.value);
+                                case Comparision.Equals: return ((double)paramValues[p] == (double)rl.value);
+                                case Comparision.NotEquals: return ((double)paramValues[p] != (double)rl.value);
+                                case Comparision.Greater: return ((double)paramValues[p] > (double)rl.value);
+                                case Comparision.Less: return ((double)paramValues[p] < (double)rl.value);
                             }
                         }
                         

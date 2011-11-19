@@ -7,15 +7,15 @@ namespace Exp1
 {
     public enum Param_type
     {
-        [StringValue("int")]
-        p_int,
+        [StringValue("double")]
+        p_double,
         [StringValue("string")]
         p_string,
         [StringValue("bool")]
         p_bool
     }
 
-    public class creditparam
+    public class creditparam : IComparable<creditparam>
     {
         public int param_id;
         public string param_name;
@@ -28,7 +28,8 @@ namespace Exp1
             param_name = name;
             switch (type)
             {
-                case "int": param_type = Param_type.p_int; break;
+                case "int":
+                case "double": param_type = Param_type.p_double; break;
                 case "string": param_type = Param_type.p_string; break;
                 case "bool": param_type = Param_type.p_bool; break;
             }
@@ -38,6 +39,12 @@ namespace Exp1
                 case 0: param_used = false; break;
             }
         }
+
+        public int CompareTo(creditparam obj)
+        {
+            return param_name.CompareTo(obj.param_name);
+        }
+
         public override string ToString()
         {
             return param_name;

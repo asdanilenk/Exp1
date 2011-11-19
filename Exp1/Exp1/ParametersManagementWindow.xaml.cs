@@ -123,9 +123,9 @@ namespace Exp1
                 wp.Children.Remove(partype);
 
                 ComboBox typeBox = new ComboBox();
-                typeBox.Items.Add(new ComboBoxItem() { Content="string" });
-                typeBox.Items.Add(new ComboBoxItem() { Content = "bool" });
-                typeBox.Items.Add(new ComboBoxItem() { Content = "int" });
+                typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_string.GetStringValue() });
+                typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_bool.GetStringValue() });
+                typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_double.GetStringValue() });
                 typeBox.SelectedIndex = 0;
                 typeBox.Name = paramtype;
                 typeBox.Text = type;
@@ -247,9 +247,9 @@ namespace Exp1
             wp.Children.Add(nameBox);
 
             ComboBox typeBox = new ComboBox();
-            typeBox.Items.Add(new ComboBoxItem() { Content = "string" });
-            typeBox.Items.Add(new ComboBoxItem() { Content = "bool" });
-            typeBox.Items.Add(new ComboBoxItem() { Content = "int" });
+            typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_string.GetStringValue() });
+            typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_bool.GetStringValue() });
+            typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_double.GetStringValue() });
             typeBox.Name = paramtype;
             typeBox.Width = 100;
             typeBox.SelectedIndex = 0;

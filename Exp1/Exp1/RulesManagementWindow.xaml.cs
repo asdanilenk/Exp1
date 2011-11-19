@@ -85,8 +85,8 @@ namespace Exp1
         {
             int rule_id = (int)(sender as Button).Tag;
             Rule r = ruleslist.Find(rr => rr.rule_id == rule_id);
-            (new RuleEditWindow(r)).ShowDialog();
-            RefreshTable();
+            //FIXME
+            (new RuleEditWindow(r)).Show();
         }
 
         private void AddInline(TextBlock txtBlock, string text, Color color)
@@ -98,7 +98,8 @@ namespace Exp1
         }
 
         private void Window_Activated(object sender, EventArgs e)
-        {   
+        {
+            RefreshTable();
         }
 
         private void RefreshTable()
@@ -110,12 +111,14 @@ namespace Exp1
 
         private void addButton_Click(object sender, RoutedEventArgs e)
         {
-            (new RuleEditWindow()).ShowDialog();
+            //FIXME
+            (new RuleEditWindow()).Show();
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            (new ParametersManagementWindow()).ShowDialog();
+            //FIXME
+            (new ParametersManagementWindow()).Show();
         }
     }
 }

@@ -42,23 +42,23 @@ namespace Exp1
                 TextBox value = new TextBox() { Width = 400, Name = valuecontrol, Margin = new Thickness(5, 0, 0, 0) };
                 Grid.SetRow(value, 1);
                 main.Children.Add(value);
-                if (par.param_type == Param_type.p_int)
+                if (par.param_type == Param_type.p_double)
                 {
                     value.TextChanged += new TextChangedEventHandler(value_TextChanged);
-                    value.Tag = Param_type.p_int;
+                    value.Tag = Param_type.p_double;
                 }
                 else
                     value.Tag = Param_type.p_string;
             }
-
+            //FIXME
             if (this.ShowDialog() == true)
             {
 
                 UIElement uie = main.Children.FindByName(valuecontrol);
                 if (uie is TextBox)
                 {
-                    if ((Param_type)(uie as TextBox).Tag == Param_type.p_int)
-                        return int.Parse((uie as TextBox).Text);
+                    if ((Param_type)(uie as TextBox).Tag == Param_type.p_double)
+                        return double.Parse((uie as TextBox).Text);
                     else
                         return (uie as TextBox).Text;
                 }
@@ -79,9 +79,9 @@ namespace Exp1
         private string previousText = String.Empty;
         void value_TextChanged(object sender, TextChangedEventArgs e)
         {
-            int num = 0;
+            double num = 0;
             string text = ((TextBox)sender).Text;
-            bool success = int.TryParse(text, out num);
+            bool success = double.TryParse(text, out num);
             if (success & num >= 0)
                 previousText = text;
             else

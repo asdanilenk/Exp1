@@ -37,6 +37,8 @@ namespace Exp1
             this.Title = "Новое правило";
             parameters = Helpers.ReadParametersList();
             credit_parameters = Helpers.ReadCreditParametersList();
+            credit_parameters.Sort();
+            parameters.Sort();
             
             InitializeComponent();
             InitializeResult();
@@ -48,7 +50,9 @@ namespace Exp1
             this.rule = rule;
             parameters = Helpers.ReadParametersList();
             credit_parameters = Helpers.ReadCreditParametersList();
-            
+            credit_parameters.Sort();
+            parameters.Sort();
+
             InitializeComponent();
             this.PriorityBox.Text = rule.rule_priority.ToString();
 
@@ -171,7 +175,7 @@ namespace Exp1
                         comparision.Items.Add("!=");
                         break;
                     case Param_type.p_bool:
-                    case Param_type.p_int:
+                    case Param_type.p_double:
                         comparision.Items.Add("=");
                         comparision.Items.Add("!=");
                         comparision.Items.Add(">");
@@ -190,18 +194,19 @@ namespace Exp1
                     valueb.Items.Add(Boolean.FalseString);
                     valueb.SelectedIndex = 0;
                     wp.Children.Insert(valueIndex, valueb);
+                    FillValueCombo(par.param_id, valueb);
                     break;
                 case Param_type.p_string:
                     ComboBox value = new ComboBox(){IsEditable = true, Width = 200,Name = valuecontrol,Margin = new Thickness(5, 0, 0, 0)};
                     FillValueCombo(par.param_id, value);
                     wp.Children.Insert(valueIndex, value);
                     break;
-                case Param_type.p_int:
+                case Param_type.p_double:
                     ComboBox values = new ComboBox() { IsEditable = true, Name = valuecontrol, Width = 200, Margin = new Thickness(5, 0, 0, 0), Text = "0" };
                     FillValueCombo(par.param_id, values);
                     
                     System.Windows.Style st = new System.Windows.Style();
-                    st.Setters.Add(new EventSetter() { Event= TextBox.TextChangedEvent, Handler= new TextChangedEventHandler(values_TextChanged)});
+                    //st.Setters.Add(new EventSetter() { Event= TextBox.TextChangedEvent, Handler= new TextChangedEventHandler(values_TextChanged)});
                     values.Style = st;
 
                     wp.Children.Insert(valueIndex, values);
@@ -213,14 +218,14 @@ namespace Exp1
         private string previousText = String.Empty;
         void values_TextChanged(object sender, TextChangedEventArgs e)
         {
-            int num = 0;
+            double num = 0;
             string text = ((ComboBox)sender).Text;
             if (credit_parameters.Exists(a => a.param_name == text))
             {
                 previousText = text;
                 return;
             }
-            bool success = int.TryParse(text, out num);
+            bool success = double.TryParse(text, out num);
             if (success & num >= 0)
                 previousText = text;
             else
@@ -229,14 +234,14 @@ namespace Exp1
 
         void value_TextChanged(object sender, TextChangedEventArgs e)
         {
-            int num = 0;
+            double num = 0;
             string text = ((TextBox)sender).Text;
             if (credit_parameters.Exists(a => a.param_name == text))
             {
                 previousText = text;
                 return;
             }
-            bool success = int.TryParse(text, out num);
+            bool success = double.TryParse(text, out num);
             if (success & num >= 0)
                 previousText = text;
             else

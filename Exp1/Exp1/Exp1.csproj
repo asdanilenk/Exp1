@@ -74,6 +74,7 @@
       <DependentUpon>CreditParametersManagementWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Logger.cs" />
+    <Compile Include="Parser.cs" />
     <Compile Include="ResultsWindow.xaml.cs">
       <DependentUpon>ResultsWindow.xaml</DependentUpon>
     </Compile>

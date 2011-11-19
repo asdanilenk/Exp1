@@ -41,8 +41,8 @@ namespace Exp1
             {
                 if (creditparams.Exists(a => a.param_name == value))
                     this.value = creditparams.First(a => a.param_name == value);
-                else if (par.param_type == Param_type.p_int)
-                    this.value = int.Parse(value);
+                else if (par.param_type == Param_type.p_double)
+                    this.value = double.Parse(value);
                 else this.value = value;
             }
         }
@@ -57,7 +57,7 @@ namespace Exp1
         public int rule_id;
         public List<Condition> conditions = new List<Condition>();
         public param result;
-        public object resultvalue;
+        public string resultvalue;
         public int rule_priority;
 
         public Rule(int rule_id, param result, string resultvalue, int rule_priority)
@@ -65,11 +65,7 @@ namespace Exp1
             this.rule_id = rule_id;
             this.result = result;
             this.rule_priority = rule_priority;
-            if (result.param_type == Param_type.p_bool)
-                this.resultvalue = bool.Parse(resultvalue);
-            else if (result.param_type == Param_type.p_int)
-                this.resultvalue = int.Parse(resultvalue);
-            else this.resultvalue = resultvalue;
+            this.resultvalue = resultvalue;
         }
         public override string ToString()
         {

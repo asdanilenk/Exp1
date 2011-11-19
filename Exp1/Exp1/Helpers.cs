@@ -125,6 +125,15 @@ namespace Exp1
             return rules;
         }
 
-
+        public static Dictionary<string, double> ToValueList(this Dictionary<param, object> param)
+        {
+            Dictionary<string, double> list = new Dictionary<string, double>();
+            foreach (KeyValuePair<param,object> par in param)
+            {
+                if (par.Key.param_type == Param_type.p_double && par.Value!=null)
+                    list.Add(par.Key.param_name, (double)par.Value);
+            }
+            return list;
+        }
     }
 }

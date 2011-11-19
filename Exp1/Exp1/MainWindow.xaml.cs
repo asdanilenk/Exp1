@@ -26,9 +26,7 @@ namespace Exp1
         {
             InitializeComponent();
             
-            //FIXME
-            ConnectionManager.filename = @"C:\Users\Артем\Desktop\Exp1\Exp1\data.db";
-
+            ConnectionManager.filename = "data.db";
             credits = Helpers.ReadCreditsList();
             foreach (credit c in credits)
             {
@@ -56,17 +54,20 @@ namespace Exp1
 
         void editBox_Click(object sender, RoutedEventArgs e)
         {
-            (new CreditEditWindow((int)(sender as Button).Tag)).ShowDialog();
+            //FIXME
+            (new CreditEditWindow((int)(sender as Button).Tag)).Show();
         }
 
         private void rulesButton_Click(object sender, RoutedEventArgs e)
         {
-            (new RulesManagementWindow()).ShowDialog();
+            //FIXME
+            (new RulesManagementWindow()).Show();
         }
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            (new CreditParametersManagementWindow()).ShowDialog();
+            //FIXME
+            (new CreditParametersManagementWindow()).Show();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
