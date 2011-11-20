@@ -82,14 +82,37 @@ namespace Exp1
                     if (p.param_type == Param_type.p_double)
                     {
                         Parser x = new Parser();
-                        x.Parse((string)r.resultvalue, parameters.ConvertAll<string>(a => a.param_name));
-                        paramValues[p] = x.Calculate(paramValues.ToValueList());
+                        List<string> vars = r.resultvalue.Split(new Char[] { '-', '+', '/', '*', ')', '(' }).ToList().ConvertAll<string>(s => s.Trim());
+                        foreach (string var in vars)
+                        {
+                            param par = parameters.Find(f => f.param_name == var);
+                            if (par!=null && paramValues[par] == null && !String.IsNullOrEmpty(par.question))
+                            {
+                                log.Add("Asking user "+ par.param_name, level);
+                                AskWindow ask = new AskWindow();
+                                paramValues[par] = ask.Ask(par);
+                                if (paramValues[par] == null)
+                                    return false;
+                            }
+                        }
+                        List<creditparam> localparameters = new List<creditparam>();
+                        foreach (creditparam crp in parameters)
+                            localparameters.Add(crp);
+                        foreach (creditparam crp in cparam.Keys)
+                            localparameters.Add(crp);
+                        x.Parse((string)r.resultvalue, localparameters.ConvertAll<string>(a => a.param_name));
+
+                        Dictionary<string,double> localvalues = paramValues.ToValueList();
+                        foreach (KeyValuePair<creditparam, string> crp in cparam)
+                            if (crp.Key.param_type == Param_type.p_double)
+                                localvalues.Add(crp.Key.param_name, double.Parse(crp.Value.ToString()));
+                        paramValues[p] = x.Calculate(localvalues);
                     }
                     else
                     {
                         paramValues[p] = r.resultvalue;
                     }
-                    log.Add("Rule passed => "+ p.param_name +"="+r.resultvalue.ToString(), level);
+                    log.Add("Rule passed => " + p.param_name + "=" + paramValues[p], level);
                     return true;
                 }
                 else
@@ -108,12 +131,31 @@ namespace Exp1
             {
                 case Param_type.p_bool:
                     {
-                        switch (rl.comparision)
+                        if (rl.value is creditparam)
                         {
-                            case Comparision.Greater: return ((bool.Parse((string)paramValues[p])).CompareTo((bool)rl.value) > 0);
-                            case Comparision.Less: return ((bool.Parse((string)paramValues[p])).CompareTo((bool)rl.value) < 0);
-                            case Comparision.Equals: return (bool.Parse((string)paramValues[p]) == (bool)rl.value);
-                            case Comparision.NotEquals: return (bool.Parse((string)paramValues[p]) != (bool)rl.value);
+                            creditparam crp = cparam.Keys.First(cp => cp.param_id == (rl.value as creditparam).param_id);
+                            switch (rl.comparision)
+                            {
+
+                                case Comparision.Greater: return ((bool.Parse(paramValues[p].ToString())).CompareTo(bool.Parse(cparam[crp])) > 0);
+                                case Comparision.Less: return ((bool.Parse(paramValues[p].ToString())).CompareTo(bool.Parse(cparam[crp])) < 0);
+                                case Comparision.GreaterOrEquals: return ((bool.Parse(paramValues[p].ToString())).CompareTo(bool.Parse(cparam[crp])) >= 0);
+                                case Comparision.LessOrEquals: return ((bool.Parse(paramValues[p].ToString())).CompareTo(bool.Parse(cparam[crp])) <= 0);
+                                case Comparision.Equals: return (bool.Parse(paramValues[p].ToString()) == bool.Parse(cparam[crp]));
+                                case Comparision.NotEquals: return (bool.Parse(paramValues[p].ToString()) != bool.Parse(cparam[crp]));
+                            }
+                        }
+                        else
+                        {
+                            switch (rl.comparision)
+                            {
+                                case Comparision.Greater: return ((bool.Parse(paramValues[p].ToString())).CompareTo((bool)rl.value) > 0);
+                                case Comparision.Less: return ((bool.Parse(paramValues[p].ToString())).CompareTo((bool)rl.value) < 0);
+                                case Comparision.GreaterOrEquals: return ((bool.Parse(paramValues[p].ToString())).CompareTo((bool)rl.value) >= 0);
+                                case Comparision.LessOrEquals: return ((bool.Parse(paramValues[p].ToString())).CompareTo((bool)rl.value) <= 0);
+                                case Comparision.Equals: return (bool.Parse(paramValues[p].ToString()) == (bool)rl.value);
+                                case Comparision.NotEquals: return (bool.Parse(paramValues[p].ToString()) != (bool)rl.value);
+                            }
                         }
                         break;
                     }
@@ -128,6 +170,8 @@ namespace Exp1
                                 case Comparision.NotEquals: return ((double)paramValues[p] != double.Parse(cparam[crp]));
                                 case Comparision.Greater: return ((double)paramValues[p] > double.Parse(cparam[crp]));
                                 case Comparision.Less: return ((double)paramValues[p] < double.Parse(cparam[crp]));
+                                case Comparision.GreaterOrEquals: return ((double)paramValues[p] >= double.Parse(cparam[crp]));
+                                case Comparision.LessOrEquals: return ((double)paramValues[p] <= double.Parse(cparam[crp]));
                             }
                         }
                         else
@@ -138,6 +182,8 @@ namespace Exp1
                                 case Comparision.NotEquals: return ((double)paramValues[p] != (double)rl.value);
                                 case Comparision.Greater: return ((double)paramValues[p] > (double)rl.value);
                                 case Comparision.Less: return ((double)paramValues[p] < (double)rl.value);
+                                case Comparision.GreaterOrEquals: return ((double)paramValues[p] >= (double)rl.value);
+                                case Comparision.LessOrEquals: return ((double)paramValues[p] <= (double)rl.value);
                             }
                         }
                         
@@ -147,10 +193,11 @@ namespace Exp1
                     {
                         if (rl.value is creditparam)
                         {
+                            creditparam crp = cparam.Keys.First(cp => cp.param_id == (rl.value as creditparam).param_id);
                             switch (rl.comparision)
                             {
-                                case Comparision.Equals: return ((string)paramValues[p] == cparam[rl.value as creditparam]);
-                                case Comparision.NotEquals: return ((string)paramValues[p] != cparam[rl.value as creditparam]);
+                                case Comparision.Equals: return ((string)paramValues[p] == cparam[crp]);
+                                case Comparision.NotEquals: return ((string)paramValues[p] != cparam[crp]);
                             }
                         }
                         else

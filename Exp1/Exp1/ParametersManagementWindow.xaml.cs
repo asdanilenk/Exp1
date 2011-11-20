@@ -140,7 +140,7 @@ namespace Exp1
             TextBox questionBox = new TextBox();
             questionBox.Name = paramquestion;
             questionBox.Text = quest;
-            questionBox.Width = 300;
+            questionBox.MinWidth = 300;
             wp.Children.Insert(2, questionBox);
 
             Button paredit = wp.Children.FindByName(paramedit) as Button;
@@ -243,7 +243,7 @@ namespace Exp1
 
             TextBox nameBox = new TextBox();
             nameBox.Name = paramname;
-            nameBox.Width = 200;
+            nameBox.MinWidth = 200;
             wp.Children.Add(nameBox);
 
             ComboBox typeBox = new ComboBox();

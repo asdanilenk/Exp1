@@ -115,10 +115,16 @@ namespace Exp1
             (new RuleEditWindow()).Show();
         }
 
-        private void button1_Click(object sender, RoutedEventArgs e)
+        private void clientParamButton_Click(object sender, RoutedEventArgs e)
         {
             //FIXME
             (new ParametersManagementWindow()).Show();
+        }
+
+        private void creditParamButton_Click(object sender, RoutedEventArgs e)
+        {
+            //FIXME
+            (new CreditParametersManagementWindow()).Show();
         }
     }
 }

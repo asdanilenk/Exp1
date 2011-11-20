@@ -49,15 +49,15 @@ namespace Exp1
 
                 TextBlock parameter = new TextBlock();
                 parameter.Name = parambox;
-                parameter.Width = 200;
-                parameter.Text = p.param_name + " (" + p.param_type + ") =";
+                parameter.MinWidth = 200;
+                parameter.Text = p.param_name + " (" + p.param_type.GetStringValue() + ") =";
                 parameter.Tag = p.param_id;
                 wp.Children.Add(parameter);
 
                 if (p.param_type == Param_type.p_bool)
                 {
                     ComboBox value = new ComboBox();
-                    value.Width = 200;
+                    value.MinWidth = 200;
                     value.Name = valuecontrol;
                     value.Margin = new Thickness(5, 0, 0, 0);
                     wp.Children.Add(value);
@@ -70,7 +70,7 @@ namespace Exp1
                 else
                 {
                     TextBox value = new TextBox();
-                    value.Width = 200;
+                    value.MinWidth = 200;
                     value.Name = valuecontrol;
                     value.Margin = new Thickness(5, 0, 0, 0);
                     wp.Children.Add(value);
@@ -86,9 +86,9 @@ namespace Exp1
         private string previousText = String.Empty;
         void value_TextChanged(object sender, TextChangedEventArgs e)
         {
-            int num = 0;
+            double num = 0;
             string text = ((TextBox)sender).Text;
-            bool success = int.TryParse(text, out num);
+            bool success = double.TryParse(text, out num);
             if (success & num >= 0)
                 previousText = text;
             else

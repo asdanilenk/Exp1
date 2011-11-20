@@ -70,7 +70,7 @@ namespace Exp1
             TextBlock textBox = new TextBlock() {Text= "Вывод:"};
             wp.Children.Add(textBox);
 
-            ComboBox result = new ComboBox() { Name = resultparamcombo, Margin = new Thickness(10, 0, 0, 0), Width = 200};
+            ComboBox result = new ComboBox() { Name = resultparamcombo, Margin = new Thickness(10, 0, 0, 0), MinWidth = 200};
             FillParamCombo(result);
             wp.Children.Add(result);
 
@@ -103,14 +103,14 @@ namespace Exp1
             Grid.SetRow(wp, editRule.RowDefinitions.Count - 1);
             editRule.Children.Add(wp);
 
-            ComboBox parameter = new ComboBox() { Name = paramcombo, Width = 200 };
+            ComboBox parameter = new ComboBox() { Name = paramcombo, MinWidth = 200 };
             FillParamCombo(parameter);
             wp.Children.Add(parameter);
 
             ComboBox comparison = new ComboBox() { Name = comparecombo, Width = 50, Margin = new Thickness(5, 0, 0, 0) };
             wp.Children.Add(comparison);
 
-            ComboBox value = new ComboBox() { IsEditable = true, Width = 200, Name = valuecontrol, Margin = new Thickness(5, 0, 0, 0)};
+            ComboBox value = new ComboBox() { IsEditable = true, MinWidth = 200, Name = valuecontrol, Margin = new Thickness(5, 0, 0, 0)};
             FillValueCombo(param_id, value);
             wp.Children.Add(value);
 
@@ -171,15 +171,17 @@ namespace Exp1
                 switch (par.param_type)
                 {
                     case Param_type.p_string:
-                        comparision.Items.Add("=");
-                        comparision.Items.Add("!=");
+                        comparision.Items.Add(Comparision.Equals.GetStringValue());
+                        comparision.Items.Add(Comparision.NotEquals.GetStringValue());
                         break;
                     case Param_type.p_bool:
                     case Param_type.p_double:
-                        comparision.Items.Add("=");
-                        comparision.Items.Add("!=");
-                        comparision.Items.Add(">");
-                        comparision.Items.Add("<");
+                        comparision.Items.Add(Comparision.Equals.GetStringValue());
+                        comparision.Items.Add(Comparision.NotEquals.GetStringValue());
+                        comparision.Items.Add(Comparision.Less.GetStringValue());
+                        comparision.Items.Add(Comparision.LessOrEquals.GetStringValue());
+                        comparision.Items.Add(Comparision.Greater.GetStringValue());
+                        comparision.Items.Add(Comparision.GreaterOrEquals.GetStringValue());
                         break;
                 }
                 comparision.SelectedIndex = 0;
@@ -189,7 +191,7 @@ namespace Exp1
             switch (par.param_type)
             {
                 case Param_type.p_bool:
-                    ComboBox valueb = new ComboBox() { Name = valuecontrol, Width = 200, Margin = new Thickness(5, 0, 0, 0) };
+                    ComboBox valueb = new ComboBox() { Name = valuecontrol, MinWidth = 200, Margin = new Thickness(5, 0, 0, 0) };
                     valueb.Items.Add(Boolean.TrueString);
                     valueb.Items.Add(Boolean.FalseString);
                     valueb.SelectedIndex = 0;
@@ -197,12 +199,12 @@ namespace Exp1
                     FillValueCombo(par.param_id, valueb);
                     break;
                 case Param_type.p_string:
-                    ComboBox value = new ComboBox(){IsEditable = true, Width = 200,Name = valuecontrol,Margin = new Thickness(5, 0, 0, 0)};
+                    ComboBox value = new ComboBox(){IsEditable = true, MinWidth = 200,Name = valuecontrol,Margin = new Thickness(5, 0, 0, 0)};
                     FillValueCombo(par.param_id, value);
                     wp.Children.Insert(valueIndex, value);
                     break;
                 case Param_type.p_double:
-                    ComboBox values = new ComboBox() { IsEditable = true, Name = valuecontrol, Width = 200, Margin = new Thickness(5, 0, 0, 0), Text = "0" };
+                    ComboBox values = new ComboBox() { IsEditable = true, Name = valuecontrol, MinWidth = 200, Margin = new Thickness(5, 0, 0, 0), Text = "0" };
                     FillValueCombo(par.param_id, values);
                     
                     System.Windows.Style st = new System.Windows.Style();

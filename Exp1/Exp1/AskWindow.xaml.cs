@@ -36,6 +36,7 @@ namespace Exp1
                 main.Children.Add(value);
                 value.Items.Add(Boolean.TrueString);
                 value.Items.Add(Boolean.FalseString);
+                value.Focus();
             }
             else
             {
@@ -44,11 +45,14 @@ namespace Exp1
                 main.Children.Add(value);
                 if (par.param_type == Param_type.p_double)
                 {
+                    value.Text = "0";
                     value.TextChanged += new TextChangedEventHandler(value_TextChanged);
                     value.Tag = Param_type.p_double;
                 }
                 else
                     value.Tag = Param_type.p_string;
+                value.SelectAll();
+                value.Focus();
             }
             //FIXME
             if (this.ShowDialog() == true)

@@ -70,6 +70,7 @@ namespace Exp1
         }
         private bool Parse(string str, ref Node root, List<string> variables)
         {
+            str = str.Trim();
             int i = 0;
             int c = 0;
             // Проверяет на пустую строку

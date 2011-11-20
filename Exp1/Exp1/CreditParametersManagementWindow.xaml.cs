@@ -56,7 +56,7 @@ namespace Exp1
 
                 TextBlock typeBox = new TextBlock();
                 typeBox.Name = paramtype;
-                typeBox.MinWidth = 50;
+                typeBox.MinWidth = 10;
                 typeBox.Text = parameter.param_type.GetStringValue();
                 typeBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(typeBox);
@@ -104,7 +104,7 @@ namespace Exp1
             TextBox nameBox = new TextBox();
             nameBox.Name = paramname;
             nameBox.Text = name;
-            nameBox.Width = 200;
+            nameBox.MinWidth = 200;
             wp.Children.Insert(0, nameBox);
 
             if (!p.param_used)

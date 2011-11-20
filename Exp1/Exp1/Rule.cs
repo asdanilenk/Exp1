@@ -9,6 +9,10 @@ namespace Exp1
     {
         [StringValue(">")]
         Greater,
+        [StringValue(">=")]
+        GreaterOrEquals,
+        [StringValue("<=")]
+        LessOrEquals,
         [StringValue("<")]
         Less,
         [StringValue("=")]
@@ -32,16 +36,18 @@ namespace Exp1
             {
                 case ">": this.comparision = Comparision.Greater; break;
                 case "<": this.comparision = Comparision.Less; break;
+                case ">=": this.comparision = Comparision.GreaterOrEquals; break;
+                case "<=": this.comparision = Comparision.LessOrEquals; break;
                 case "=": this.comparision = Comparision.Equals; break;
                 case "!=": this.comparision = Comparision.NotEquals; break;
             }
-            if (par.param_type == Param_type.p_bool)
+            if (creditparams.Exists(a => a.param_name == value))
+                    this.value = creditparams.First(a => a.param_name == value);
+           else if (par.param_type == Param_type.p_bool)
                 this.value = bool.Parse(value);
             else
             {
-                if (creditparams.Exists(a => a.param_name == value))
-                    this.value = creditparams.First(a => a.param_name == value);
-                else if (par.param_type == Param_type.p_double)
+                if (par.param_type == Param_type.p_double)
                     this.value = double.Parse(value);
                 else this.value = value;
             }
