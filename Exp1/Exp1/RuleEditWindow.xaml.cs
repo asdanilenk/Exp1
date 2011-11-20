@@ -208,7 +208,7 @@ namespace Exp1
                     FillValueCombo(par.param_id, values);
                     
                     System.Windows.Style st = new System.Windows.Style();
-                    //st.Setters.Add(new EventSetter() { Event= TextBox.TextChangedEvent, Handler= new TextChangedEventHandler(values_TextChanged)});
+                    st.Setters.Add(new EventSetter() { Event= TextBox.TextChangedEvent, Handler= new TextChangedEventHandler(values_TextChanged)});
                     values.Style = st;
 
                     wp.Children.Insert(valueIndex, values);

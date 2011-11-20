@@ -54,7 +54,7 @@ namespace Exp1
                 value.SelectAll();
                 value.Focus();
             }
-            //FIXME
+            
             if (this.ShowDialog() == true)
             {
 

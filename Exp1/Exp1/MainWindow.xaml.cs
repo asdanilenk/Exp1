@@ -83,14 +83,12 @@ namespace Exp1
 
         void editBox_Click(object sender, RoutedEventArgs e)
         {
-            //FIXME
-            (new CreditEditWindow((int)(sender as Button).Tag)).Show();
+            (new CreditEditWindow((int)(sender as Button).Tag)).ShowDialog();
         }
 
         private void rulesButton_Click(object sender, RoutedEventArgs e)
         {
-            //FIXME
-            (new RulesManagementWindow()).Show();
+            (new RulesManagementWindow()).ShowDialog();
         }
 
         private void AddCredit_Click(object sender, RoutedEventArgs e)

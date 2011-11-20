@@ -85,8 +85,7 @@ namespace Exp1
         {
             int rule_id = (int)(sender as Button).Tag;
             Rule r = ruleslist.Find(rr => rr.rule_id == rule_id);
-            //FIXME
-            (new RuleEditWindow(r)).Show();
+            (new RuleEditWindow(r)).ShowDialog();
         }
 
         private void AddInline(TextBlock txtBlock, string text, Color color)
@@ -111,20 +110,17 @@ namespace Exp1
 
         private void addButton_Click(object sender, RoutedEventArgs e)
         {
-            //FIXME
-            (new RuleEditWindow()).Show();
+            (new RuleEditWindow()).ShowDialog();
         }
 
         private void clientParamButton_Click(object sender, RoutedEventArgs e)
         {
-            //FIXME
-            (new ParametersManagementWindow()).Show();
+            (new ParametersManagementWindow()).ShowDialog();
         }
 
         private void creditParamButton_Click(object sender, RoutedEventArgs e)
         {
-            //FIXME
-            (new CreditParametersManagementWindow()).Show();
+            (new CreditParametersManagementWindow()).ShowDialog();
         }
     }
 }
