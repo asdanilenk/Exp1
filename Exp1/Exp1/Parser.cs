@@ -8,7 +8,7 @@ namespace Exp1
     public class Parser
     {
         static string WRONG_BRACKETS_ORDER = "Wrong brackets order: ";
-        static string UNKNOWN_FUNCTION = "Unknown function: ";
+        static string UNKNOWN_FUNCTION = "Unknown function or variable: ";
         static string DIVISION_BY_ZERO = "Division by zero";
         static string LOGARITHM_DOMAIN = "Argument outside the domain of logarithm";
         static string ARCCOSINE_DOMAIN = "Argument outside the domain of arccosine";

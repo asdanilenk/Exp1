@@ -206,17 +206,18 @@ namespace Exp1
                 case Param_type.p_double:
                     ComboBox values = new ComboBox() { IsEditable = true, Name = valuecontrol, MinWidth = 200, Margin = new Thickness(5, 0, 0, 0), Text = "0" };
                     FillValueCombo(par.param_id, values);
-                    
-                    System.Windows.Style st = new System.Windows.Style();
-                    st.Setters.Add(new EventSetter() { Event= TextBox.TextChangedEvent, Handler= new TextChangedEventHandler(values_TextChanged)});
-                    values.Style = st;
-
+                    if (changed.Name != resultparamcombo)
+                    {
+                        System.Windows.Style st = new System.Windows.Style();
+                        st.Setters.Add(new EventSetter() { Event = TextBox.TextChangedEvent, Handler = new TextChangedEventHandler(values_TextChanged) });
+                        values.Style = st;
+                    }
+       
                     wp.Children.Insert(valueIndex, values);
                     break;
             }
         }
-
-
+       
         private string previousText = String.Empty;
         void values_TextChanged(object sender, TextChangedEventArgs e)
         {

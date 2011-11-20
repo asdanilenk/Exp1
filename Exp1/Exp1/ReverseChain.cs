@@ -86,21 +86,22 @@ namespace Exp1
                         foreach (string var in vars)
                         {
                             param par = parameters.Find(f => f.param_name == var);
-                            if (par!=null && paramValues[par] == null && !String.IsNullOrEmpty(par.question))
-                            {
-                                log.Add("Asking user "+ par.param_name, level);
-                                AskWindow ask = new AskWindow();
-                                paramValues[par] = ask.Ask(par);
-                                if (paramValues[par] == null)
-                                    return false;
-                            }
+                            if (par!=null && paramValues[par] == null)
+                                ReccurentSearch(par, level + 1);
                         }
                         List<creditparam> localparameters = new List<creditparam>();
                         foreach (creditparam crp in parameters)
                             localparameters.Add(crp);
                         foreach (creditparam crp in cparam.Keys)
                             localparameters.Add(crp);
-                        x.Parse((string)r.resultvalue, localparameters.ConvertAll<string>(a => a.param_name));
+                        try
+                        {
+                            x.Parse((string)r.resultvalue, localparameters.ConvertAll<string>(a => a.param_name));
+                        }
+                        catch (Exception e)
+                        {
+                            MessageBox.Show(e.Message);
+                        }
 
                         Dictionary<string,double> localvalues = paramValues.ToValueList();
                         foreach (KeyValuePair<creditparam, string> crp in cparam)
