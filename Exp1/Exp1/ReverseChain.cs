@@ -41,7 +41,7 @@ namespace Exp1
             log.Add("Searching for " + needed.param_name + " :", level);
             List<Rule> goodrules = rules.FindAll(r => r.result.param_id == needed.param_id);
             log.Add("Rules found: " + goodrules.Count, level);
-            if (goodrules.Count==0)
+            if (goodrules.Count==0 || goodrules.All(rule => rule.conditions.Exists(cond => cond.par.param_id == needed.param_id)))
             {
                 if (!String.IsNullOrEmpty(needed.question))
                 {
