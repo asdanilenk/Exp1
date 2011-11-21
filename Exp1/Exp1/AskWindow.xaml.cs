@@ -36,6 +36,7 @@ namespace Exp1
                 main.Children.Add(value);
                 value.Items.Add(Boolean.TrueString);
                 value.Items.Add(Boolean.FalseString);
+                value.SelectedIndex = 0;
                 value.Focus();
             }
             else

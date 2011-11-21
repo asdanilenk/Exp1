@@ -102,7 +102,7 @@ namespace Exp1
 
         private void saveButton_Click(object sender, RoutedEventArgs e)
         {
-            ConnectionManager.ExecuteNonQuery("delete from credit_param_value where credit_id=" + credit_id);
+            ConnectionManager.ExecuteNonQuery(String.Format("delete from credit_param_value where credit_id={0}",credit_id));
             foreach (UIElement uie in Params.Children)
                 if (uie is WrapPanel)
                 {
@@ -114,7 +114,7 @@ namespace Exp1
                         value = (vcontrol as ComboBox).Text;
                     else if (vcontrol is TextBox)
                         value = (vcontrol as TextBox).Text;
-                    ConnectionManager.ExecuteNonQuery("insert into credit_param_value (credit_id,param_id,value) values (" + credit_id + "," + paramid + ",\'" + value + "\')");
+                    ConnectionManager.ExecuteNonQuery(String.Format(@"insert into credit_param_value (credit_id,param_id,value) values ({0},{1},'{2}')", credit_id, paramid, value));
                 }
             this.Close();
         }

@@ -196,11 +196,10 @@ namespace Exp1
             WrapPanel wp = okButton.Parent as WrapPanel;
 
             param p = parameters.First(a => a.param_id == paramId);
-            string query = "update param set param_name=\'" + (wp.Children.FindByName(paramname) as TextBox).Text + "\'";
-            query += ",question=\'" + (wp.Children.FindByName(paramquestion) as TextBox).Text + "\'";
+            string query = String.Format(@"update param set param_name='{0}', question='{1}'",(wp.Children.FindByName(paramname) as TextBox).Text,(wp.Children.FindByName(paramquestion) as TextBox).Text);
             if (!p.param_used)
-                query += ",param_type=\'" + ((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString() + "\' ";
-            query += "where param_id=" + paramId;
+                query += String.Format(@",param_type='{0}' ",((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString());
+            query += String.Format("where param_id={0}", paramId);
             ConnectionManager.ExecuteNonQuery(query);
             UpdateTable();
         }
@@ -226,7 +225,7 @@ namespace Exp1
             MessageBoxResult result = MessageBox.Show("Вы уверены что хотите удалить данный параметр?", "Удалить?", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                ConnectionManager.ExecuteNonQuery("delete from param where param_id=" + (sender as Button).Tag);
+                ConnectionManager.ExecuteNonQuery(String.Format("delete from param where param_id={0}",(sender as Button).Tag));
                 UpdateTable();
             }
         }

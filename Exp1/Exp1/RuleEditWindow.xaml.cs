@@ -256,7 +256,7 @@ namespace Exp1
             int rule_id =0;
             if (rule != null)
             {
-                ConnectionManager.ExecuteNonQuery(@"delete from rule where rule_id=" + rule.rule_id);
+                ConnectionManager.ExecuteNonQuery(String.Format(@"delete from rule where rule_id={0}",rule.rule_id));
                 rule_id = rule.rule_id;
             }
             foreach (UIElement uie in editRule.Children)

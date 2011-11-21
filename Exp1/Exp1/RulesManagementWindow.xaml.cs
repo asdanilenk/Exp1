@@ -76,7 +76,7 @@ namespace Exp1
             MessageBoxResult result = MessageBox.Show("Вы уверены что хотите удалить данное правило?", "Удалить?", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                ConnectionManager.ExecuteNonQuery("delete from rule where rule_id=" + (sender as Button).Tag);
+                ConnectionManager.ExecuteNonQuery(String.Format("delete from rule where rule_id={0}",(sender as Button).Tag));
                 RefreshTable();
             }
         }
