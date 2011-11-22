@@ -10,9 +10,9 @@ namespace Exp1
     class ReverseChain
     {
         List<Rule> rules;
-        List<param> parameters;
-        Dictionary<param, object> paramValues;
-        Dictionary<creditparam,string> cparam;
+        List<Parameter> parameters;
+        Dictionary<Parameter, object> paramValues;
+        Dictionary<CreditParameter,string> cparam;
         Logger log;
         
 
@@ -20,15 +20,15 @@ namespace Exp1
         {
             cparam = Helpers.ReadCreditParams(credit_id);
             rules = Helpers.ReadRulesList();
-            paramValues = new Dictionary<param, object>();
+            paramValues = new Dictionary<Parameter, object>();
             parameters = Helpers.ReadParametersList();
             log = new Logger();
 
-            foreach (param par in parameters)
+            foreach (Parameter par in parameters)
                 paramValues.Add(par, null);
             
             //FIXME
-            param kredit = parameters.First(p => p.param_name == "Кредит");
+            Parameter kredit = parameters.First(p => p.param_name == "Кредит");
             bool result = ReccurentSearch(kredit, 0);
             if (result == true)
                 (new ResultsWindow("Результат определен:" + paramValues[kredit], log)).ShowDialog();
@@ -36,7 +36,7 @@ namespace Exp1
                 (new ResultsWindow("Ваши данные не подходят для определения результата", log)).ShowDialog();
         }
 
-        private bool ReccurentSearch(param needed, int level)
+        private bool ReccurentSearch(Parameter needed, int level)
         {
             log.Add("Searching for " + needed.param_name + " :", level);
             List<Rule> goodrules = rules.FindAll(r => r.result.param_id == needed.param_id);
@@ -61,7 +61,7 @@ namespace Exp1
                 foreach (Condition rl in r.conditions)
                 {
                     log.Add("Processing condition:" + rl.ToString(), level);
-                    param p = parameters.First(a => a.param_id == rl.par.param_id);
+                    Parameter p = parameters.First(a => a.param_id == rl.par.param_id);
                     if (paramValues[p] == null)
                         if (ReccurentSearch(p, level + 1) == false)
                             return false;
@@ -78,21 +78,22 @@ namespace Exp1
                 if (ruleOK == true)
                 {
                     rules.Remove(r);
-                    param p = parameters.First(a => a.param_id == r.result.param_id);
+                    Parameter p = parameters.First(a => a.param_id == r.result.param_id);
                     if (p.param_type == Param_type.p_double)
                     {
                         Parser x = new Parser();
                         List<string> vars = r.resultvalue.Split(new Char[] { '-', '+', '/', '*', ')', '(' }).ToList().ConvertAll<string>(s => s.Trim());
                         foreach (string var in vars)
                         {
-                            param par = parameters.Find(f => f.param_name == var);
-                            if (par!=null && paramValues[par] == null)
-                                ReccurentSearch(par, level + 1);
+                            Parameter par = parameters.Find(f => f.param_name == var);
+                            if (par != null && paramValues[par] == null)
+                                if (ReccurentSearch(par, level + 1) == false)
+                                    return false;
                         }
-                        List<creditparam> localparameters = new List<creditparam>();
-                        foreach (creditparam crp in parameters)
+                        List<CreditParameter> localparameters = new List<CreditParameter>();
+                        foreach (CreditParameter crp in parameters)
                             localparameters.Add(crp);
-                        foreach (creditparam crp in cparam.Keys)
+                        foreach (CreditParameter crp in cparam.Keys)
                             localparameters.Add(crp);
                         try
                         {
@@ -104,7 +105,7 @@ namespace Exp1
                         }
 
                         Dictionary<string,double> localvalues = paramValues.ToValueList();
-                        foreach (KeyValuePair<creditparam, string> crp in cparam)
+                        foreach (KeyValuePair<CreditParameter, string> crp in cparam)
                             if (crp.Key.param_type == Param_type.p_double)
                                 localvalues.Add(crp.Key.param_name, double.Parse(crp.Value.ToString()));
                         paramValues[p] = x.Calculate(localvalues);
@@ -126,15 +127,15 @@ namespace Exp1
 
         public bool CheckCondition(Condition rl)
         {
-            param p = parameters.First(pp => pp.param_id == rl.par.param_id);
+            Parameter p = parameters.First(pp => pp.param_id == rl.par.param_id);
             
             switch (rl.par.param_type)
             {
                 case Param_type.p_bool:
                     {
-                        if (rl.value is creditparam)
+                        if (rl.value is CreditParameter)
                         {
-                            creditparam crp = cparam.Keys.First(cp => cp.param_id == (rl.value as creditparam).param_id);
+                            CreditParameter crp = cparam.Keys.First(cp => cp.param_id == (rl.value as CreditParameter).param_id);
                             switch (rl.comparision)
                             {
 
@@ -162,9 +163,9 @@ namespace Exp1
                     }
                 case Param_type.p_double:
                     {
-                        if (rl.value is creditparam)
+                        if (rl.value is CreditParameter)
                         {
-                            creditparam crp = cparam.Keys.First(cp => cp.param_id == (rl.value as creditparam).param_id);
+                            CreditParameter crp = cparam.Keys.First(cp => cp.param_id == (rl.value as CreditParameter).param_id);
                             switch (rl.comparision)
                             {
                                 case Comparision.Equals: return ((double)paramValues[p] == double.Parse(cparam[crp]));
@@ -192,9 +193,9 @@ namespace Exp1
                     }
                 case Param_type.p_string:
                     {
-                        if (rl.value is creditparam)
+                        if (rl.value is CreditParameter)
                         {
-                            creditparam crp = cparam.Keys.First(cp => cp.param_id == (rl.value as creditparam).param_id);
+                            CreditParameter crp = cparam.Keys.First(cp => cp.param_id == (rl.value as CreditParameter).param_id);
                             switch (rl.comparision)
                             {
                                 case Comparision.Equals: return ((string)paramValues[p] == cparam[crp]);

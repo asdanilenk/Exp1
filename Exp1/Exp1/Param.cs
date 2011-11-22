@@ -15,14 +15,14 @@ namespace Exp1
         p_bool
     }
 
-    public class creditparam : IComparable<creditparam>
+    public class CreditParameter : IComparable<CreditParameter>
     {
         public int param_id;
         public string param_name;
         public Param_type param_type;
         public bool param_used;
 
-        public creditparam(int id, string name, string type, int used)
+        public CreditParameter(int id, string name, string type, int used)
         {
             param_id = id;
             param_name = name;
@@ -40,7 +40,7 @@ namespace Exp1
             }
         }
 
-        public int CompareTo(creditparam obj)
+        public int CompareTo(CreditParameter obj)
         {
             return param_name.CompareTo(obj.param_name);
         }
@@ -51,11 +51,11 @@ namespace Exp1
         }
     }
 
-    public class param : creditparam
+    public class Parameter : CreditParameter
     {
         public string question;
 
-        public param(int id, string name, string type, int used, string question) : base(id,name,type,used)
+        public Parameter(int id, string name, string type, int used, string question) : base(id,name,type,used)
         {
             this.question = question;
         }

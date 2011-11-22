@@ -22,8 +22,8 @@ namespace Exp1
         private const string parambox = "parambox";
         private const string valuecontrol = "valuecontrol";
 
-        Dictionary<creditparam, string> paramvalues;
-        List<creditparam> pars;
+        Dictionary<CreditParameter, string> paramvalues;
+        List<CreditParameter> pars;
         int credit_id;
 
         public CreditEditWindow(int credit_id)
@@ -35,7 +35,7 @@ namespace Exp1
             pars = Helpers.ReadCreditParametersList();
 
 //KeyValuePair<param, string> par in paramvalues
-            foreach (creditparam p in pars)
+            foreach (CreditParameter p in pars)
             {
                 RowDefinition row = new RowDefinition();
                 row.Height = GridLength.Auto;

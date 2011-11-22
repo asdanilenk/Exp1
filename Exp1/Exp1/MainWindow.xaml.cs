@@ -20,7 +20,7 @@ namespace Exp1
     public partial class MainWindow : Window
     {
         
-        List<credit> credits;
+        List<Credit> credits;
         private const string creditname = "creditname";
         private const string savebutton = "savebutton";
         private const string cancelbutton = "cancelbutton";
@@ -36,7 +36,7 @@ namespace Exp1
         private void BuildTable()
         {
             credits = Helpers.ReadCreditsList();
-            foreach (credit c in credits)
+            foreach (Credit c in credits)
             {
                 Credits.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
                 WrapPanel wp = new WrapPanel();

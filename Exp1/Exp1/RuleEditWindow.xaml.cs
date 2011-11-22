@@ -28,8 +28,8 @@ namespace Exp1
         private const string valuecontrol = "valuecontrol";
         private const string resultpanel = "resultpanel";
 
-        List<param> parameters;
-        List<creditparam> credit_parameters;
+        List<Parameter> parameters;
+        List<CreditParameter> credit_parameters;
         Rule rule;
 
         public RuleEditWindow()
@@ -133,19 +133,19 @@ namespace Exp1
         {
             if (param_id != null)
             {
-                param par = parameters.First(a => a.param_id == (int)param_id);
-                foreach (creditparam p in credit_parameters)
+                Parameter par = parameters.First(a => a.param_id == (int)param_id);
+                foreach (CreditParameter p in credit_parameters)
                     if (par.param_type == p.param_type)
                         value.Items.Add(new ComboBoxItem() { Content = p.param_name, Tag = p.param_id });
             }
             else
-                foreach (creditparam p in credit_parameters)
+                foreach (CreditParameter p in credit_parameters)
                     value.Items.Add(new ComboBoxItem() { Content = p.param_name, Tag = p.param_id });
         }
 
         private void FillParamCombo(ComboBox parameter)
         {
-            foreach (param p in parameters)
+            foreach (Parameter p in parameters)
                 parameter.Items.Add(new ComboBoxItem() { Tag = p.param_id, Content = p.param_name + " (" + p.param_type.GetStringValue() + ")" });
             parameter.SelectionChanged += new SelectionChangedEventHandler(parameter_SelectionChanged);
         }
@@ -161,7 +161,7 @@ namespace Exp1
             ComboBox changed = (ComboBox)sender;
             WrapPanel wp = (WrapPanel)changed.Parent;
             int par_id = (int)((ComboBoxItem)changed.SelectedItem).Tag;
-            param par = parameters.First(a => a.param_id == par_id);
+            Parameter par = parameters.First(a => a.param_id == par_id);
             int valueIndex = wp.Children.IndexOf(wp.Children.FindByName(valuecontrol));
 
             if (changed.Name != resultparamcombo)

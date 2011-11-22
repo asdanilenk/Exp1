@@ -19,7 +19,7 @@ namespace Exp1
     /// </summary>
     public partial class CreditParametersManagementWindow : Window
     {
-        List<creditparam> parameters;
+        List<CreditParameter> parameters;
         private const string paramname = "paramname";
         private const string paramtype = "paramtype";
         private const string paramedit = "paramedit";
@@ -37,7 +37,7 @@ namespace Exp1
             paramEdit.Children.Clear();
 
             parameters = Helpers.ReadCreditParametersList();
-            foreach (creditparam parameter in parameters)
+            foreach (CreditParameter parameter in parameters)
             {
                 RowDefinition row = new RowDefinition();
                 row.Height = GridLength.Auto;
@@ -94,7 +94,7 @@ namespace Exp1
         {
             Button editButton = sender as Button;
             int tag = (int)editButton.Tag;
-            creditparam p = parameters.First(a => a.param_id == tag);
+            CreditParameter p = parameters.First(a => a.param_id == tag);
 
             WrapPanel wp = editButton.Parent as WrapPanel;
             TextBlock parname = wp.Children.FindByName(paramname) as TextBlock;
@@ -176,7 +176,7 @@ namespace Exp1
             int paramId = (int)okButton.Tag;
             WrapPanel wp = okButton.Parent as WrapPanel;
 
-            creditparam p = parameters.First(a => a.param_id == paramId);
+            CreditParameter p = parameters.First(a => a.param_id == paramId);
             string query = String.Format(@"update credit_param set param_name='{0}'",(wp.Children.FindByName(paramname) as TextBox).Text);
             if (!p.param_used)
                 query += String.Format(@",param_type='{0}' ",((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString());

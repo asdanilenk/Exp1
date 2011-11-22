@@ -5,11 +5,11 @@ using System.Text;
 
 namespace Exp1
 {
-    class credit
+    class Credit
     {
         public int id;
         public string name;
-        public credit(int id, string name)
+        public Credit(int id, string name)
         {
             this.id = id;
             this.name = name;

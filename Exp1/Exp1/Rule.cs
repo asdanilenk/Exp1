@@ -23,15 +23,15 @@ namespace Exp1
 
     public class Condition
     {
-        public param par;
+        public Parameter par;
         public Comparision comparision;
         public object value;
 
-        public Condition(param par, string comparision, string value)
+        public Condition(Parameter par, string comparision, string value)
         {
             this.par = par;
             //FIXME
-            List<creditparam> creditparams = Helpers.ReadCreditParametersList();
+            List<CreditParameter> creditparams = Helpers.ReadCreditParametersList();
             switch (comparision) 
             {
                 case ">": this.comparision = Comparision.Greater; break;
@@ -62,11 +62,11 @@ namespace Exp1
     {
         public int rule_id;
         public List<Condition> conditions = new List<Condition>();
-        public param result;
+        public Parameter result;
         public string resultvalue;
         public int rule_priority;
 
-        public Rule(int rule_id, param result, string resultvalue, int rule_priority)
+        public Rule(int rule_id, Parameter result, string resultvalue, int rule_priority)
         {
             this.rule_id = rule_id;
             this.result = result;

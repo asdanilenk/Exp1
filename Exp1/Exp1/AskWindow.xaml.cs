@@ -18,7 +18,7 @@ namespace Exp1
     /// </summary>
     public partial class AskWindow : Window
     {
-        public object Ask(param par)
+        public object Ask(Parameter par)
         {
             var vlc = main.Children.FindByName(valuecontrol);
             if (vlc != null)

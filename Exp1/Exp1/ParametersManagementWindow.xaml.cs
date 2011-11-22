@@ -19,7 +19,7 @@ namespace Exp1
     /// </summary>
     public partial class ParametersManagementWindow : Window
     {
-        List<param> parameters;
+        List<Parameter> parameters;
         private const string paramname = "paramname";
         private const string paramtype = "paramtype";
         private const string paramedit = "paramedit";
@@ -38,7 +38,7 @@ namespace Exp1
             paramEdit.Children.Clear();
 
             parameters = Helpers.ReadParametersList();
-            foreach (param parameter in parameters)
+            foreach (Parameter parameter in parameters)
             {
                 RowDefinition row = new RowDefinition();
                 row.Height = GridLength.Auto;
@@ -102,7 +102,7 @@ namespace Exp1
         {
             Button editButton = sender as Button;
             int tag = (int)editButton.Tag;
-            param p = parameters.First(a => a.param_id == tag);
+            Parameter p = parameters.First(a => a.param_id == tag);
 
             WrapPanel wp = editButton.Parent as WrapPanel;
             TextBlock parname = wp.Children.FindByName(paramname) as TextBlock;
@@ -195,7 +195,7 @@ namespace Exp1
             int paramId = (int)okButton.Tag;
             WrapPanel wp = okButton.Parent as WrapPanel;
 
-            param p = parameters.First(a => a.param_id == paramId);
+            Parameter p = parameters.First(a => a.param_id == paramId);
             string query = String.Format(@"update param set param_name='{0}', question='{1}'",(wp.Children.FindByName(paramname) as TextBox).Text,(wp.Children.FindByName(paramquestion) as TextBox).Text);
             if (!p.param_used)
                 query += String.Format(@",param_type='{0}' ",((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString());

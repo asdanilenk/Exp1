@@ -28,16 +28,16 @@ namespace Exp1
             return null;
         }
 
-        public static List<param> ReadParametersList()
+        public static List<Parameter> ReadParametersList()
         {
-            List<param> parameters = new List<param>();
+            List<Parameter> parameters = new List<Parameter>();
             using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
             {
                 command.CommandText = @"select * from vparam";
                 SQLiteDataReader DataReader = command.ExecuteReader();
                 while (DataReader.Read())
                 {
-                    parameters.Add(new param(int.Parse(DataReader["param_id"].ToString()),
+                    parameters.Add(new Parameter(int.Parse(DataReader["param_id"].ToString()),
                         DataReader["param_name"].ToString(),
                         DataReader["param_type"].ToString(),
                         int.Parse(DataReader["used"].ToString()),
@@ -46,16 +46,16 @@ namespace Exp1
             }
             return parameters;
         }
-        public static List<creditparam> ReadCreditParametersList()
+        public static List<CreditParameter> ReadCreditParametersList()
         {
-            List<creditparam> parameters = new List<creditparam>();
+            List<CreditParameter> parameters = new List<CreditParameter>();
             using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
             {
                 command.CommandText = @"select * from vcredit_param";
                 SQLiteDataReader DataReader = command.ExecuteReader();
                 while (DataReader.Read())
                 {
-                    parameters.Add(new creditparam(int.Parse(DataReader["param_id"].ToString()),
+                    parameters.Add(new CreditParameter(int.Parse(DataReader["param_id"].ToString()),
                         DataReader["param_name"].ToString(),
                         DataReader["param_type"].ToString(),
                         int.Parse(DataReader["used"].ToString())));
@@ -63,31 +63,31 @@ namespace Exp1
             }
             return parameters;
         }
-        public static List<credit> ReadCreditsList()
+        public static List<Credit> ReadCreditsList()
         {
-            List<credit> credits = new List<credit>();
+            List<Credit> credits = new List<Credit>();
             using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
             {
                 command.CommandText = @"select * from credit";
                 SQLiteDataReader DataReader = command.ExecuteReader();
                 while (DataReader.Read())
                 {
-                    credits.Add(new credit(int.Parse(DataReader["credit_id"].ToString()),
+                    credits.Add(new Credit(int.Parse(DataReader["credit_id"].ToString()),
                         DataReader["credit_name"].ToString()));
                 }
             }
             return credits;
         }
-        public static Dictionary<creditparam, string> ReadCreditParams(int id)
+        public static Dictionary<CreditParameter, string> ReadCreditParams(int id)
         {
-            Dictionary<creditparam, string> values = new Dictionary<creditparam, string>();
+            Dictionary<CreditParameter, string> values = new Dictionary<CreditParameter, string>();
             using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
             {
                 command.CommandText = @"select * from vcredit_param_value where credit_id="+id;
                 SQLiteDataReader DataReader = command.ExecuteReader();
                 while (DataReader.Read())
                 {
-                    values.Add(new creditparam(int.Parse(DataReader["param_id"].ToString()),
+                    values.Add(new CreditParameter(int.Parse(DataReader["param_id"].ToString()),
                         DataReader["param_name"].ToString(),
                         DataReader["param_type"].ToString() ,
                         0), DataReader["value"].ToString());
@@ -99,7 +99,7 @@ namespace Exp1
 
         public static List<Rule> ReadRulesList()
         {
-            List<param> pars = Helpers.ReadParametersList();
+            List<Parameter> pars = Helpers.ReadParametersList();
             List<Rule> rules = new List<Rule>();
             using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
             {
@@ -125,10 +125,10 @@ namespace Exp1
             return rules;
         }
 
-        public static Dictionary<string, double> ToValueList(this Dictionary<param, object> param)
+        public static Dictionary<string, double> ToValueList(this Dictionary<Parameter, object> param)
         {
             Dictionary<string, double> list = new Dictionary<string, double>();
-            foreach (KeyValuePair<param,object> par in param)
+            foreach (KeyValuePair<Parameter,object> par in param)
             {
                 if (par.Key.param_type == Param_type.p_double && par.Value!=null)
                     list.Add(par.Key.param_name, (double)par.Value);
