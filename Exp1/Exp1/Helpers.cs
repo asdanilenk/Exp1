@@ -20,77 +20,72 @@ namespace Exp1
 
         public static UIElement FindByName(this UIElementCollection col, string name)
         {
-            foreach (UIElement uie in col)
-            {
-                if (uie is FrameworkElement && (uie as FrameworkElement).Name == name)
-                    return uie;
-            }
-            return null;
+            return col.Cast<UIElement>().FirstOrDefault(uie => uie is FrameworkElement && (uie as FrameworkElement).Name == name);
         }
 
         public static List<Parameter> ReadParametersList()
         {
-            List<Parameter> parameters = new List<Parameter>();
-            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
+            var parameters = new List<Parameter>();
+            using (var command = new SQLiteCommand(ConnectionManager.Connection))
             {
                 command.CommandText = @"select * from vparam";
-                SQLiteDataReader DataReader = command.ExecuteReader();
-                while (DataReader.Read())
+                SQLiteDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
                 {
-                    parameters.Add(new Parameter(int.Parse(DataReader["param_id"].ToString()),
-                        DataReader["param_name"].ToString(),
-                        DataReader["param_type"].ToString(),
-                        int.Parse(DataReader["used"].ToString()),
-                        DataReader["question"].ToString()));
+                    parameters.Add(new Parameter(int.Parse(dataReader["param_id"].ToString()),
+                        dataReader["param_name"].ToString(),
+                        dataReader["param_type"].ToString(),
+                        int.Parse(dataReader["used"].ToString()),
+                        dataReader["question"].ToString()));
                 }
             }
             return parameters;
         }
         public static List<CreditParameter> ReadCreditParametersList()
         {
-            List<CreditParameter> parameters = new List<CreditParameter>();
-            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
+            var parameters = new List<CreditParameter>();
+            using (var command = new SQLiteCommand(ConnectionManager.Connection))
             {
                 command.CommandText = @"select * from vcredit_param";
-                SQLiteDataReader DataReader = command.ExecuteReader();
-                while (DataReader.Read())
+                SQLiteDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
                 {
-                    parameters.Add(new CreditParameter(int.Parse(DataReader["param_id"].ToString()),
-                        DataReader["param_name"].ToString(),
-                        DataReader["param_type"].ToString(),
-                        int.Parse(DataReader["used"].ToString())));
+                    parameters.Add(new CreditParameter(int.Parse(dataReader["param_id"].ToString()),
+                        dataReader["param_name"].ToString(),
+                        dataReader["param_type"].ToString(),
+                        int.Parse(dataReader["used"].ToString())));
                 }
             }
             return parameters;
         }
         public static List<Credit> ReadCreditsList()
         {
-            List<Credit> credits = new List<Credit>();
-            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
+            var credits = new List<Credit>();
+            using (var command = new SQLiteCommand(ConnectionManager.Connection))
             {
                 command.CommandText = @"select * from credit";
-                SQLiteDataReader DataReader = command.ExecuteReader();
-                while (DataReader.Read())
+                SQLiteDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
                 {
-                    credits.Add(new Credit(int.Parse(DataReader["credit_id"].ToString()),
-                        DataReader["credit_name"].ToString()));
+                    credits.Add(new Credit(int.Parse(dataReader["credit_id"].ToString()),
+                        dataReader["credit_name"].ToString()));
                 }
             }
             return credits;
         }
         public static Dictionary<CreditParameter, string> ReadCreditParams(int id)
         {
-            Dictionary<CreditParameter, string> values = new Dictionary<CreditParameter, string>();
-            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
+            var values = new Dictionary<CreditParameter, string>();
+            using (var command = new SQLiteCommand(ConnectionManager.Connection))
             {
                 command.CommandText = @"select * from vcredit_param_value where credit_id="+id;
-                SQLiteDataReader DataReader = command.ExecuteReader();
-                while (DataReader.Read())
+                SQLiteDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
                 {
-                    values.Add(new CreditParameter(int.Parse(DataReader["param_id"].ToString()),
-                        DataReader["param_name"].ToString(),
-                        DataReader["param_type"].ToString() ,
-                        0), DataReader["value"].ToString());
+                    values.Add(new CreditParameter(int.Parse(dataReader["param_id"].ToString()),
+                        dataReader["param_name"].ToString(),
+                        dataReader["param_type"].ToString() ,
+                        0), dataReader["value"].ToString());
                 }
             }
             return values;
@@ -99,41 +94,38 @@ namespace Exp1
 
         public static List<Rule> ReadRulesList()
         {
-            List<Parameter> pars = Helpers.ReadParametersList();
-            List<Rule> rules = new List<Rule>();
-            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
+            var pars = ReadParametersList();
+            var rules = new List<Rule>();
+            using (var command = new SQLiteCommand(ConnectionManager.Connection))
             {
                 command.CommandText = @"select * from vrule_right";
-                SQLiteDataReader DataReader = command.ExecuteReader();
-                while (DataReader.Read())
+                SQLiteDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
                 {
-                    rules.Add(new Rule(int.Parse(DataReader["rule_id"].ToString()), pars.Find(a => a.param_id == int.Parse(DataReader["param_id"].ToString())),
-                        DataReader["rule_result_param_value"].ToString(), int.Parse(DataReader["rule_priority"].ToString())));
+                    rules.Add(new Rule(int.Parse(dataReader["rule_id"].ToString()), pars.Find(a => a.ParamId == int.Parse(dataReader["param_id"].ToString())),
+                        dataReader["rule_result_param_value"].ToString(), int.Parse(dataReader["rule_priority"].ToString())));
                 }
             }
 
-            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
+            using (var command = new SQLiteCommand(ConnectionManager.Connection))
             {
                 command.CommandText = @"select * from vrule_left";
-                SQLiteDataReader DataReader = command.ExecuteReader();
-                while (DataReader.Read())
+                SQLiteDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
                 {
-                    rules.Find(r => r.rule_id == int.Parse(DataReader["rule_id"].ToString())).conditions.Add(new Condition(
-                        pars.Find(a => a.param_id == int.Parse(DataReader["param_id"].ToString())), DataReader["compare_type"].ToString(), DataReader["value"].ToString()));
+                    rules.Find(r => r.RuleId == int.Parse(dataReader["rule_id"].ToString())).Conditions.Add(new Condition(
+                        pars.Find(a => a.ParamId == int.Parse(dataReader["param_id"].ToString())), dataReader["compare_type"].ToString(), dataReader["value"].ToString()));
                 }
             }
+            string aq = String.Empty;
+            foreach (Rule b in rules)
+                aq += b + "\r\n";
             return rules;
         }
 
         public static Dictionary<string, double> ToValueList(this Dictionary<Parameter, object> param)
         {
-            Dictionary<string, double> list = new Dictionary<string, double>();
-            foreach (KeyValuePair<Parameter,object> par in param)
-            {
-                if (par.Key.param_type == Param_type.p_double && par.Value!=null)
-                    list.Add(par.Key.param_name, (double)par.Value);
-            }
-            return list;
+            return param.Where(par => par.Key.ParamType == ParamType.PDouble && par.Value != null).ToDictionary(par => par.Key.ParamName, par => (double) par.Value);
         }
     }
 }

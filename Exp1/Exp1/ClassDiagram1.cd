@@ -3,64 +3,44 @@
   <Class Name="Exp1.Credit">
     <Position X="6.25" Y="0.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAgA=</HashCode>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Credit.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Exp1.CreditParameter">
     <Position X="3.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAACEAAQEAAAgAAAAAAAAAAAAAAAAAgAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAQEAAAAAAAEACAAAIAACAAAAAAAAAA=</HashCode>
       <FileName>Param.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Field Name="param_type" />
-    </ShowAsAssociation>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Exp1.Parameter">
     <Position X="3.5" Y="3" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAA=</HashCode>
       <FileName>Param.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Exp1.Rule">
     <Position X="6.5" Y="3.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAQAAAEAAEBAAAAAAAAAAAAAAAAACAAAIAAAA=</HashCode>
+      <HashCode>AACAAAAAAAAAAAAGABAAAAQAAAAAAAAAAAAAAAAAAgA=</HashCode>
       <FileName>Rule.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Field Name="result" />
-    </ShowAsAssociation>
-    <ShowAsCollectionAssociation>
-      <Field Name="conditions" />
-    </ShowAsCollectionAssociation>
   </Class>
   <Class Name="Exp1.Condition">
     <Position X="3.5" Y="5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAACAAAAAAAEAAAAAAAAAAAAACAABAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAQAAAAAAAgAAQAAAA=</HashCode>
       <FileName>Rule.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Field Name="par" />
-      <Field Name="comparision" />
-    </ShowAsAssociation>
   </Class>
   <Enum Name="Exp1.Comparision">
     <Position X="0.5" Y="5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAEAAQQAAAAQAAAE=</HashCode>
       <FileName>Rule.cs</FileName>
-    </TypeIdentifier>
-  </Enum>
-  <Enum Name="Exp1.Param_type">
-    <Position X="0.5" Y="1" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAEAAAAAAAAAgAAEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Param.cs</FileName>
     </TypeIdentifier>
   </Enum>
   <Font Name="Segoe UI" Size="9" />

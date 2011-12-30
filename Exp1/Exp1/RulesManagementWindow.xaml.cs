@@ -41,30 +41,30 @@ namespace Exp1
                 this.rules.Children.Add(wp);
 
                 TextBlock textBlock = new TextBlock();
-                AddInline(textBlock, rule.rule_priority+": IF", Colors.Blue);
-                foreach (Condition rl in rule.conditions)
+                AddInline(textBlock, rule.RulePriority+": IF", Colors.Blue);
+                foreach (Condition rl in rule.Conditions)
                 {
                     AddInline(textBlock, "( ", Colors.Blue);
-                    AddInline(textBlock, rl.par.param_name + " ", Colors.Black);
-                    AddInline(textBlock, rl.comparision.GetStringValue() + " ", Colors.Blue);
-                    AddInline(textBlock, rl.value.ToString(), Colors.Black);
+                    AddInline(textBlock, rl.Parameter.ParamName + " ", Colors.Black);
+                    AddInline(textBlock, rl.Comparision.GetStringValue() + " ", Colors.Blue);
+                    AddInline(textBlock, rl.Value.ToString(), Colors.Black);
                     AddInline(textBlock, " )", Colors.Blue);
-                    if (rule.conditions.IndexOf(rl)!=rule.conditions.Count-1)
+                    if (rule.Conditions.IndexOf(rl)!=rule.Conditions.Count-1)
                         AddInline(textBlock, " AND ", Colors.Blue);
                 }
 
                 AddInline(textBlock, " THEN ", Colors.Blue);
-                AddInline(textBlock, rule.result.param_name, Colors.Black);
+                AddInline(textBlock, rule.Result.ParamName, Colors.Black);
                 AddInline(textBlock, " = ", Colors.Blue);
-                AddInline(textBlock, rule.resultvalue.ToString(), Colors.Black);
+                AddInline(textBlock, rule.ResultValue.ToString(), Colors.Black);
                 wp.Children.Add(textBlock);
                 
-                Button editBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0), Tag = rule.rule_id };
+                Button editBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0), Tag = rule.RuleId };
                 editBox.Click += new RoutedEventHandler(edit_Click);
                 editBox.Content = new Image() { Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.edit) };
                 wp.Children.Add(editBox);
 
-                Button deleteBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0), Tag = rule.rule_id };
+                Button deleteBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0), Tag = rule.RuleId };
                 deleteBox.Click += new RoutedEventHandler(deleteBox_Click);
                 deleteBox.Content = new Image() { Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.delete) };
                 wp.Children.Add(deleteBox);
@@ -84,7 +84,7 @@ namespace Exp1
         void edit_Click(object sender, RoutedEventArgs e)
         {
             int rule_id = (int)(sender as Button).Tag;
-            Rule r = ruleslist.Find(rr => rr.rule_id == rule_id);
+            Rule r = ruleslist.Find(rr => rr.RuleId == rule_id);
             (new RuleEditWindow(r)).ShowDialog();
         }
 

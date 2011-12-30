@@ -50,11 +50,11 @@ namespace Exp1
                 TextBlock parameter = new TextBlock();
                 parameter.Name = parambox;
                 parameter.MinWidth = 200;
-                parameter.Text = p.param_name + " (" + p.param_type.GetStringValue() + ") =";
-                parameter.Tag = p.param_id;
+                parameter.Text = p.ParamName + " (" + p.ParamType.GetStringValue() + ") =";
+                parameter.Tag = p.ParamId;
                 wp.Children.Add(parameter);
 
-                if (p.param_type == Param_type.p_bool)
+                if (p.ParamType == ParamType.PBool)
                 {
                     ComboBox value = new ComboBox();
                     value.MinWidth = 200;
@@ -64,8 +64,8 @@ namespace Exp1
                     value.Items.Add("");
                     value.Items.Add("true");
                     value.Items.Add("false");
-                    if (paramvalues.Keys.ToList().Find(pp => pp.param_id == p.param_id) != null)
-                        value.Text = paramvalues.First(pp => pp.Key.param_id == p.param_id).Value;
+                    if (paramvalues.Keys.ToList().Find(pp => pp.ParamId == p.ParamId) != null)
+                        value.Text = paramvalues.First(pp => pp.Key.ParamId == p.ParamId).Value;
                 }
                 else
                 {
@@ -74,9 +74,9 @@ namespace Exp1
                     value.Name = valuecontrol;
                     value.Margin = new Thickness(5, 0, 0, 0);
                     wp.Children.Add(value);
-                    if (paramvalues.Keys.ToList().Find(pp => pp.param_id == p.param_id) !=null)
-                        value.Text = paramvalues.First(pp => pp.Key.param_id == p.param_id).Value;
-                    if (p.param_type == Param_type.p_double)
+                    if (paramvalues.Keys.ToList().Find(pp => pp.ParamId == p.ParamId) !=null)
+                        value.Text = paramvalues.First(pp => pp.Key.ParamId == p.ParamId).Value;
+                    if (p.ParamType == ParamType.PDouble)
                         value.TextChanged += new TextChangedEventHandler(value_TextChanged);
                 }
             }

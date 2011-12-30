@@ -18,20 +18,20 @@ namespace Exp1
             }
         }
         private static SQLiteConnection _connection;
-        public static SQLiteConnection connection
+        public static SQLiteConnection Connection
         {
             get
             {
                 if (_connection == null)
                 {
-                    _connection = new SQLiteConnection("Data Source = " + filename);
+                    _connection = new SQLiteConnection("Data Source = " + Filename);
                     _connection.Open();
-                    ConnectionManager.ExecuteNonQuery("PRAGMA foreign_keys = ON;");
+                    ExecuteNonQuery("PRAGMA foreign_keys = ON;");
                 }
                 return _connection;
             }
         }
-        public static string filename
+        public static string Filename
         {
             get
             {
@@ -52,13 +52,8 @@ namespace Exp1
         }
         public static void ExecuteNonQuery(string sql)
         {
-            using (SQLiteCommand command = new SQLiteCommand(sql, connection))
+            using (var command = new SQLiteCommand(sql, Connection))
                 command.ExecuteNonQuery();
-        }
-        public static void CreateDB()
-        {
-
-
         }
     }
 }

@@ -7,7 +7,7 @@
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" VerticalAlignment="Top" Width="240" Margin="20,22,0,0" Height="270" HorizontalAlignment="Left">
             <Grid  Name="Credits"   />    
         </ScrollViewer>
-        <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,0,0,0" Name="textBlock1" Text="Виды кредитов:" VerticalAlignment="Top" />
+        <TextBlock Height="23" HorizontalAlignment="Left" Margin="20,0,0,0" Text="Виды кредитов:" VerticalAlignment="Top" />
         <Button Width="20" Height="20" Margin="110,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="AddCredit_Click">
             <Image Source="Resources\add.png" Height="16" />
         </Button>

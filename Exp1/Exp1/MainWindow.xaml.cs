@@ -29,7 +29,7 @@ namespace Exp1
         {
             InitializeComponent();
             
-            ConnectionManager.filename = "data.db";
+            ConnectionManager.Filename = "data.db";
             BuildTable();
         }
 
@@ -42,15 +42,15 @@ namespace Exp1
                 WrapPanel wp = new WrapPanel();
                 Grid.SetRow(wp, Credits.RowDefinitions.Count - 1);
                 Credits.Children.Add(wp);
-                TextBlock creditName = new TextBlock() { Name = creditname, Text = c.name, Tag = c.id, MinWidth=100 };
+                TextBlock creditName = new TextBlock() { Name = creditname, Text = c.Name, Tag = c.Id, MinWidth=100 };
                 creditName.MouseLeftButtonUp += new MouseButtonEventHandler(creditName_MouseLeftButtonUp);
                 wp.Children.Add(creditName);
                 Image editImage = new Image() { Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.edit) };
-                Button editBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(5, 0, 0, 0), Tag = c.id, Content = editImage };
+                Button editBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(5, 0, 0, 0), Tag = c.Id, Content = editImage };
                 Image deleteImage = new Image() { Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.delete) };
-                Button deleteBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(5, 0, 0, 0), Tag = c.id, Content = deleteImage };
+                Button deleteBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(5, 0, 0, 0), Tag = c.Id, Content = deleteImage };
                 deleteBox.Click += new RoutedEventHandler(deleteBox_Click);
-                Button tryBox = new Button() { Height = 20, Content = "Запустить", Margin = new Thickness(5, 0, 0, 0), Tag = c.id };
+                Button tryBox = new Button() { Height = 20, Content = "Запустить", Margin = new Thickness(5, 0, 0, 0), Tag = c.Id };
                 tryBox.Click += new RoutedEventHandler(tryBox_Click);
                 editBox.Click += new RoutedEventHandler(editBox_Click);
                 wp.Children.Add(editBox);

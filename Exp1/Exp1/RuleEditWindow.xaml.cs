@@ -5,6 +5,7 @@ using System.Text;
 using System.Data.SQLite;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -21,24 +22,24 @@ namespace Exp1
     /// </summary>
     public partial class RuleEditWindow : Window
     {
-        private const string resultparamcombo = "resultparamcombo";
-        private const string parameterpanel = "parameterpanel";
-        private const string paramcombo = "paramcombo";
-        private const string comparecombo = "comparecombo";
-        private const string valuecontrol = "valuecontrol";
-        private const string resultpanel = "resultpanel";
+        private const string ResultParamCombo = "resultparamcombo";
+        private const string ParameterPanel = "parameterpanel";
+        private const string ParamCombo = "paramcombo";
+        private const string CompareCombo = "comparecombo";
+        private const string ValueControl = "valuecontrol";
+        private const string ResultPanel = "resultpanel";
 
-        List<Parameter> parameters;
-        List<CreditParameter> credit_parameters;
-        Rule rule;
+        readonly List<Parameter> _parameters;
+        readonly List<CreditParameter> _creditParameters;
+        readonly Rule _rule;
 
         public RuleEditWindow()
         {
-            this.Title = "Новое правило";
-            parameters = Helpers.ReadParametersList();
-            credit_parameters = Helpers.ReadCreditParametersList();
-            credit_parameters.Sort();
-            parameters.Sort();
+            Title = "Новое правило";
+            _parameters = Helpers.ReadParametersList();
+            _creditParameters = Helpers.ReadCreditParametersList();
+            _creditParameters.Sort();
+            _parameters.Sort();
             
             InitializeComponent();
             InitializeResult();
@@ -46,136 +47,130 @@ namespace Exp1
 
         public RuleEditWindow(Rule rule)
         {
-            this.Title = "Редактирование правила";
-            this.rule = rule;
-            parameters = Helpers.ReadParametersList();
-            credit_parameters = Helpers.ReadCreditParametersList();
-            credit_parameters.Sort();
-            parameters.Sort();
+            Title = "Редактирование правила";
+            _rule = rule;
+            _parameters = Helpers.ReadParametersList();
+            _creditParameters = Helpers.ReadCreditParametersList();
+            _creditParameters.Sort();
+            _parameters.Sort();
 
             InitializeComponent();
-            this.PriorityBox.Text = rule.rule_priority.ToString();
+            PriorityBox.Text = rule.RulePriority.ToString();
 
-            foreach (Condition con in rule.conditions)
-                    AddParameter(con.par.param_id, con.comparision.GetStringValue(), con.value.ToString());
-            InitializeResult(rule.result.param_id, rule.resultvalue.ToString());
+            foreach (Condition con in rule.Conditions)
+                    AddParameter(con.Parameter.ParamId, con.Comparision.GetStringValue(), con.Value.ToString());
+            InitializeResult(rule.Result.ParamId, rule.ResultValue);
         }
 
-        private void InitializeResult(int? result_id = null, string result_value = null)
+        private void InitializeResult(int? resultId = null, string resultValue = null)
         {
-            WrapPanel wp = new WrapPanel() { Name = resultpanel };
+            var wp = new WrapPanel { Name = ResultPanel };
             Grid.SetRow(wp, 0);
             editRule.Children.Add(wp);
 
-            TextBlock textBox = new TextBlock() {Text= "Вывод:"};
+            var textBox = new TextBlock {Text= "Вывод:"};
             wp.Children.Add(textBox);
 
-            ComboBox result = new ComboBox() { Name = resultparamcombo, Margin = new Thickness(10, 0, 0, 0), MinWidth = 200};
+            var result = new ComboBox { Name = ResultParamCombo, Margin = new Thickness(10, 0, 0, 0), MinWidth = 200};
             FillParamCombo(result);
             wp.Children.Add(result);
 
-            textBox = new TextBlock() { Text = " = " };
+            textBox = new TextBlock { Text = " = " };
             wp.Children.Add(textBox);
 
-            ComboBox value = new ComboBox() { Name = valuecontrol, Width = 200 };
+            var value = new ComboBox { Name = ValueControl, Width = 200 };
             wp.Children.Add(value);
 
-            if (result_id != null)
-                result.SelectedIndex = parameters.IndexOf(parameters.First(a => a.param_id == result_id));
-            else
-                result.SelectedIndex = 0;
+            result.SelectedIndex = resultId != null ? _parameters.IndexOf(_parameters.First(a => a.ParamId == resultId)) : 0;
 
-            if (result_value != null)
-                (wp.Children.FindByName(valuecontrol) as ComboBox).Text = result_value;
+            if (resultValue != null)
+                ((ComboBox) wp.Children.FindByName(ValueControl)).Text = resultValue;
         }
 
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void AddButtonClick(object sender, RoutedEventArgs e)
         {
             AddParameter();
         }
 
-        private void AddParameter(int? param_id = null, string compare_type = null, string param_value = null)
+        private void AddParameter(int? paramId = null, string compareType = null, string paramValue = null)
         {
-            editRule.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            editRule.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            WrapPanel wp = new WrapPanel() { Name = parameterpanel};
+            var wp = new WrapPanel { Name = ParameterPanel};
             Grid.SetRow(wp, editRule.RowDefinitions.Count - 1);
             editRule.Children.Add(wp);
 
-            ComboBox parameter = new ComboBox() { Name = paramcombo, MinWidth = 200 };
+            var parameter = new ComboBox { Name = ParamCombo, MinWidth = 200 };
             FillParamCombo(parameter);
             wp.Children.Add(parameter);
 
-            ComboBox comparison = new ComboBox() { Name = comparecombo, Width = 50, Margin = new Thickness(5, 0, 0, 0) };
+            var comparison = new ComboBox { Name = CompareCombo, Width = 50, Margin = new Thickness(5, 0, 0, 0) };
             wp.Children.Add(comparison);
 
-            ComboBox value = new ComboBox() { IsEditable = true, MinWidth = 200, Name = valuecontrol, Margin = new Thickness(5, 0, 0, 0)};
-            FillValueCombo(param_id, value);
+            var value = new ComboBox { IsEditable = true, MinWidth = 200, Name = ValueControl, Margin = new Thickness(5, 0, 0, 0)};
+            FillValueCombo(paramId, value);
             wp.Children.Add(value);
 
-            Button deleteBox = new Button() { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0) };
-            deleteBox.Click += new RoutedEventHandler(deleteBox_Click);
-            deleteBox.Content = new Image() { Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.delete) }; 
+            var deleteBox = new Button { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0) };
+            deleteBox.Click += deleteBox_Click;
+            deleteBox.Content = new Image { Source = Helpers.BitmapSourceFromBitmap(Properties.Resources.delete) }; 
             wp.Children.Add(deleteBox);
 
-            if (param_id != null)
-                parameter.SelectedIndex = parameters.IndexOf(parameters.First(a => a.param_id == param_id));
-            else
-                parameter.SelectedIndex = 0;
-            if (compare_type != null)
-                comparison.SelectedValue = compare_type;
-            if (param_value != null)
-               (wp.Children.FindByName(valuecontrol) as ComboBox).Text = param_value;
+            parameter.SelectedIndex = paramId != null ? _parameters.IndexOf(_parameters.First(a => a.ParamId == paramId)) : 0;
+            if (compareType != null)
+                comparison.SelectedValue = compareType;
+            if (paramValue != null)
+               ((ComboBox) wp.Children.FindByName(ValueControl)).Text = paramValue;
         }
 
-        private void FillValueCombo(int? param_id, ComboBox value)
+        private void FillValueCombo(int? paramId, ComboBox value)
         {
-            if (param_id != null)
+            if (paramId != null)
             {
-                Parameter par = parameters.First(a => a.param_id == (int)param_id);
-                foreach (CreditParameter p in credit_parameters)
-                    if (par.param_type == p.param_type)
-                        value.Items.Add(new ComboBoxItem() { Content = p.param_name, Tag = p.param_id });
+                Parameter par = _parameters.First(a => a.ParamId == (int)paramId);
+                foreach (CreditParameter p in _creditParameters)
+                    if (par.ParamType == p.ParamType)
+                        value.Items.Add(new ComboBoxItem { Content = p.ParamName, Tag = p.ParamId });
             }
             else
-                foreach (CreditParameter p in credit_parameters)
-                    value.Items.Add(new ComboBoxItem() { Content = p.param_name, Tag = p.param_id });
+                foreach (CreditParameter p in _creditParameters)
+                    value.Items.Add(new ComboBoxItem { Content = p.ParamName, Tag = p.ParamId });
         }
 
         private void FillParamCombo(ComboBox parameter)
         {
-            foreach (Parameter p in parameters)
-                parameter.Items.Add(new ComboBoxItem() { Tag = p.param_id, Content = p.param_name + " (" + p.param_type.GetStringValue() + ")" });
-            parameter.SelectionChanged += new SelectionChangedEventHandler(parameter_SelectionChanged);
+            foreach (Parameter p in _parameters)
+                parameter.Items.Add(new ComboBoxItem { Tag = p.ParamId, Content = p.ParamName + " (" + p.ParamType.GetStringValue() + ")" });
+            parameter.SelectionChanged += ParameterSelectionChanged;
         }
 
         void deleteBox_Click(object sender, RoutedEventArgs e)
         {
-            WrapPanel wp = (sender as Button).Parent as WrapPanel;
-            (wp.Parent as Grid).Children.Remove(wp);
+            var wp = ((Button) sender).Parent as WrapPanel;
+            ((Grid)wp.Parent).Children.Remove(wp);
         }
 
-        void parameter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        void ParameterSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ComboBox changed = (ComboBox)sender;
-            WrapPanel wp = (WrapPanel)changed.Parent;
-            int par_id = (int)((ComboBoxItem)changed.SelectedItem).Tag;
-            Parameter par = parameters.First(a => a.param_id == par_id);
-            int valueIndex = wp.Children.IndexOf(wp.Children.FindByName(valuecontrol));
+            var changed = (ComboBox)sender;
+            var wp = (WrapPanel)changed.Parent;
+            var parId = (int)((ComboBoxItem)changed.SelectedItem).Tag;
+            Parameter par = _parameters.First(a => a.ParamId == parId);
+            int valueIndex = wp.Children.IndexOf(wp.Children.FindByName(ValueControl));
 
-            if (changed.Name != resultparamcombo)
+            if (changed.Name != ResultParamCombo)
             {
-                ComboBox comparision = wp.Children.FindByName(comparecombo) as ComboBox;
+                var comparision = wp.Children.FindByName(CompareCombo) as ComboBox;
                 comparision.Items.Clear();
-                switch (par.param_type)
+                switch (par.ParamType)
                 {
-                    case Param_type.p_string:
+                    case ParamType.PString:
                         comparision.Items.Add(Comparision.Equals.GetStringValue());
                         comparision.Items.Add(Comparision.NotEquals.GetStringValue());
                         break;
-                    case Param_type.p_bool:
-                    case Param_type.p_double:
+                    case ParamType.PBool:
+                    case ParamType.PDouble:
                         comparision.Items.Add(Comparision.Equals.GetStringValue());
                         comparision.Items.Add(Comparision.NotEquals.GetStringValue());
                         comparision.Items.Add(Comparision.Less.GetStringValue());
@@ -187,29 +182,29 @@ namespace Exp1
                 comparision.SelectedIndex = 0;
             }
 
-            wp.Children.Remove(wp.Children.FindByName(valuecontrol));
-            switch (par.param_type)
+            wp.Children.Remove(wp.Children.FindByName(ValueControl));
+            switch (par.ParamType)
             {
-                case Param_type.p_bool:
-                    ComboBox valueb = new ComboBox() { Name = valuecontrol, MinWidth = 200, Margin = new Thickness(5, 0, 0, 0) };
+                case ParamType.PBool:
+                    var valueb = new ComboBox { Name = ValueControl, MinWidth = 200, Margin = new Thickness(5, 0, 0, 0) };
                     valueb.Items.Add(Boolean.TrueString);
                     valueb.Items.Add(Boolean.FalseString);
                     valueb.SelectedIndex = 0;
                     wp.Children.Insert(valueIndex, valueb);
-                    FillValueCombo(par.param_id, valueb);
+                    FillValueCombo(par.ParamId, valueb);
                     break;
-                case Param_type.p_string:
-                    ComboBox value = new ComboBox(){IsEditable = true, MinWidth = 200,Name = valuecontrol,Margin = new Thickness(5, 0, 0, 0)};
-                    FillValueCombo(par.param_id, value);
+                case ParamType.PString:
+                    var value = new ComboBox {IsEditable = true, MinWidth = 200,Name = ValueControl,Margin = new Thickness(5, 0, 0, 0)};
+                    FillValueCombo(par.ParamId, value);
                     wp.Children.Insert(valueIndex, value);
                     break;
-                case Param_type.p_double:
-                    ComboBox values = new ComboBox() { IsEditable = true, Name = valuecontrol, MinWidth = 200, Margin = new Thickness(5, 0, 0, 0), Text = "0" };
-                    FillValueCombo(par.param_id, values);
-                    if (changed.Name != resultparamcombo)
+                case ParamType.PDouble:
+                    var values = new ComboBox { IsEditable = true, Name = ValueControl, MinWidth = 200, Margin = new Thickness(5, 0, 0, 0), Text = "0" };
+                    FillValueCombo(par.ParamId, values);
+                    if (changed.Name != ResultParamCombo)
                     {
-                        System.Windows.Style st = new System.Windows.Style();
-                        st.Setters.Add(new EventSetter() { Event = TextBox.TextChangedEvent, Handler = new TextChangedEventHandler(values_TextChanged) });
+                        var st = new Style();
+                        st.Setters.Add(new EventSetter { Event = TextBoxBase.TextChangedEvent, Handler = new TextChangedEventHandler(ValuesTextChanged) });
                         values.Style = st;
                     }
        
@@ -218,106 +213,98 @@ namespace Exp1
             }
         }
        
-        private string previousText = String.Empty;
-        void values_TextChanged(object sender, TextChangedEventArgs e)
+        private string _previousText = String.Empty;
+        void ValuesTextChanged(object sender, TextChangedEventArgs e)
         {
-            double num = 0;
+            double num;
             string text = ((ComboBox)sender).Text;
-            if (credit_parameters.Exists(a => a.param_name == text))
+            if (_creditParameters.Exists(a => a.ParamName == text))
             {
-                previousText = text;
+                _previousText = text;
                 return;
             }
             bool success = double.TryParse(text, out num);
             if (success & num >= 0)
-                previousText = text;
+                _previousText = text;
             else
-                ((ComboBox)sender).Text = previousText;
+                ((ComboBox)sender).Text = _previousText;
         }
 
-        void value_TextChanged(object sender, TextChangedEventArgs e)
+        void ValueTextChanged(object sender, TextChangedEventArgs e)
         {
-            double num = 0;
+            double num;
             string text = ((TextBox)sender).Text;
-            if (credit_parameters.Exists(a => a.param_name == text))
+            if (_creditParameters.Exists(a => a.ParamName == text))
             {
-                previousText = text;
+                _previousText = text;
                 return;
             }
             bool success = double.TryParse(text, out num);
             if (success & num >= 0)
-                previousText = text;
+                _previousText = text;
             else
-                ((TextBox)sender).Text = previousText;
+                ((TextBox)sender).Text = _previousText;
         }
 
-        private void saveButton_Click(object sender, RoutedEventArgs e)
+        private void SaveButtonClick(object sender, RoutedEventArgs e)
         {
-            int rule_id =0;
-            if (rule != null)
+            int ruleId =0;
+            if (_rule != null)
             {
-                ConnectionManager.ExecuteNonQuery(String.Format(@"delete from rule where rule_id={0}",rule.rule_id));
-                rule_id = rule.rule_id;
+                ConnectionManager.ExecuteNonQuery(String.Format(@"delete from rule where rule_id={0}",_rule.RuleId));
+                ruleId = _rule.RuleId;
             }
             foreach (UIElement uie in editRule.Children)
             {
-                if (uie is WrapPanel)
+                if (!(uie is WrapPanel)) continue;
+                var wp = uie as WrapPanel;
+                if (wp.Name != ResultPanel) continue;
+                using (var command = new SQLiteCommand(ConnectionManager.Connection))
                 {
-                    WrapPanel wp = uie as WrapPanel;
-                    if (wp.Name == resultpanel)
+                    if (ruleId != 0)
                     {
-                        using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
-                        {
-                            if (rule_id != 0)
-                            {
-                                command.CommandText = "insert into rule (rule_id, rule_result_param_id, rule_result_param_value,rule_priority) values (@rule_id, @rule_result_param_id, @rule_result_param_value,@rule_priority)";
-                                command.Parameters.Add(new SQLiteParameter("@rule_id", rule_id));
-                                command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((wp.Children.FindByName(resultparamcombo) as ComboBox).SelectedItem as ComboBoxItem).Tag));
-                                var _valuecontrol = wp.Children.FindByName(valuecontrol);
-                                command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).Text : (_valuecontrol as TextBox).Text)));
-                                command.Parameters.Add(new SQLiteParameter("@rule_priority", PriorityBox.Text));
-                                command.ExecuteNonQuery();
-                            }
-                            else
-                            {
-                                command.CommandText = "insert into rule (rule_result_param_id, rule_result_param_value,rule_priority) values (@rule_result_param_id, @rule_result_param_value, @rule_priority);SELECT last_insert_rowid() AS [ID]";
-                                command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((wp.Children.FindByName(resultparamcombo) as ComboBox).SelectedItem as ComboBoxItem).Tag));
-                                var _valuecontrol = wp.Children.FindByName(valuecontrol);
-                                command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).Text : (_valuecontrol as TextBox).Text)));
-                                command.Parameters.Add(new SQLiteParameter("@rule_priority", PriorityBox.Text));
-                                rule_id = int.Parse(command.ExecuteScalar().ToString());
-                            }
-                        }
+                        command.CommandText = "insert into rule (rule_id, rule_result_param_id, rule_result_param_value,rule_priority) values (@rule_id, @rule_result_param_id, @rule_result_param_value,@rule_priority)";
+                        command.Parameters.Add(new SQLiteParameter("@rule_id", ruleId));
+                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((wp.Children.FindByName(ResultParamCombo) as ComboBox).SelectedItem as ComboBoxItem).Tag));
+                        var _valuecontrol = wp.Children.FindByName(ValueControl);
+                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).Text : (_valuecontrol as TextBox).Text)));
+                        command.Parameters.Add(new SQLiteParameter("@rule_priority", PriorityBox.Text));
+                        command.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        command.CommandText = "insert into rule (rule_result_param_id, rule_result_param_value,rule_priority) values (@rule_result_param_id, @rule_result_param_value, @rule_priority);SELECT last_insert_rowid() AS [ID]";
+                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((wp.Children.FindByName(ResultParamCombo) as ComboBox).SelectedItem as ComboBoxItem).Tag));
+                        var _valuecontrol = wp.Children.FindByName(ValueControl);
+                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).Text : (_valuecontrol as TextBox).Text)));
+                        command.Parameters.Add(new SQLiteParameter("@rule_priority", PriorityBox.Text));
+                        ruleId = int.Parse(command.ExecuteScalar().ToString());
                     }
                 }
             }
             
             foreach (UIElement uie in editRule.Children)
             {
-                if (uie is WrapPanel)
+                if (!(uie is WrapPanel)) continue;
+                var wp = uie as WrapPanel;
+                if (wp.Name != ParameterPanel) continue;
+                using (var command = new SQLiteCommand(ConnectionManager.Connection))
                 {
-                    WrapPanel wp = uie as WrapPanel;
-                    if (wp.Name == parameterpanel)
-                    {
-                        using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
-                        {
-                            command.CommandText = @"insert into rule_left (rule_id,param_id,compare_type,value) values (@rule_id,@param_id,@compare_type,@value)";
-                            command.Parameters.Add(new SQLiteParameter("@rule_id", rule_id));
-                            command.Parameters.Add(new SQLiteParameter("@param_id", ((wp.Children.FindByName(paramcombo) as ComboBox).SelectedItem as ComboBoxItem).Tag));
-                            command.Parameters.Add(new SQLiteParameter("@compare_type", (wp.Children.FindByName(comparecombo) as ComboBox).SelectedValue.ToString()));
-                            var _valuecontrol = wp.Children.FindByName(valuecontrol);
-                            command.Parameters.Add(new SQLiteParameter("@value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).Text : (_valuecontrol as TextBox).Text)));
-                            command.ExecuteNonQuery();
-                        }
-                    }
+                    command.CommandText = @"insert into rule_left (rule_id,param_id,compare_type,value) values (@rule_id,@param_id,@compare_type,@value)";
+                    command.Parameters.Add(new SQLiteParameter("@rule_id", ruleId));
+                    command.Parameters.Add(new SQLiteParameter("@param_id", ((ComboBoxItem) ((ComboBox) wp.Children.FindByName(ParamCombo)).SelectedItem).Tag));
+                    command.Parameters.Add(new SQLiteParameter("@compare_type", ((ComboBox) wp.Children.FindByName(CompareCombo)).SelectedValue.ToString()));
+                    var _valuecontrol = wp.Children.FindByName(ValueControl);
+                    command.Parameters.Add(new SQLiteParameter("@value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).Text : ((TextBox) _valuecontrol).Text)));
+                    command.ExecuteNonQuery();
                 }
             }
-            this.Close();
+            Close();
         }
 
-        private void cancelButton_Click(object sender, RoutedEventArgs e)
+        private void CancelButtonClick(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
         
     }

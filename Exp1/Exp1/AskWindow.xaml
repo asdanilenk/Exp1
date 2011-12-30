@@ -11,8 +11,8 @@
         </Grid.RowDefinitions>
         
         <TextBlock TextWrapping="Wrap" MaxWidth="450"  HorizontalAlignment="Left" Margin="6,6,0,0" Name="Question" Text="Here will be question?" VerticalAlignment="Top" />
-            <Button Grid.Row="2" Content="Отменить" Height="23" HorizontalAlignment="Right" Margin="0,0,10,10" Name="cancelButton" VerticalAlignment="Bottom" Width="75" Click="cancelButton_Click" />
-            <Button Grid.Row="2" Content="Сохранить" Height="23" HorizontalAlignment="Right" Margin="0,0,100,10" Name="saveButton" VerticalAlignment="Bottom" Width="75" Click="saveButton_Click" IsDefault="True" />
+            <Button Grid.Row="2" Content="Отменить" Height="23" HorizontalAlignment="Right" Margin="0,0,10,10" Name="cancelButton" VerticalAlignment="Bottom" Width="75" Click="CancelButtonClick" />
+            <Button Grid.Row="2" Content="Сохранить" Height="23" HorizontalAlignment="Right" Margin="0,0,100,10" Name="saveButton" VerticalAlignment="Bottom" Width="75" Click="SaveButtonClick" IsDefault="True" />
         </Grid>
         
     </Grid>

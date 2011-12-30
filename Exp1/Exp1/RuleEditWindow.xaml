@@ -12,15 +12,15 @@
                 </Grid.RowDefinitions>
                 <WrapPanel Grid.Row="1" >
                     <TextBlock Text="Условия:" VerticalAlignment="Center" />
-                    <Button Width="20" Height="20" Margin="10,0,0,0" Click="Button_Click">
+                    <Button Width="20" Height="20" Margin="10,0,0,0" Click="AddButtonClick">
                         <Image Source="Resources\add.png" Height="16" />
                     </Button>
                     <TextBlock Margin='30,0,0,0' Text="Приоритет:" VerticalAlignment="Center" />
-                    <TextBox Width="50" Text="0" Name="PriorityBox" TextChanged="value_TextChanged" />
+                    <TextBox Width="50" Text="0" Name="PriorityBox" TextChanged="ValueTextChanged" />
                 </WrapPanel>
             </Grid>
         </ScrollViewer>
-        <Button Content="Отменить" Height="23" HorizontalAlignment="Right" Margin="0,0,10,10" Name="cancelButton" VerticalAlignment="Bottom" Width="75" Click="cancelButton_Click" />
-        <Button Content="Сохранить" Height="23" HorizontalAlignment="Right" Margin="0,0,100,10" Name="saveButton" VerticalAlignment="Bottom" Width="75" Click="saveButton_Click" />
+        <Button Content="Отменить" Height="23" HorizontalAlignment="Right" Margin="0,0,10,10" Name="cancelButton" VerticalAlignment="Bottom" Width="75" Click="CancelButtonClick" />
+        <Button Content="Сохранить" Height="23" HorizontalAlignment="Right" Margin="0,0,100,10" Name="saveButton" VerticalAlignment="Bottom" Width="75" Click="SaveButtonClick" />
     </Grid>
 </Window>

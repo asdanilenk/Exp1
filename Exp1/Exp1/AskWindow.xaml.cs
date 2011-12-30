@@ -20,18 +20,18 @@ namespace Exp1
     {
         public object Ask(Parameter par)
         {
-            var vlc = main.Children.FindByName(valuecontrol);
+            var vlc = main.Children.FindByName(ValueControl);
             if (vlc != null)
                 main.Children.Remove(vlc);
             Question.Text = "";
-            foreach (string s in par.question.Split(new string[] { "\\n" }, StringSplitOptions.None))
+            foreach (string s in par.Question.Split(new[] { "\\n" }, StringSplitOptions.None))
             {
-                Question.Inlines.Add(new Run() { Text = s });
+                Question.Inlines.Add(new Run { Text = s });
                 Question.Inlines.Add(new LineBreak());
             }
-            if (par.param_type == Param_type.p_bool)
+            if (par.ParamType == ParamType.PBool)
             {
-                ComboBox value = new ComboBox() { Width = 100, Height = 20, Name = valuecontrol, Margin = new Thickness(5, 0, 0, 0) };
+                var value = new ComboBox { Width = 100, Height = 20, Name = ValueControl, Margin = new Thickness(5, 0, 0, 0) };
                 Grid.SetRow(value, 1);
                 main.Children.Add(value);
                 value.Items.Add(Boolean.TrueString);
@@ -41,39 +41,38 @@ namespace Exp1
             }
             else
             {
-                TextBox value = new TextBox() { Width = 400, Name = valuecontrol, Margin = new Thickness(5, 0, 0, 0) };
+                var value = new TextBox { Width = 400, Name = ValueControl, Margin = new Thickness(5, 0, 0, 0) };
                 Grid.SetRow(value, 1);
                 main.Children.Add(value);
-                if (par.param_type == Param_type.p_double)
+                if (par.ParamType == ParamType.PDouble)
                 {
                     value.Text = "0";
-                    value.TextChanged += new TextChangedEventHandler(value_TextChanged);
-                    value.Tag = Param_type.p_double;
+                    value.TextChanged += ValueTextChanged;
+                    value.Tag = ParamType.PDouble;
                 }
                 else
-                    value.Tag = Param_type.p_string;
+                    value.Tag = ParamType.PString;
                 value.SelectAll();
                 value.Focus();
             }
             
-            if (this.ShowDialog() == true)
+            if (ShowDialog() == true)
             {
 
-                UIElement uie = main.Children.FindByName(valuecontrol);
+                UIElement uie = main.Children.FindByName(ValueControl);
                 if (uie is TextBox)
                 {
-                    if ((Param_type)(uie as TextBox).Tag == Param_type.p_double)
+                    if ((ParamType)(uie as TextBox).Tag == ParamType.PDouble)
                         return double.Parse((uie as TextBox).Text);
-                    else
-                        return (uie as TextBox).Text;
+                    return (uie as TextBox).Text;
                 }
-                else if (uie is ComboBox)
+                if (uie is ComboBox)
                     return bool.Parse((uie as ComboBox).Text);
             }
             return null;
         }
 
-        public string valuecontrol = "valuecontrol";
+        private const string ValueControl = "valuecontrol";
 
         public AskWindow()
         {
@@ -81,28 +80,28 @@ namespace Exp1
         }
 
 
-        private string previousText = String.Empty;
-        void value_TextChanged(object sender, TextChangedEventArgs e)
+        private string _previousText = String.Empty;
+        void ValueTextChanged(object sender, TextChangedEventArgs e)
         {
-            double num = 0;
+            double num;
             string text = ((TextBox)sender).Text;
             bool success = double.TryParse(text, out num);
             if (success & num >= 0)
-                previousText = text;
+                _previousText = text;
             else
-                ((TextBox)sender).Text = previousText;
+                ((TextBox)sender).Text = _previousText;
         }
 
-        private void cancelButton_Click(object sender, RoutedEventArgs e)
+        private void CancelButtonClick(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
-            this.Close();
+            DialogResult = false;
+            Close();
         }
 
-        private void saveButton_Click(object sender, RoutedEventArgs e)
+        private void SaveButtonClick(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = true;
-            this.Close();
+            DialogResult = true;
+            Close();
         }
 
     }

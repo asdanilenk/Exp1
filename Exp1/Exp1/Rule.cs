@@ -23,66 +23,66 @@ namespace Exp1
 
     public class Condition
     {
-        public Parameter par;
-        public Comparision comparision;
-        public object value;
+        public Parameter Parameter;
+        public Comparision Comparision;
+        public object Value;
 
-        public Condition(Parameter par, string comparision, string value)
+        public Condition(Parameter parameter, string comparision, string value)
         {
-            this.par = par;
+            Parameter = parameter;
             //FIXME
             List<CreditParameter> creditparams = Helpers.ReadCreditParametersList();
             switch (comparision) 
             {
-                case ">": this.comparision = Comparision.Greater; break;
-                case "<": this.comparision = Comparision.Less; break;
-                case ">=": this.comparision = Comparision.GreaterOrEquals; break;
-                case "<=": this.comparision = Comparision.LessOrEquals; break;
-                case "=": this.comparision = Comparision.Equals; break;
-                case "!=": this.comparision = Comparision.NotEquals; break;
+                case ">": Comparision = Comparision.Greater; break;
+                case "<": Comparision = Comparision.Less; break;
+                case ">=": Comparision = Comparision.GreaterOrEquals; break;
+                case "<=": Comparision = Comparision.LessOrEquals; break;
+                case "=": Comparision = Comparision.Equals; break;
+                case "!=": Comparision = Comparision.NotEquals; break;
             }
-            if (creditparams.Exists(a => a.param_name == value))
-                    this.value = creditparams.First(a => a.param_name == value);
-           else if (par.param_type == Param_type.p_bool)
-                this.value = bool.Parse(value);
+            if (creditparams.Exists(a => a.ParamName == value))
+                    Value = creditparams.First(a => a.ParamName == value);
+           else if (parameter.ParamType == ParamType.PBool)
+                Value = bool.Parse(value);
             else
             {
-                if (par.param_type == Param_type.p_double)
-                    this.value = double.Parse(value);
-                else this.value = value;
+                if (parameter.ParamType == ParamType.PDouble)
+                    Value = double.Parse(value);
+                else Value = value;
             }
         }
         public override string ToString()
         {
-            return par.param_name + " " + comparision.GetStringValue() + " " + value.ToString();
+            return Parameter.ParamName + " " + Comparision.GetStringValue() + " " + Value;
         }
     }
 
     public class Rule
     {
-        public int rule_id;
-        public List<Condition> conditions = new List<Condition>();
-        public Parameter result;
-        public string resultvalue;
-        public int rule_priority;
+        public int RuleId;
+        public List<Condition> Conditions = new List<Condition>();
+        public Parameter Result;
+        public string ResultValue;
+        public int RulePriority;
 
-        public Rule(int rule_id, Parameter result, string resultvalue, int rule_priority)
+        public Rule(int ruleId, Parameter result, string resultValue, int rulePriority)
         {
-            this.rule_id = rule_id;
-            this.result = result;
-            this.rule_priority = rule_priority;
-            this.resultvalue = resultvalue;
+            RuleId = ruleId;
+            Result = result;
+            RulePriority = rulePriority;
+            ResultValue = resultValue;
         }
         public override string ToString()
         {
-            string rule = rule_priority + ": IF";
-            foreach (Condition rl in conditions)
+            string rule = RulePriority + ": IF";
+            foreach (Condition rl in Conditions)
             {
-                rule += "( " + rl.ToString() + " )";
-                if (conditions.IndexOf(rl) != conditions.Count - 1)
+                rule += "( " + rl + " )";
+                if (Conditions.IndexOf(rl) != Conditions.Count - 1)
                     rule+=" AND ";
             }
-            rule+=" THEN " + result.param_name + " = " + resultvalue.ToString();
+            rule+=" THEN " + Result.ParamName + " = " + ResultValue;
             return rule;
         }
     }

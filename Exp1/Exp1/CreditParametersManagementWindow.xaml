@@ -8,12 +8,12 @@
                 
             </Grid>
         </ScrollViewer>
-        <Button Height="23" HorizontalAlignment="Right" Margin="0,4,6,0" Name="button1" VerticalAlignment="Top" Width="85" Click="button1_Click">
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,4,6,0" VerticalAlignment="Top" Width="85" Click="addParameterButton_Click">
             <StackPanel Orientation="Horizontal">
             <Image Source="Resources/add.png" />
             <TextBlock Margin="5,0,0,0">Добавить</TextBlock>
             </StackPanel>
         </Button>
-        <Label Content="Параметры:" Height="28" HorizontalAlignment="Left" Margin="7,6,0,0" Name="label1" VerticalAlignment="Top" />
+        <Label Content="Параметры:" Height="28" HorizontalAlignment="Left" Margin="7,6,0,0" VerticalAlignment="Top" />
     </Grid>
 </Window>

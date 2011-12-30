@@ -7,12 +7,12 @@ namespace Exp1
 {
     class Credit
     {
-        public int id;
-        public string name;
+        public int Id { get; set; }
+        public string Name { get; set; }
         public Credit(int id, string name)
         {
-            this.id = id;
-            this.name = name;
+            Id = id;
+            Name = name;
         }
     }
 }

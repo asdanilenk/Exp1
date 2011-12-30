@@ -5,59 +5,59 @@ using System.Text;
 
 namespace Exp1
 {
-    public enum Param_type
+    public enum ParamType
     {
         [StringValue("double")]
-        p_double,
+        PDouble,
         [StringValue("string")]
-        p_string,
+        PString,
         [StringValue("bool")]
-        p_bool
+        PBool
     }
 
     public class CreditParameter : IComparable<CreditParameter>
     {
-        public int param_id;
-        public string param_name;
-        public Param_type param_type;
-        public bool param_used;
+        public int ParamId;
+        public string ParamName;
+        public ParamType ParamType;
+        public bool ParamUsed;
 
         public CreditParameter(int id, string name, string type, int used)
         {
-            param_id = id;
-            param_name = name;
+            ParamId = id;
+            ParamName = name;
             switch (type)
             {
                 case "int":
-                case "double": param_type = Param_type.p_double; break;
-                case "string": param_type = Param_type.p_string; break;
-                case "bool": param_type = Param_type.p_bool; break;
+                case "double": ParamType = ParamType.PDouble; break;
+                case "string": ParamType = ParamType.PString; break;
+                case "bool": ParamType = ParamType.PBool; break;
             }
             switch (used)
             {
-                case 1: param_used = true; break;
-                case 0: param_used = false; break;
+                case 1: ParamUsed = true; break;
+                case 0: ParamUsed = false; break;
             }
         }
 
         public int CompareTo(CreditParameter obj)
         {
-            return param_name.CompareTo(obj.param_name);
+            return ParamName.CompareTo(obj.ParamName);
         }
 
         public override string ToString()
         {
-            return param_name;
+            return ParamName;
         }
     }
 
     public class Parameter : CreditParameter
     {
-        public string question;
+        public string Question;
 
         public Parameter(int id, string name, string type, int used, string question) : base(id,name,type,used)
         {
-            this.question = question;
+            Question = question;
         }
     }
 

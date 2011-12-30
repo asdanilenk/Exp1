@@ -44,20 +44,20 @@ namespace Exp1
                 paramEdit.RowDefinitions.Add(row);
 
                 WrapPanel wp = new WrapPanel() { MinHeight = 20 };
-                wp.Tag = parameter.param_id;
+                wp.Tag = parameter.ParamId;
                 Grid.SetRow(wp, paramEdit.RowDefinitions.Count - 1);
                 paramEdit.Children.Add(wp);
 
                 TextBlock nameBox = new TextBlock();
                 nameBox.Name = paramname;
                 nameBox.MinWidth = 200;
-                nameBox.Text = parameter.param_name;
+                nameBox.Text = parameter.ParamName;
                 wp.Children.Add(nameBox);
 
                 TextBlock typeBox = new TextBlock();
                 typeBox.Name = paramtype;
                 typeBox.MinWidth = 10;
-                typeBox.Text = parameter.param_type.GetStringValue();
+                typeBox.Text = parameter.ParamType.GetStringValue();
                 typeBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(typeBox);
 
@@ -66,21 +66,21 @@ namespace Exp1
                 editButton.Height = 20;
                 editButton.Width = 20;
                 editButton.Margin = new Thickness(5, 0, 0, 0);
-                editButton.Tag = parameter.param_id;
+                editButton.Tag = parameter.ParamId;
                 editButton.Click += new RoutedEventHandler(editButton_Click);
                 Image editImage = new Image();
                 editImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.edit);
                 editButton.Content = editImage;
                 wp.Children.Add(editButton);
 
-                if (parameter.param_used == false)
+                if (parameter.ParamUsed == false)
                 {
                     Button deleteButton = new Button();
                     deleteButton.Name = paramdelete;
                     deleteButton.Height = 20;
                     deleteButton.Width = 20;
                     deleteButton.Margin = new Thickness(5, 0, 0, 0);
-                    deleteButton.Tag = parameter.param_id;
+                    deleteButton.Tag = parameter.ParamId;
                     deleteButton.Click += new RoutedEventHandler(deleteButton_Click);
                     Image deleteImage = new Image();
                     deleteImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.delete);
@@ -94,7 +94,7 @@ namespace Exp1
         {
             Button editButton = sender as Button;
             int tag = (int)editButton.Tag;
-            CreditParameter p = parameters.First(a => a.param_id == tag);
+            CreditParameter p = parameters.First(a => a.ParamId == tag);
 
             WrapPanel wp = editButton.Parent as WrapPanel;
             TextBlock parname = wp.Children.FindByName(paramname) as TextBlock;
@@ -107,7 +107,7 @@ namespace Exp1
             nameBox.MinWidth = 200;
             wp.Children.Insert(0, nameBox);
 
-            if (!p.param_used)
+            if (!p.ParamUsed)
             {
                 TextBlock partype = wp.Children.FindByName(paramtype) as TextBlock;
                 string type = partype.Text;
@@ -115,9 +115,9 @@ namespace Exp1
                 wp.Children.Remove(partype);
 
                 ComboBox typeBox = new ComboBox();
-                typeBox.Items.Add(new ComboBoxItem() { Content= Param_type.p_string.GetStringValue() });
-                typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_double.GetStringValue() });
-                typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_bool.GetStringValue() });
+                typeBox.Items.Add(new ComboBoxItem() { Content= ParamType.PString.GetStringValue() });
+                typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PDouble.GetStringValue() });
+                typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
                 typeBox.SelectedIndex = 0;
                 typeBox.Name = paramtype;
                 typeBox.Text = type;
@@ -145,7 +145,7 @@ namespace Exp1
             okButton.Height = 20;
             okButton.Width = 20;
             okButton.Margin = new Thickness(5, 0, 0, 0);
-            okButton.Tag = p.param_id;
+            okButton.Tag = p.ParamId;
             okButton.Click += new RoutedEventHandler(okButton_Click);
             Image okImage = new Image();
             okImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.ok);
@@ -157,7 +157,7 @@ namespace Exp1
             cancelButton.Height = 20;
             cancelButton.Width = 20;
             cancelButton.Margin = new Thickness(5, 0, 0, 0);
-            cancelButton.Tag = p.param_id;
+            cancelButton.Tag = p.ParamId;
             cancelButton.Click += new RoutedEventHandler(cancelButton_Click);
             Image cancelImage = new Image();
             cancelImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.cancel);
@@ -176,9 +176,9 @@ namespace Exp1
             int paramId = (int)okButton.Tag;
             WrapPanel wp = okButton.Parent as WrapPanel;
 
-            CreditParameter p = parameters.First(a => a.param_id == paramId);
+            CreditParameter p = parameters.First(a => a.ParamId == paramId);
             string query = String.Format(@"update credit_param set param_name='{0}'",(wp.Children.FindByName(paramname) as TextBox).Text);
-            if (!p.param_used)
+            if (!p.ParamUsed)
                 query += String.Format(@",param_type='{0}' ",((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString());
             query += String.Format("where param_id={0}", paramId);
             ConnectionManager.ExecuteNonQuery(query);
@@ -190,7 +190,7 @@ namespace Exp1
             Button okButton = sender as Button;
             WrapPanel wp = okButton.Parent as WrapPanel;
 
-            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.connection))
+            using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.Connection))
             {
                 command.CommandText = "insert into credit_param (param_name,param_type) values (@param_name,@param_type)";
                 command.Parameters.Add(new SQLiteParameter("@param_name",(wp.Children.FindByName(paramname) as TextBox).Text));
@@ -210,7 +210,7 @@ namespace Exp1
             }
         }
 
-        private void button1_Click(object sender, RoutedEventArgs e)
+        private void addParameterButton_Click(object sender, RoutedEventArgs e)
         {
             RowDefinition row = new RowDefinition();
             row.Height = GridLength.Auto;
@@ -226,9 +226,9 @@ namespace Exp1
             wp.Children.Add(nameBox);
 
             ComboBox typeBox = new ComboBox();
-            typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_string.GetStringValue() });
-            typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_bool.GetStringValue() });
-            typeBox.Items.Add(new ComboBoxItem() { Content = Param_type.p_double.GetStringValue() });
+            typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PString.GetStringValue() });
+            typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
+            typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PDouble.GetStringValue() });
             typeBox.Name = paramtype;
             typeBox.Width = 100;
             typeBox.SelectedIndex = 0;
