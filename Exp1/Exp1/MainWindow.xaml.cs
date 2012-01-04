@@ -30,6 +30,7 @@ namespace Exp1
             InitializeComponent();
             
             ConnectionManager.Filename = "data.db";
+            
             BuildTable();
         }
 

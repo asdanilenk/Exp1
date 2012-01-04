@@ -103,6 +103,13 @@ namespace Exp1
             Button editButton = sender as Button;
             int tag = (int)editButton.Tag;
             Parameter p = parameters.First(a => a.ParamId == tag);
+            
+            (new ClientParametrEditWindow()).ShowDialog();
+            UpdateTable();
+
+           /* Button editButton = sender as Button;
+            int tag = (int)editButton.Tag;
+            Parameter p = parameters.First(a => a.ParamId == tag);
 
             WrapPanel wp = editButton.Parent as WrapPanel;
             TextBlock parname = wp.Children.FindByName(paramname) as TextBlock;
@@ -126,6 +133,7 @@ namespace Exp1
                 typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PString.GetStringValue() });
                 typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
                 typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PDouble.GetStringValue() });
+                typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PFuzzy.GetStringValue() });
                 typeBox.SelectedIndex = 0;
                 typeBox.Name = paramtype;
                 typeBox.Text = type;
@@ -181,7 +189,7 @@ namespace Exp1
             Image cancelImage = new Image();
             cancelImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.cancel);
             cancelButton.Content = cancelImage;
-            wp.Children.Add(cancelButton);
+            wp.Children.Add(cancelButton);*/
         }
 
         void cancelButton_Click(object sender, RoutedEventArgs e)
@@ -232,7 +240,7 @@ namespace Exp1
 
         private void addParameterButton_Click(object sender, RoutedEventArgs e)
         {
-            RowDefinition row = new RowDefinition();
+            /*RowDefinition row = new RowDefinition();
             row.Height = GridLength.Auto;
             paramEdit.RowDefinitions.Add(row);
 
@@ -246,6 +254,7 @@ namespace Exp1
             wp.Children.Add(nameBox);
 
             ComboBox typeBox = new ComboBox();
+
             typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PString.GetStringValue() });
             typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
             typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PDouble.GetStringValue() });
@@ -289,7 +298,9 @@ namespace Exp1
             Image cancelImage = new Image();
             cancelImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.cancel);
             cancelButton.Content = cancelImage;
-            wp.Children.Add(cancelButton);
+            wp.Children.Add(cancelButton);*/
+            (new ClientParametrEditWindow()).ShowDialog();
+            UpdateTable();
         }
     }
 }

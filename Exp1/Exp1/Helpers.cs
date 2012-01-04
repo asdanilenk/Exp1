@@ -26,6 +26,7 @@ namespace Exp1
         public static List<Parameter> ReadParametersList()
         {
             var parameters = new List<Parameter>();
+            var terms = new List<Term>();
             using (var command = new SQLiteCommand(ConnectionManager.Connection))
             {
                 command.CommandText = @"select * from vparam";
@@ -36,11 +37,43 @@ namespace Exp1
                         dataReader["param_name"].ToString(),
                         dataReader["param_type"].ToString(),
                         int.Parse(dataReader["used"].ToString()),
-                        dataReader["question"].ToString()));
+                        dataReader["question"].ToString(), new List<Term>()));
                 }
             }
+
+
+            using (var command = new SQLiteCommand(ConnectionManager.Connection))
+            {
+                command.CommandText = @"select * from v_term_list";
+                SQLiteDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    parameters.Find(p => p.ParamId == int.Parse(dataReader["param_id"].ToString())).Term.Add(new Term(int.Parse(dataReader["term_id"].ToString()), dataReader["term_name"].ToString(), dataReader["term_function"].ToString(), int.Parse(dataReader["used"].ToString()), int.Parse(dataReader["left_range"].ToString()), int.Parse(dataReader["right_range"].ToString())));
+                }
+            }
+
             return parameters;
         }
+
+        public static List<Term> ReadTermsList( int param_id)
+        {
+            var terms = new List<Term>();
+            using (var command = new SQLiteCommand(ConnectionManager.Connection))
+            {
+                command.CommandText = @"select * from v_term_list";
+                SQLiteDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    terms.Add(new Term(int.Parse(dataReader["term_id"].ToString()), 
+                        dataReader["term_name"].ToString(),
+                        dataReader["term_function"].ToString(),
+                        int.Parse(dataReader["used"].ToString()), int.Parse(dataReader["left_range"].ToString()), int.Parse(dataReader["right_range"].ToString())));
+                }
+            }
+
+            return terms;
+        }
+
         public static List<CreditParameter> ReadCreditParametersList()
         {
             var parameters = new List<CreditParameter>();
@@ -64,6 +97,7 @@ namespace Exp1
             using (var command = new SQLiteCommand(ConnectionManager.Connection))
             {
                 command.CommandText = @"select * from credit";
+                //MessageBox.Show(command.CommandText);
                 SQLiteDataReader dataReader = command.ExecuteReader();
                 while (dataReader.Read())
                 {

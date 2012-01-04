@@ -92,6 +92,9 @@
     <Compile Include="RulesManagementWindow.xaml.cs">
       <DependentUpon>RulesManagementWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ClientParametrEditWindow.xaml.cs">
+      <DependentUpon>ClientParametrEditWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="AskWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -131,6 +134,10 @@
     <Page Include="RulesManagementWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ClientParametrEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -175,7 +182,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) $(ProjectDir)\..\</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
