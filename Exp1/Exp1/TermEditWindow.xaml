@@ -1,10 +1,10 @@
-﻿<Window x:Class="Exp1.ClientParametrEditWindow"
+﻿<Window x:Class="Exp1.TermEditWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Height="300" Width="800" WindowStartupLocation="CenterOwner" MinWidth="545" MinHeight="300">
     <Grid>
         <ScrollViewer VerticalAlignment="Stretch" Margin="10,10,10,40" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <Grid Name="editParam">
+            <Grid Name="editTermGroup">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -17,14 +17,10 @@
                     <ColumnDefinition Width="150*"/>
                 </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0"  Grid.Column="0" Text="Название:  " VerticalAlignment="Center"  />
-                <TextBox Grid.Row="0"  Grid.Column="1" Width="300" Text="" Name="ParamNameBox" HorizontalAlignment="Left"/>
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Тип: " VerticalAlignment="Center" />
-                <ComboBox Grid.Row="1" Grid.Column="1" Name="ParamTypeCombo" Width="200" HorizontalAlignment="Left" SelectionChanged="ValueParamTypeChanged"/>
-                <TextBlock Grid.Row="2" Grid.Column="0"  Text="Вопрос: " VerticalAlignment="Center" />
-                <TextBox Grid.Row="2" Grid.Column="1" Width="300" Text="" Name="ParamQuestionBox" HorizontalAlignment="Left"/>
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="Термы:" VerticalAlignment="Center" />
+                <TextBox Grid.Row="0"  Grid.Column="1" Width="300" Text="" Name="GroupNameBox" HorizontalAlignment="Left"/>
+                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Термы:" VerticalAlignment="Center" />
                 <WrapPanel Grid.Row="3" Grid.Column="1" >
-                    <Button Width="20" Height="20" Margin="10,0,0,0" Name="ButtonTermAdd" Click="AddButtonClick" IsEnabled="False">
+                    <Button Width="20" Height="20" Margin="10,0,0,0" Name="ButtonTermAdd" Click="AddButtonClick" IsEnabled="True">
                         <Image Source="Resources\add.png" Height="16" HorizontalAlignment="Left"/>
                     </Button>
                 </WrapPanel>

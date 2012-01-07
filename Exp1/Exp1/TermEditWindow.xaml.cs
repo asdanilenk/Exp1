@@ -20,7 +20,7 @@ namespace Exp1
     /// <summary>
     /// Interaction logic for EditRule.xaml
     /// </summary>
-    public partial class ClientParametrEditWindow : Window
+    public partial class TermEditWindow : Window
     {
         private const string ResultParamCombo = "resultparamcombo";
         private const string ParameterPanel = "parameterpanel";
@@ -36,6 +36,7 @@ namespace Exp1
         private const string TermRightRange = "TermRightRange";
         private const string TermLeftRange = "TermLeftRange";
         private const string TermSymbols = "TermSymbols";
+        private const string btnDelete = "btnDelete";
 
         private const int TermCountRowsAlwaysExists = 4;
 
@@ -43,40 +44,35 @@ namespace Exp1
         readonly Parameter _Param;
         //readonly Rule _rule;
 
-        public ClientParametrEditWindow()
+        public TermEditWindow()
         {
-            Title = "Новый параметр клиента";
+            Title = "Новая группа термов";
             _terms = null;
-            //_creditParameters = Helpers.ReadCreditParametersList();
-            //_creditParameters.Sort();
-            //_parameters.Sort();
-            
-
             InitializeComponent();
             InitializeForm();
        }
 
-        public ClientParametrEditWindow(Parameter param_id)
+        public TermEditWindow(TermGroup group)
         {
-            Title = "Редактирование параметра клиента";
-            //_rule = rule;
-            //_parameters = Helpers.ReadParametersList();
-            _terms = Helpers.ReadTermsList(int.Parse(param_id.ParamId.ToString()));
-            //_creditParameters = Helpers.ReadCreditParametersList();
-            //_creditParameters.Sort();
-            //_parameters.Sort();
-
+            Title = "Редактирование группы термов";
+            _terms = Helpers.ReadTermList(group);
             InitializeComponent();
-            InitializeForm();
+            InitializeForm(group.TermGroupId, group.TermGroupName);
 
-            foreach (Term trm in _Param.Term)
+            foreach (Term trm in _terms)
                 AddTerm(trm.TermId, trm.TermName, trm.TermFunction, trm.TermUsed, trm.LeftRange, trm.RightRange);
-            //InitializeResult(rule.Result.ParamId, rule.ResultValue);
         }
 
-        private void InitializeForm(int? resultId = null, string resultValue = null)
+        private void InitializeForm(int? groupId = null, string groupName = null)
         {
-            ParamTypeCombo.Items.Add(new ComboBoxItem() { Content = ParamType.PString.GetStringValue() });
+            if (groupId != null)
+            {
+                GroupNameBox.Text = (groupName == null) ? "" : groupName;
+                GroupNameBox.Tag = groupId;
+            }
+            else
+                AddTerm();
+            /*ParamTypeCombo.Items.Add(new ComboBoxItem() { Content = ParamType.PString.GetStringValue() });
             ParamTypeCombo.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
             ParamTypeCombo.Items.Add(new ComboBoxItem() { Content = ParamType.PDouble.GetStringValue() });
             ParamTypeCombo.Items.Add(new ComboBoxItem() { Content = ParamType.PFuzzy.GetStringValue() });
@@ -115,21 +111,26 @@ namespace Exp1
 
         private void AddTerm(int? termId = null, string termName = null, string termFunction = null, bool termUsed = false, int left_range =0, int right_range = 0)
         {
-            editParam.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            editTermGroup.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
             //var tb = new WrapPanel { Name = ParameterPanel };
-            var term_title = new TextBlock { Name = TermTitle, MinWidth = 50, Text = "Терм: " };
-            Grid.SetRow(term_title, editParam.RowDefinitions.Count - 1);
+            var term_title = new TextBlock { Name = TermTitle, MinWidth = 50 };
+            Run run = new Run();
+            run.Text = "Терм: ";
+            term_title.Foreground = new SolidColorBrush(Colors.Blue);
+            term_title.Inlines.Add(run);
+            Grid.SetRow(term_title, editTermGroup.RowDefinitions.Count - 1);
             Grid.SetColumn(term_title, 0);
-            editParam.Children.Add(term_title);
+            editTermGroup.Children.Add(term_title);
 
             var wp = new WrapPanel { Name = TermPanel };
-            Grid.SetRow(wp, editParam.RowDefinitions.Count - 1);
+            Grid.SetRow(wp, editTermGroup.RowDefinitions.Count - 1);
             Grid.SetColumn(wp, 1);
-            editParam.Children.Add(wp);
+            editTermGroup.Children.Add(wp);
 
             
             var term_name = new TextBox { Name = TermText, MinWidth = 100, Text = termName };
+            term_name.Tag = ((termId != null) ? termId : 0);
             wp.Children.Add(term_name);
 
             var term_func = new TextBox { Name = TermFunc, MinWidth = 200, Text = termFunction };
@@ -152,7 +153,7 @@ namespace Exp1
 
             
             
-            var deleteBox = new Button { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0) };
+            var deleteBox = new Button { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0) , Name=btnDelete};
             deleteBox.Click += deleteBox_Click;
             deleteBox.Content = new Image { Source = Helpers.BitmapSourceFromBitmap(Properties.Resources.delete) };
             wp.Children.Add(deleteBox);
@@ -160,11 +161,7 @@ namespace Exp1
             var CheckBoxUsed = new CheckBox { IsChecked = termUsed, VerticalAlignment = VerticalAlignment.Center};
             CheckBoxUsed.IsEnabled = false;
             wp.Children.Add(CheckBoxUsed);
-            /*parameter.SelectedIndex = paramId != null ? _parameters.IndexOf(_parameters.First(a => a.ParamId == paramId)) : 0;
-            if (compareType != null)
-                comparison.SelectedValue = compareType;
-            if (paramValue != null)
-                ((ComboBox)wp.Children.FindByName(ValueControl)).Text = paramValue;*/
+          
         }
 
         /*private void FillValueCombo(int? paramId, ComboBox value)
@@ -191,10 +188,16 @@ namespace Exp1
         void deleteBox_Click(object sender, RoutedEventArgs e)
         {
             var index = Grid.GetRow((UIElement)((Button)sender).Parent);
-            for (int i = 0; i < editParam.Children.Count; )
+            //if (editTermGroup.Children.FindByName(btnDelete).Count))
+            
+            for (int i = 0; i < editTermGroup.Children.Count; i++)
             {
-                if (Grid.GetRow(editParam.Children[i]) == index)
-                    editParam.Children.RemoveAt(i);
+                // Запрещаем удалять все термы для группы
+                if (Grid.GetRow(editTermGroup.Children[i]) == index)
+                    if (editTermGroup.Children.Count != TermCountRowsAlwaysExists + 2)
+                        editTermGroup.Children.RemoveAt(i);
+                    else
+                        MessageBox.Show("Запрещено удалять все термы из группы.");
                 else
                     i++;
             }
@@ -228,10 +231,10 @@ namespace Exp1
             else
             {
                 ButtonTermAdd.IsEnabled = false;
-                for (int i = 0; i < editParam.Children.Count; )
+                for (int i = 0; i < editTermGroup.Children.Count; )
                 {
-                    if (Grid.GetRow(editParam.Children[i]) > TermCountRowsAlwaysExists)
-                        editParam.Children.RemoveAt(i);
+                    if (Grid.GetRow(editTermGroup.Children[i]) > TermCountRowsAlwaysExists)
+                        editTermGroup.Children.RemoveAt(i);
                     else
                         i++;
                 }
@@ -251,33 +254,27 @@ namespace Exp1
 
         private void SaveButtonClick(object sender, RoutedEventArgs e)
         {
-            int paramId = 0;
-            if (_Param != null)
+            int groupId = 0;
+            if (_terms != null)
             {
-                ConnectionManager.ExecuteNonQuery(String.Format(@"delete from param where param_id={0}", _Param.ParamId));
-                paramId = _Param.ParamId;
+                groupId = _terms.First<Term>().GroupId;
+                ConnectionManager.ExecuteNonQuery(String.Format(@"delete from term_group where group_id={0}", groupId));
             }
             // Обязательность термов в нечетких  переменных
-            if (((ParamTypeCombo.SelectedItem as ComboBoxItem).Content.ToString() == ParamType.PFuzzy.GetStringValue()) 
-                && (editParam.Children.FindByName(TermText) == null))
+           /* if (((ParamTypeCombo.SelectedItem as ComboBoxItem).Content.ToString() == ParamType.PFuzzy.GetStringValue())
+                && (editTermGroup.Children.FindByName(TermText) == null))
             { 
                 //MessageBox.Show("!!!");
                 //return;
-            }
+            }*/
 
-            /*foreach (UIElement uie in editParam.Children)
-            {
-                
-                if (!(uie is WrapPanel)) continue;
-                var wp = uie as WrapPanel;
-                if (wp.Name != ResultPanel) continue;*/
-                using (var command = new SQLiteCommand(ConnectionManager.Connection))
+            /*    using (var command = new SQLiteCommand(ConnectionManager.Connection))
                 {
-                    if (paramId != 0)
+                    if (groupId != 0)
                     {
-                        command.CommandText = "insert into param (param_id, param_name, param_type,question) values (@param_id, @param_name, @param_type,@question)";
-                        command.Parameters.Add(new SQLiteParameter("@param_id", paramId));
-                        command.Parameters.Add(new SQLiteParameter("@param_name", ParamNameBox.Text));
+                        command.CommandText = "insert into term (term_id, term_name, term_function, left_range, right_range, group_name, group_id) values (@term_id, @term_name, @term_function, @left_range, @right_range, @group_name, @group_id)";
+                        command.Parameters.Add(new SQLiteParameter("@group_id", groupId));
+                        command.Parameters.Add(new SQLiteParameter("@group_name", ParamNameBox.Text));
                         //var _valuecontrol = wp.Children.FindByName(ValueControl);
                         //((wp.Children.FindByName(ResultParamCombo) as ComboBox).SelectedItem as ComboBoxItem).Tag)
                         command.Parameters.Add(new SQLiteParameter("@param_type", (ParamTypeCombo.SelectedItem as ComboBoxItem).Content.ToString()));
@@ -294,33 +291,92 @@ namespace Exp1
                         
                     }
                 }
-           // }
+           */
 
-            foreach (UIElement uie in editParam.Children)
+            if (groupId != 0)
             {
-                if (!(uie is WrapPanel)) continue;
-                var wp = uie as WrapPanel;
-                //Фильтрация по WrapPanel, в которых содержутся термы
-                if (wp.Name != TermPanel) continue;
+                // Редактируем группу
                 using (var command = new SQLiteCommand(ConnectionManager.Connection))
                 {
-                    command.CommandText = @"insert into term (param_id,term_name,term_function, left_range, right_range) values (@param_id,@term_name,@term_function, @left_range, @right_range)";
-                    command.Parameters.Add(new SQLiteParameter("@param_id", paramId));
-                    command.Parameters.Add(new SQLiteParameter("@term_name", ((TextBox)wp.Children.FindByName(TermText)).Text));
-                    command.Parameters.Add(new SQLiteParameter("@term_function", ((TextBox)wp.Children.FindByName(TermFunc)).Text));
-                    command.Parameters.Add(new SQLiteParameter("@left_range", int.Parse(((TextBox)wp.Children.FindByName(TermLeftRange)).Text)));
-                    command.Parameters.Add(new SQLiteParameter("@right_range", int.Parse(((TextBox)wp.Children.FindByName(TermRightRange)).Text)));
+                    command.CommandText = "insert into term_group (group_id, group_name) values (@group_id, @group_name)";
+                    command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
+                    command.Parameters.Add(new SQLiteParameter("@group_id", int.Parse(GroupNameBox.Tag.ToString())));
                     command.ExecuteNonQuery();
                 }
+
+                foreach (UIElement uie in editTermGroup.Children)
+                {
+                    if (!(uie is WrapPanel)) continue;
+                    var wp = uie as WrapPanel;
+                    //Фильтрация по WrapPanel, в которых содержутся термы
+                    if (wp.Name != TermPanel) continue;
+
+                    using (var command = new SQLiteCommand(ConnectionManager.Connection))
+                    {
+                        int term_id = int.Parse(((TextBox)wp.Children.FindByName(TermText)).Tag.ToString());
+                        if (term_id == 0)
+                        {
+                            command.CommandText = "insert into term (term_name, term_function, left_range, right_range, group_id) values (@term_name, @term_function, @left_range, @right_range, @group_id)";
+                            command.Parameters.Add(new SQLiteParameter("@group_id", groupId));
+                            command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
+                            command.Parameters.Add(new SQLiteParameter("@term_name", ((TextBox)wp.Children.FindByName(TermText)).Text));
+                            command.Parameters.Add(new SQLiteParameter("@term_function", ((TextBox)wp.Children.FindByName(TermFunc)).Text));
+                            command.Parameters.Add(new SQLiteParameter("@left_range", int.Parse(((TextBox)wp.Children.FindByName(TermLeftRange)).Text)));
+                            command.Parameters.Add(new SQLiteParameter("@right_range", int.Parse(((TextBox)wp.Children.FindByName(TermRightRange)).Text)));
+                            command.ExecuteNonQuery();
+                        }
+                        else
+                        {
+                            command.CommandText = "insert into term (term_id, term_name, term_function, left_range, right_range, group_id) values (@term_id, @term_name, @term_function, @left_range, @right_range, @group_id)";
+                            command.Parameters.Add(new SQLiteParameter("@group_id", groupId));
+                            command.Parameters.Add(new SQLiteParameter("@term_id", term_id));
+                            command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
+                            command.Parameters.Add(new SQLiteParameter("@term_name", ((TextBox)wp.Children.FindByName(TermText)).Text));
+                            command.Parameters.Add(new SQLiteParameter("@term_function", ((TextBox)wp.Children.FindByName(TermFunc)).Text));
+                            command.Parameters.Add(new SQLiteParameter("@left_range", int.Parse(((TextBox)wp.Children.FindByName(TermLeftRange)).Text)));
+                            command.Parameters.Add(new SQLiteParameter("@right_range", int.Parse(((TextBox)wp.Children.FindByName(TermRightRange)).Text)));
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+              
             }
-            Close();
+            else
+            {
+                // Добавляем группу 
+                using (var command = new SQLiteCommand(ConnectionManager.Connection))
+                {
+                    command.CommandText = "insert into term_group (group_name) values (@group_name); SELECT last_insert_rowid();";
+                    command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
+                    groupId = int.Parse(command.ExecuteScalar().ToString());
+                }
+
+                foreach (UIElement uie in editTermGroup.Children)
+                {
+                    if (!(uie is WrapPanel)) continue;
+                    var wp = uie as WrapPanel;
+                    //Фильтрация по WrapPanel, в которых содержутся термы
+                    if (wp.Name != TermPanel) continue;
+
+                    using (var command = new SQLiteCommand(ConnectionManager.Connection))
+                    {
+                        command.CommandText = "insert into term (term_name, term_function, left_range, right_range, group_id) values (@term_name, @term_function, @left_range, @right_range, @group_id)";
+                        command.Parameters.Add(new SQLiteParameter("@group_id", groupId));
+                        command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
+                        command.Parameters.Add(new SQLiteParameter("@term_name", ((TextBox)wp.Children.FindByName(TermText)).Text));
+                        command.Parameters.Add(new SQLiteParameter("@term_function", ((TextBox)wp.Children.FindByName(TermFunc)).Text));
+                        command.Parameters.Add(new SQLiteParameter("@left_range", int.Parse(((TextBox)wp.Children.FindByName(TermLeftRange)).Text)));
+                        command.Parameters.Add(new SQLiteParameter("@right_range", int.Parse(((TextBox)wp.Children.FindByName(TermRightRange)).Text)));
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+                Close();
         }
 
         private void CancelButtonClick(object sender, RoutedEventArgs e)
         {
             Close();
         }
-
-        
     }
 }

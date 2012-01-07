@@ -29,6 +29,12 @@
                 <TextBlock Margin="5,0,0,0">Редактировать параметры кредита</TextBlock>
             </StackPanel>
         </Button>
-
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,6,624,0" Name="btnTermEdit" VerticalAlignment="Top" Width="66" Click="btnTermEdit_Click">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/edit.png" Margin="0,0,0,0" HorizontalAlignment="Left" Width="15" />
+                <TextBlock Margin="5,0,0,0" Text="Термы" HorizontalAlignment="Right" Width="33"></TextBlock>                
+            </StackPanel>
+        </Button>
+        
     </Grid>
 </Window>

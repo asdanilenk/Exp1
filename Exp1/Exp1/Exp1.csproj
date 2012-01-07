@@ -92,8 +92,11 @@
     <Compile Include="RulesManagementWindow.xaml.cs">
       <DependentUpon>RulesManagementWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ClientParametrEditWindow.xaml.cs">
-      <DependentUpon>ClientParametrEditWindow.xaml</DependentUpon>
+    <Compile Include="TermEditWindow.xaml.cs">
+      <DependentUpon>TermEditWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TermManagementWindow.xaml.cs">
+      <DependentUpon>TermManagementWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="AskWindow.xaml">
       <SubType>Designer</SubType>
@@ -135,7 +138,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ClientParametrEditWindow.xaml">
+    <Page Include="TermEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="TermManagementWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

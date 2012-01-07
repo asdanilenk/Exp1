@@ -122,5 +122,12 @@ namespace Exp1
         {
             (new CreditParametersManagementWindow()).ShowDialog();
         }
+
+        private void btnTermEdit_Click(object sender, RoutedEventArgs e)
+        {
+            //MessageBox.Show("!!!");
+            (new TermManagementWindow()).ShowDialog();
+            //UpdateTable();
+        }
     }
 }

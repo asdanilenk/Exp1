@@ -17,17 +17,17 @@ namespace Exp1
     /// <summary>
     /// Interaction logic for ManageParametersWindow.xaml
     /// </summary>
-    public partial class ParametersManagementWindow : Window
+    public partial class TermManagementWindow : Window
     {
-        List<Parameter> parameters;
-        private const string paramname = "paramname";
-        private const string paramtype = "paramtype";
-        private const string paramedit = "paramedit";
-        private const string paramdelete = "paramdelete";
-        private const string paramquestion = "paramquestion";
-        private const string termgroup = "termgroup";
-        
-        public ParametersManagementWindow()
+        List<TermGroup> groups;
+        //private const string termname = "termname";
+        private const string groupname = "groupname";
+        //private const string paramedit = "paramedit";
+        private const string groupdelete = "groupdelete";
+        private const string groupedit = "groupedit";
+        private const string numbox = "numbox";
+
+        public TermManagementWindow()
         {
             InitializeComponent();
             UpdateTable();
@@ -35,68 +35,71 @@ namespace Exp1
 
         private void UpdateTable()
         {
-            paramEdit.RowDefinitions.Clear();
-            paramEdit.Children.Clear();
+            termEdit.RowDefinitions.Clear();
+            termEdit.Children.Clear();
 
-            parameters = Helpers.ReadParametersList();
-            foreach (Parameter parameter in parameters)
+            groups = Helpers.ReadTermGroupList();
+            int counter = 0;
+            foreach (TermGroup group in groups)
             {
                 RowDefinition row = new RowDefinition();
                 row.Height = GridLength.Auto;
-                paramEdit.RowDefinitions.Add(row);
+                termEdit.RowDefinitions.Add(row);
 
                 WrapPanel wp = new WrapPanel() { MinHeight = 20 };
-                wp.Tag = parameter.ParamId;
-                Grid.SetRow(wp, paramEdit.RowDefinitions.Count - 1);
-                paramEdit.Children.Add(wp);
+                wp.Tag = group.TermGroupId;
+                Grid.SetRow(wp, termEdit.RowDefinitions.Count - 1);
+                termEdit.Children.Add(wp);
+
+                TextBlock numBox = new TextBlock();
+                numBox.Name = numbox;
+                numBox.MinWidth = 20;
+                //numBox.Text = (++counter).ToString();
+
+                Run run = new Run();
+                run.Text = (++counter).ToString();
+                run.Foreground = new SolidColorBrush(Colors.Blue);
+                numBox.Inlines.Add(run);
+
+                wp.Children.Add(numBox);
+
 
                 TextBlock nameBox = new TextBlock();
-                nameBox.MinWidth = 200;
-                nameBox.Name = paramname;
-                nameBox.Text = parameter.ParamName;
+                nameBox.Name = groupname;
+                
+                nameBox.MinWidth = 100;
+                nameBox.Text = group.TermGroupName;
                 wp.Children.Add(nameBox);
 
-                TextBlock typeBox = new TextBlock();
+                //AddInline(nameBox, (++counter).ToString() + ": IF", Colors.Blue);
+
+                /*TextBlock typeBox = new TextBlock();
                 typeBox.Name = paramtype;
-                typeBox.MinWidth = 50;
+                typeBox.MinWidth = 10;
                 typeBox.Text = parameter.ParamType.GetStringValue();
                 typeBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(typeBox);
-
-                TextBlock groupBox = new TextBlock();
-                groupBox.Name = termgroup;
-                groupBox.MinWidth = 50;
-                groupBox.Text = (parameter.Terms.First<Term>() != null ? parameter.Terms.First<Term>().GroupName: "");
-                groupBox.Margin = new Thickness(5, 0, 0, 0);
-                wp.Children.Add(groupBox);
-
-                TextBlock questionBox = new TextBlock();
-                questionBox.Name = paramquestion;
-                questionBox.MinWidth = 300;
-                questionBox.Text = parameter.Question;
-                questionBox.Margin = new Thickness(5, 0, 0, 0);
-                wp.Children.Add(questionBox);
-
+                */
                 Button editButton = new Button();
-                editButton.Name = paramedit;
+                editButton.Name = groupedit;
                 editButton.Height = 20;
                 editButton.Width = 20;
                 editButton.Margin = new Thickness(5, 0, 0, 0);
-                editButton.Tag = parameter.ParamId;
+                editButton.Tag = group.TermGroupId;
                 editButton.Click += new RoutedEventHandler(editButton_Click);
                 Image editImage = new Image();
                 editImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.edit);
                 editButton.Content = editImage;
                 wp.Children.Add(editButton);
 
-                if (parameter.ParamUsed == false)
+                if (group.TermGroupUsed == false)
                 {
                     Button deleteButton = new Button();
-                    deleteButton.Name = paramdelete;
+                    deleteButton.Name = groupdelete;
                     deleteButton.Height = 20;
                     deleteButton.Width = 20;
                     deleteButton.Margin = new Thickness(5, 0, 0, 0);
-                    deleteButton.Tag = parameter.ParamId;
+                    deleteButton.Tag = group.TermGroupId;
                     deleteButton.Click += new RoutedEventHandler(deleteButton_Click);
                     Image deleteImage = new Image();
                     deleteImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.delete);
@@ -108,18 +111,13 @@ namespace Exp1
 
         void editButton_Click(object sender, RoutedEventArgs e)
         {
-            /*Button editButton = sender as Button;
-            int tag = (int)editButton.Tag;
-            Parameter p = parameters.First(a => a.ParamId == tag);
-            
-            (new TermEditWindow()).ShowDialog();
-            UpdateTable();*/
-
             Button editButton = sender as Button;
             int tag = (int)editButton.Tag;
-            Parameter p = parameters.First(a => a.ParamId == tag);
+            TermGroup tg = groups.First(a => a.TermGroupId == tag);
+            (new TermEditWindow(tg)).ShowDialog();
+            UpdateTable();
 
-            WrapPanel wp = editButton.Parent as WrapPanel;
+            /*WrapPanel wp = editButton.Parent as WrapPanel;
             TextBlock parname = wp.Children.FindByName(paramname) as TextBlock;
             string name = parname.Text;
             
@@ -127,7 +125,7 @@ namespace Exp1
             TextBox nameBox = new TextBox();
             nameBox.Name = paramname;
             nameBox.Text = name;
-            nameBox.Width = 200;
+            nameBox.MinWidth = 200;
             wp.Children.Insert(0, nameBox);
 
             if (!p.ParamUsed)
@@ -138,27 +136,15 @@ namespace Exp1
                 wp.Children.Remove(partype);
 
                 ComboBox typeBox = new ComboBox();
-                typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PString.GetStringValue() });
-                typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
+                typeBox.Items.Add(new ComboBoxItem() { Content= ParamType.PString.GetStringValue() });
                 typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PDouble.GetStringValue() });
-                typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PFuzzy.GetStringValue() });
+                typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
                 typeBox.SelectedIndex = 0;
                 typeBox.Name = paramtype;
                 typeBox.Text = type;
                 typeBox.Width = 100;
                 wp.Children.Insert(1, typeBox);
             }
-
-            TextBlock parquestion = wp.Children.FindByName(paramquestion) as TextBlock;
-            string quest = parquestion.Text;
-
-            wp.Children.Remove(parquestion);
-            TextBox questionBox = new TextBox();
-            questionBox.Name = paramquestion;
-            questionBox.Text = quest;
-            questionBox.MinWidth = 300;
-            wp.Children.Insert(2, questionBox);
-
             Button paredit = wp.Children.FindByName(paramedit) as Button;
             wp.Children.Remove(parname);
 
@@ -198,6 +184,7 @@ namespace Exp1
             cancelImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.cancel);
             cancelButton.Content = cancelImage;
             wp.Children.Add(cancelButton);
+             */
         }
 
         void cancelButton_Click(object sender, RoutedEventArgs e)
@@ -205,50 +192,54 @@ namespace Exp1
             UpdateTable();
         }
 
-        void okButton_Click(object sender, RoutedEventArgs e)
+        /*void okButton_Click(object sender, RoutedEventArgs e)
         {
             Button okButton = sender as Button;
             int paramId = (int)okButton.Tag;
             WrapPanel wp = okButton.Parent as WrapPanel;
 
-            Parameter p = parameters.First(a => a.ParamId == paramId);
-            string query = String.Format(@"update param set param_name='{0}', question='{1}'",(wp.Children.FindByName(paramname) as TextBox).Text,(wp.Children.FindByName(paramquestion) as TextBox).Text);
+            CreditParameter p = parameters.First(a => a.ParamId == paramId);
+            string query = String.Format(@"update credit_param set param_name='{0}'",(wp.Children.FindByName(paramname) as TextBox).Text);
             if (!p.ParamUsed)
                 query += String.Format(@",param_type='{0}' ",((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString());
             query += String.Format("where param_id={0}", paramId);
             ConnectionManager.ExecuteNonQuery(query);
             UpdateTable();
-        }
+        }*/
 
-        void addButton_Click(object sender, RoutedEventArgs e)
+       void addButton_Click(object sender, RoutedEventArgs e)
         {
-            Button okButton = sender as Button;
+           /* Button okButton = sender as Button;
             WrapPanel wp = okButton.Parent as WrapPanel;
 
             using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.Connection))
             {
-                command.CommandText = "insert into param (param_name,param_type,question) values (@param_name,@param_type,@question)";
+                command.CommandText = "insert into credit_param (param_name,param_type) values (@param_name,@param_type)";
                 command.Parameters.Add(new SQLiteParameter("@param_name",(wp.Children.FindByName(paramname) as TextBox).Text));
                 command.Parameters.Add(new SQLiteParameter("@param_type",((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString()));
-                command.Parameters.Add(new SQLiteParameter("@question", (wp.Children.FindByName(paramquestion) as TextBox).Text));
                 command.ExecuteNonQuery();
             }
+            UpdateTable();*/
+            (new TermEditWindow()).ShowDialog();
             UpdateTable();
         }
+    
 
         void deleteButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show("Вы уверены что хотите удалить данный параметр?", "Удалить?", MessageBoxButton.YesNo);
+            MessageBoxResult result = MessageBox.Show("Вы уверены, что хотите удалить данную группу термов?", "Удалить?", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                ConnectionManager.ExecuteNonQuery(String.Format("delete from param where param_id={0}",(sender as Button).Tag));
+                ConnectionManager.ExecuteNonQuery(String.Format("delete from term where group_id={0}",(sender as Button).Tag));
                 UpdateTable();
             }
         }
 
-        private void addParameterButton_Click(object sender, RoutedEventArgs e)
+        private void addTermGroupButton_Click(object sender, RoutedEventArgs e)
         {
-            RowDefinition row = new RowDefinition();
+            (new TermEditWindow()).ShowDialog();
+            UpdateTable();
+            /*RowDefinition row = new RowDefinition();
             row.Height = GridLength.Auto;
             paramEdit.RowDefinitions.Add(row);
 
@@ -258,11 +249,10 @@ namespace Exp1
 
             TextBox nameBox = new TextBox();
             nameBox.Name = paramname;
-            nameBox.MinWidth = 200;
+            nameBox.Width = 200;
             wp.Children.Add(nameBox);
 
             ComboBox typeBox = new ComboBox();
-
             typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PString.GetStringValue() });
             typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
             typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PDouble.GetStringValue() });
@@ -270,12 +260,6 @@ namespace Exp1
             typeBox.Width = 100;
             typeBox.SelectedIndex = 0;
             wp.Children.Add(typeBox);
-
-            TextBox questionBox = new TextBox();
-            questionBox.Name = paramquestion;
-            questionBox.MinWidth = 300;
-            questionBox.Margin = new Thickness(5, 0, 0, 0);
-            wp.Children.Add(questionBox);
 
             foreach (UIElement uie in paramEdit.Children)
                 if (uie is WrapPanel)
@@ -306,8 +290,7 @@ namespace Exp1
             Image cancelImage = new Image();
             cancelImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.cancel);
             cancelButton.Content = cancelImage;
-            wp.Children.Add(cancelButton);
-            
+            wp.Children.Add(cancelButton);*/
         }
     }
 }

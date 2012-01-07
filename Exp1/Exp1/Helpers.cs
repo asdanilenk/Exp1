@@ -44,18 +44,20 @@ namespace Exp1
 
             using (var command = new SQLiteCommand(ConnectionManager.Connection))
             {
-                command.CommandText = @"select * from v_term_list";
+                command.CommandText = @"select * from v_term_for_parameter";
                 SQLiteDataReader dataReader = command.ExecuteReader();
+                
                 while (dataReader.Read())
                 {
-                    parameters.Find(p => p.ParamId == int.Parse(dataReader["param_id"].ToString())).Term.Add(new Term(int.Parse(dataReader["term_id"].ToString()), dataReader["term_name"].ToString(), dataReader["term_function"].ToString(), int.Parse(dataReader["used"].ToString()), int.Parse(dataReader["left_range"].ToString()), int.Parse(dataReader["right_range"].ToString())));
+                    if (dataReader["param_id"] != null)            
+                        parameters.Find(p => p.ParamId == int.Parse(dataReader["param_id"].ToString())).Terms.Add(new Term( int.Parse(dataReader["term_id"].ToString()),  dataReader["term_name"].ToString(), dataReader["term_function"].ToString(), int.Parse(dataReader["used"].ToString()), int.Parse(dataReader["left_range"].ToString()), int.Parse(dataReader["right_range"].ToString()), int.Parse(dataReader["group_id"].ToString()), dataReader["group_name"].ToString()));
                 }
             }
 
             return parameters;
         }
 
-        public static List<Term> ReadTermsList( int param_id)
+        public static List<Term> ReadTermList()
         {
             var terms = new List<Term>();
             using (var command = new SQLiteCommand(ConnectionManager.Connection))
@@ -67,12 +69,54 @@ namespace Exp1
                     terms.Add(new Term(int.Parse(dataReader["term_id"].ToString()), 
                         dataReader["term_name"].ToString(),
                         dataReader["term_function"].ToString(),
-                        int.Parse(dataReader["used"].ToString()), int.Parse(dataReader["left_range"].ToString()), int.Parse(dataReader["right_range"].ToString())));
+                        int.Parse(dataReader["used"].ToString()), 
+                        int.Parse(dataReader["left_range"].ToString()), 
+                        int.Parse(dataReader["right_range"].ToString()), int.Parse(dataReader["group_id"].ToString()), dataReader["group_name"].ToString()));
                 }
             }
-
             return terms;
         }
+
+
+        public static List<Term> ReadTermList(TermGroup group)
+        {
+            var terms = new List<Term>();
+            using (var command = new SQLiteCommand(ConnectionManager.Connection))
+            {
+                command.CommandText = @"select * from v_term_list where group_id=@group_id";
+                command.Parameters.Add(new SQLiteParameter("@group_id", group.TermGroupId));
+                SQLiteDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    terms.Add(new Term(int.Parse(dataReader["term_id"].ToString()),
+                        dataReader["term_name"].ToString(),
+                        dataReader["term_function"].ToString(),
+                        int.Parse(dataReader["used"].ToString()),
+                        int.Parse(dataReader["left_range"].ToString()),
+                        int.Parse(dataReader["right_range"].ToString()), int.Parse(dataReader["group_id"].ToString()), dataReader["group_name"].ToString()));
+                }
+            }
+            return terms;
+        }
+
+
+        public static List<TermGroup> ReadTermGroupList()
+        {
+            var term_group = new List<TermGroup>();
+            using (var command = new SQLiteCommand(ConnectionManager.Connection))
+            {
+                command.CommandText = @"select * from v_term_group_list";
+                SQLiteDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    term_group.Add(new TermGroup(int.Parse(dataReader["group_id"].ToString()),
+                        dataReader["group_name"].ToString(),
+                        int.Parse(dataReader["used"].ToString())));
+                }
+            }
+            return term_group;
+        }
+
 
         public static List<CreditParameter> ReadCreditParametersList()
         {
@@ -83,10 +127,11 @@ namespace Exp1
                 SQLiteDataReader dataReader = command.ExecuteReader();
                 while (dataReader.Read())
                 {
+                    //fixme
                     parameters.Add(new CreditParameter(int.Parse(dataReader["param_id"].ToString()),
                         dataReader["param_name"].ToString(),
                         dataReader["param_type"].ToString(),
-                        int.Parse(dataReader["used"].ToString())));
+                        int.Parse(dataReader["used"].ToString()), new List<Term>()));
                 }
             }
             return parameters;
@@ -116,10 +161,11 @@ namespace Exp1
                 SQLiteDataReader dataReader = command.ExecuteReader();
                 while (dataReader.Read())
                 {
+                    //fixme
                     values.Add(new CreditParameter(int.Parse(dataReader["param_id"].ToString()),
                         dataReader["param_name"].ToString(),
                         dataReader["param_type"].ToString() ,
-                        0), dataReader["value"].ToString());
+                        0, new List<Term>()), dataReader["value"].ToString());
                 }
             }
             return values;
