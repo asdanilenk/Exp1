@@ -114,7 +114,7 @@ namespace Exp1
             Button editButton = sender as Button;
             int tag = (int)editButton.Tag;
             TermGroup tg = groups.First(a => a.TermGroupId == tag);
-            (new TermEditWindow(tg)).ShowDialog();
+            (new TermEditWindow(tg.TermGroupId,tg.TermGroupName)).ShowDialog();
             UpdateTable();
 
             /*WrapPanel wp = editButton.Parent as WrapPanel;

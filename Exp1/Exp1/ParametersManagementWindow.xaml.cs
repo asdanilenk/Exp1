@@ -66,7 +66,7 @@ namespace Exp1
                 TextBlock groupBox = new TextBlock();
                 groupBox.Name = termgroup;
                 groupBox.MinWidth = 50;
-                groupBox.Text = (parameter.Terms.First<Term>() != null ? parameter.Terms.First<Term>().GroupName: "");
+                groupBox.Text = (parameter.termGroup.Terms.First<Term>() != null ? parameter.termGroup.TermGroupName: "");
                 groupBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(groupBox);
 

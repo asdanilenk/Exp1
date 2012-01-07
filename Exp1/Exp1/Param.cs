@@ -18,46 +18,20 @@ namespace Exp1
     }
 
 
-    public class TermGroup// : IComparable<TermGroup>
-    {
-        public int TermGroupId;
-        //public int ParmId;
-        public string TermGroupName;
-        public bool TermGroupUsed;
-      
-        public TermGroup(int id, string name, int used)
-        {
-            TermGroupId = id;
-            TermGroupName = name;
-            
-            switch (used)
-            {
-                case 1: TermGroupUsed = true; break;
-                case 0: TermGroupUsed = false; break;
-            }
-       }
-
-        public override string ToString()
-        {
-            return TermGroupName;
-        }
-    }
-
-
-
+   
     public class Term : IComparable<Term>
     {
         public int TermId;
-        //public int ParmId;
         public string TermName;
         public string TermFunction;
         public bool TermUsed;
         public int RightRange;
         public int LeftRange;
-        public int GroupId;
-        public string GroupName;
+        public int ComparableNum;
+        //public int GroupId;
+        //public string GroupName;
 
-        public Term(int id, /*int id,*/ string name, string func, int used, int left_range, int right_range, int group_id, string group_name)
+        public Term(int id, string name, string func, int used, int left_range, int right_range, int comparable_num/*, int group_id, string group_name*/)
         {
             TermId = id;
             TermName = name;
@@ -70,8 +44,9 @@ namespace Exp1
                 case 1: TermUsed = true; break;
                 case 0: TermUsed = false; break;
             }
-            GroupId = group_id;
-            GroupName = group_name;
+            //GroupId = group_id;
+            //GroupName = group_name;
+            ComparableNum = comparable_num;
         }
 
         public int CompareTo(Term obj)
@@ -85,6 +60,39 @@ namespace Exp1
         }
     }
 
+    public class TermGroup : IComparable<TermGroup>
+    {
+        public int TermGroupId;
+        //public int ParmId;
+        public string TermGroupName;
+        public bool TermGroupUsed;
+        public List<Term> Terms = new List<Term>();
+
+
+        public TermGroup(int id, string name, int used, List<Term> p_terms)
+        {
+            TermGroupId = id;
+            TermGroupName = name;
+
+            switch (used)
+            {
+                case 1: TermGroupUsed = true; break;
+                case 0: TermGroupUsed = false; break;
+            }
+            Terms = p_terms;
+        }
+
+        public override string ToString()
+        {
+            return TermGroupName;
+        }
+
+        public int CompareTo(TermGroup obj)
+        {
+            return TermGroupName.CompareTo(obj.TermGroupName);
+        }
+    }
+
 
     public class CreditParameter : IComparable<CreditParameter>
     {
@@ -92,9 +100,10 @@ namespace Exp1
         public string ParamName;
         public ParamType ParamType;
         public bool ParamUsed;
-        public List<Term> Terms = new List<Term>();
+        public TermGroup termGroup;// = new TermGroup();
 
-        public CreditParameter(int id, string name, string type, int used, List<Term> p_terms)
+
+        public CreditParameter(int id, string name, string type, int used, TermGroup term_group)
         {
             ParamId = id;
             ParamName = name;
@@ -111,7 +120,8 @@ namespace Exp1
                 case 1: ParamUsed = true; break;
                 case 0: ParamUsed = false; break;
             }
-            Terms = p_terms;
+            termGroup = term_group;
+           
         }
 
         public int CompareTo(CreditParameter obj)
@@ -150,8 +160,9 @@ namespace Exp1
     public class Parameter : CreditParameter
     {
         public string Question;
-               
-        public Parameter(int id, string name, string type, int used, string question, List<Term> p_term) : base(id,name,type,used, p_term)
+        
+        public Parameter(int id, string name, string type, int used, string question, TermGroup term_group)
+            : base(id, name, type, used, term_group)
         {
             Question = question;
         }

@@ -37,30 +37,35 @@ namespace Exp1
         private const string TermLeftRange = "TermLeftRange";
         private const string TermSymbols = "TermSymbols";
         private const string btnDelete = "btnDelete";
+        private const string ComparableNumText = "ComparableNumText";
 
         private const int TermCountRowsAlwaysExists = 4;
 
         readonly List<Term> _terms;
-        readonly Parameter _Param;
+        //readonly Parameter _Param;
+        int _group_id;
         //readonly Rule _rule;
 
         public TermEditWindow()
         {
             Title = "Новая группа термов";
             _terms = null;
+            _group_id = 0;
             InitializeComponent();
             InitializeForm();
        }
 
-        public TermEditWindow(TermGroup group)
+        public TermEditWindow(int group_id, string group_name)
         {
             Title = "Редактирование группы термов";
-            _terms = Helpers.ReadTermList(group);
+            _terms = Helpers.ReadTermList(group_id);
+            _group_id = group_id;
             InitializeComponent();
-            InitializeForm(group.TermGroupId, group.TermGroupName);
+            
+            InitializeForm(group_id, group_name);
 
             foreach (Term trm in _terms)
-                AddTerm(trm.TermId, trm.TermName, trm.TermFunction, trm.TermUsed, trm.LeftRange, trm.RightRange);
+                AddTerm(trm.TermId, trm.TermName, trm.TermFunction, trm.TermUsed, trm.LeftRange, trm.RightRange, trm.ComparableNum);
         }
 
         private void InitializeForm(int? groupId = null, string groupName = null)
@@ -109,7 +114,7 @@ namespace Exp1
             AddTerm();
         }
 
-        private void AddTerm(int? termId = null, string termName = null, string termFunction = null, bool termUsed = false, int left_range =0, int right_range = 0)
+        private void AddTerm(int? termId = null, string termName = null, string termFunction = null, bool termUsed = false, int left_range =0, int right_range = 0, int ? comparable_num = 0)
         {
             editTermGroup.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
@@ -128,6 +133,8 @@ namespace Exp1
             Grid.SetColumn(wp, 1);
             editTermGroup.Children.Add(wp);
 
+            var term_comparable = new TextBox { Name = ComparableNumText, MinWidth = 50, Text = comparable_num.ToString() };
+            wp.Children.Add(term_comparable);
             
             var term_name = new TextBox { Name = TermText, MinWidth = 100, Text = termName };
             term_name.Tag = ((termId != null) ? termId : 0);
@@ -254,11 +261,9 @@ namespace Exp1
 
         private void SaveButtonClick(object sender, RoutedEventArgs e)
         {
-            int groupId = 0;
             if (_terms != null)
             {
-                groupId = _terms.First<Term>().GroupId;
-                ConnectionManager.ExecuteNonQuery(String.Format(@"delete from term_group where group_id={0}", groupId));
+                ConnectionManager.ExecuteNonQuery(String.Format(@"delete from term_group where group_id={0}", _group_id));
             }
             // Обязательность термов в нечетких  переменных
            /* if (((ParamTypeCombo.SelectedItem as ComboBoxItem).Content.ToString() == ParamType.PFuzzy.GetStringValue())
@@ -293,7 +298,7 @@ namespace Exp1
                 }
            */
 
-            if (groupId != 0)
+            if (_group_id != 0)
             {
                 // Редактируем группу
                 using (var command = new SQLiteCommand(ConnectionManager.Connection))
@@ -316,25 +321,27 @@ namespace Exp1
                         int term_id = int.Parse(((TextBox)wp.Children.FindByName(TermText)).Tag.ToString());
                         if (term_id == 0)
                         {
-                            command.CommandText = "insert into term (term_name, term_function, left_range, right_range, group_id) values (@term_name, @term_function, @left_range, @right_range, @group_id)";
-                            command.Parameters.Add(new SQLiteParameter("@group_id", groupId));
+                            command.CommandText = "insert into term (term_name, term_function, left_range, right_range, group_id, comparable_num) values (@term_name, @term_function, @left_range, @right_range, @group_id, @comparable_num)";
+                            command.Parameters.Add(new SQLiteParameter("@group_id", _group_id));
                             command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
                             command.Parameters.Add(new SQLiteParameter("@term_name", ((TextBox)wp.Children.FindByName(TermText)).Text));
                             command.Parameters.Add(new SQLiteParameter("@term_function", ((TextBox)wp.Children.FindByName(TermFunc)).Text));
                             command.Parameters.Add(new SQLiteParameter("@left_range", int.Parse(((TextBox)wp.Children.FindByName(TermLeftRange)).Text)));
                             command.Parameters.Add(new SQLiteParameter("@right_range", int.Parse(((TextBox)wp.Children.FindByName(TermRightRange)).Text)));
+                            command.Parameters.Add(new SQLiteParameter("@comparable_num", int.Parse(((TextBox)wp.Children.FindByName(ComparableNumText)).Text)));
                             command.ExecuteNonQuery();
                         }
                         else
                         {
-                            command.CommandText = "insert into term (term_id, term_name, term_function, left_range, right_range, group_id) values (@term_id, @term_name, @term_function, @left_range, @right_range, @group_id)";
-                            command.Parameters.Add(new SQLiteParameter("@group_id", groupId));
+                            command.CommandText = "insert into term (term_id, term_name, term_function, left_range, right_range, group_id, comparable_num) values (@term_id, @term_name, @term_function, @left_range, @right_range, @group_id, @comparable_num)";
+                            command.Parameters.Add(new SQLiteParameter("@group_id", _group_id));
                             command.Parameters.Add(new SQLiteParameter("@term_id", term_id));
                             command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
                             command.Parameters.Add(new SQLiteParameter("@term_name", ((TextBox)wp.Children.FindByName(TermText)).Text));
                             command.Parameters.Add(new SQLiteParameter("@term_function", ((TextBox)wp.Children.FindByName(TermFunc)).Text));
                             command.Parameters.Add(new SQLiteParameter("@left_range", int.Parse(((TextBox)wp.Children.FindByName(TermLeftRange)).Text)));
                             command.Parameters.Add(new SQLiteParameter("@right_range", int.Parse(((TextBox)wp.Children.FindByName(TermRightRange)).Text)));
+                            command.Parameters.Add(new SQLiteParameter("@comparable_num", int.Parse(((TextBox)wp.Children.FindByName(ComparableNumText)).Text)));
                             command.ExecuteNonQuery();
                         }
                     }
@@ -348,7 +355,7 @@ namespace Exp1
                 {
                     command.CommandText = "insert into term_group (group_name) values (@group_name); SELECT last_insert_rowid();";
                     command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
-                    groupId = int.Parse(command.ExecuteScalar().ToString());
+                    _group_id = int.Parse(command.ExecuteScalar().ToString());
                 }
 
                 foreach (UIElement uie in editTermGroup.Children)
@@ -361,7 +368,7 @@ namespace Exp1
                     using (var command = new SQLiteCommand(ConnectionManager.Connection))
                     {
                         command.CommandText = "insert into term (term_name, term_function, left_range, right_range, group_id) values (@term_name, @term_function, @left_range, @right_range, @group_id)";
-                        command.Parameters.Add(new SQLiteParameter("@group_id", groupId));
+                        command.Parameters.Add(new SQLiteParameter("@group_id", _group_id));
                         command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
                         command.Parameters.Add(new SQLiteParameter("@term_name", ((TextBox)wp.Children.FindByName(TermText)).Text));
                         command.Parameters.Add(new SQLiteParameter("@term_function", ((TextBox)wp.Children.FindByName(TermFunc)).Text));

@@ -19,10 +19,12 @@
                     <TextBlock Grid.Row="0"  Grid.Column="0" Text="Название:  " VerticalAlignment="Center"  />
                 <TextBox Grid.Row="0"  Grid.Column="1" Width="300" Text="" Name="GroupNameBox" HorizontalAlignment="Left"/>
                  <TextBlock Grid.Row="3" Grid.Column="0" Text="Термы:" VerticalAlignment="Center" />
+                <Button Grid.Row="3" Grid.Column="0" Width="20" Height="20" Margin="10,0,0,0" Name="ButtonTermAdd" Click="AddButtonClick" IsEnabled="True">
+                    <Image Source="Resources\add.png" Height="16" HorizontalAlignment="Left"/>
+                </Button>
                 <WrapPanel Grid.Row="3" Grid.Column="1" >
-                    <Button Width="20" Height="20" Margin="10,0,0,0" Name="ButtonTermAdd" Click="AddButtonClick" IsEnabled="True">
-                        <Image Source="Resources\add.png" Height="16" HorizontalAlignment="Left"/>
-                    </Button>
+                    <TextBlock Grid.Row="0"  Grid.Column="0" Margin="2,0,0,0" Text="Степень превосходства, Название, Функция принадлежности, Интервал" VerticalAlignment="Center"  />
+                     
                 </WrapPanel>
             </Grid>
         </ScrollViewer>
