@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace Exp1
 {
@@ -43,29 +41,23 @@ namespace Exp1
             _log.Add("Rules found: " + goodrules.Count, level);
             if (goodrules.Count==0 || goodrules.All(rule => rule.Conditions.Exists(cond => cond.Parameter.ParamId == needed.ParamId)))
             {
-                if (!String.IsNullOrEmpty(needed.Question))
-                {
-                    _log.Add("Asking user...", level);
-                    var ask = new AskWindow();
-                    _paramValues[needed] = ask.Ask(needed);
-                    if (_paramValues[needed] != null)
-                        return true;
-                }    
-                    return false;
+                return AskQuestion(needed, level);
             }
 
+            var localfuzzys = new Dictionary<Term, double>();
             foreach (Rule r in goodrules)
             {
                 _log.Add("Processing rule:" + r, level);
                 bool ruleOk = true;
-                foreach (Condition rl in r.Conditions)
+                double rulefuzzys = 1; 
+                foreach (Condition con in r.Conditions.Where(cond=> cond.Parameter.ParamType!=ParamType.PFuzzy))
                 {
-                    _log.Add("Processing condition:" + rl, level);
-                    Parameter p = _parameters.First(a => a.ParamId == rl.Parameter.ParamId);
+                    _log.Add("Processing condition:" + con, level);
+                    Parameter p = _parameters.First(a => a.ParamId == con.Parameter.ParamId);
                     if (_paramValues[p] == null)
                         if (ReccurentSearch(p, level + 1) == false)
                             return false;
-                    if (!CheckCondition(rl))
+                    if (!CheckCondition(con))
                     {
                         _log.Add("Condition failed", level);
                         ruleOk = false;
@@ -76,13 +68,35 @@ namespace Exp1
                     }
                 }
                 if (ruleOk)
+                    foreach (Condition rl in r.Conditions.Where(cond => cond.Parameter.ParamType == ParamType.PFuzzy))
+                    {
+                        _log.Add("Processing Fuzzy condition:" + rl, level);
+                        Parameter p = _parameters.First(a => a.ParamId == rl.Parameter.ParamId);
+                        if (_paramValues[p] == null)
+                            if (ReccurentSearch(p, level + 1) == false)
+                                return false;
+                        if (rl.Value is CreditParameter && (rl.Value as CreditParameter).ParamType != ParamType.PFuzzy)
+                        {
+                            double defuz = Defuz(p);
+                            Dictionary<Term, string> fuz = (Dictionary<Term, string>) _paramValues[p];
+                            _paramValues[p] = defuz;
+                            ruleOk = CheckCondition(rl);
+                            _paramValues[p] = fuz;
+                        }
+                        else
+                        {
+                            rulefuzzys = Math.Min(rulefuzzys, CheckFuzzyCondition(rl));
+                        }
+                    }
+
+                if (ruleOk)
                 {
                     _rules.Remove(r);
                     Parameter p = _parameters.First(a => a.ParamId == r.Result.ParamId);
                     if (p.ParamType == ParamType.PDouble)
                     {
                         var x = new Parser();
-                        List<string> vars = r.ResultValue.Split(new Char[] { '-', '+', '/', '*', ')', '(' }).ToList().ConvertAll<string>(s => s.Trim());
+                        List<string> vars = r.ResultValue.Split(new[] { '-', '+', '/', '*', ')', '(' }).ToList().ConvertAll(s => s.Trim());
                         foreach (string var in vars)
                         {
                             Parameter par = _parameters.Find(f => f.ParamName == var);
@@ -109,38 +123,126 @@ namespace Exp1
                         try
                         {
                             _paramValues[p] = x.Calculate(localvalues);
-                            
                         }
                         catch (Exception e)
                         {
                             MessageBox.Show(e.Message);
                             return false;
                         }
+                        _log.Add("Rule passed => " + p.ParamName + "=" + _paramValues[p], level);
+                        return true;
                     }
-                    else if (p.ParamType == ParamType.PBool && _cparam.Keys.ToList().Exists(par => par.ParamName == r.ResultValue))
+                    if (p.ParamType == ParamType.PBool && _cparam.Keys.ToList().Exists(par => par.ParamName == r.ResultValue))
                     {
                         _paramValues[p] = _cparam.First(par => par.Key.ParamName == r.ResultValue).Value;
+                        _log.Add("Rule passed => " + p.ParamName + "=" + _paramValues[p], level);
+                        return true;
+                    }
+                    if (p.ParamType==ParamType.PFuzzy)
+                    {
+                        Term t = p.termGroup.Terms.First(term => term.TermName == r.ResultValue);
+                        localfuzzys[t] = Math.Max(rulefuzzys, localfuzzys[t]);
                     }
                     else
                     {
                         _paramValues[p] = r.ResultValue;
+                        _log.Add("Rule passed => " + p.ParamName + "=" + _paramValues[p], level);
+                        return true;
                     }
-                    _log.Add("Rule passed => " + p.ParamName + "=" + _paramValues[p], level);
-                    return true;
                 }
                 _log.Add("Rule failed", level);
             }
+            if (needed.ParamType == ParamType.PFuzzy)
+            {
+                Parameter p = _parameters.First(a => a.ParamId == needed.ParamId);
+                _paramValues[p] = localfuzzys;
+                return true;
+            }
 
+            return AskQuestion(needed, level);
+        }
+
+        private double Defuz(Parameter parameter)
+        {
+            var termValues = (Dictionary<Term,double>)_paramValues[parameter];
+            string function = null;
+            foreach (var kvp in termValues)
+            {
+                if (String.IsNullOrEmpty(function))
+                    function = kvp.Value.ToString() + "*" + kvp.Key.TermFunction;
+                else
+                    function = String.Format("min({0},{1})", function, kvp.Value.ToString() + "*" + kvp.Key.TermFunction);
+            }
+            Parser parser = new Parser();
+            parser.Parse(function, new List<string> {"x"});
+            int left = parameter.termGroup.Terms[0].LeftRange;
+            int right = parameter.termGroup.Terms[0].RightRange;
+            double max = double.MinValue;
+            for (double i = left; i < right; i += ((double)right - left) / 1000)
+            {
+                max = Math.Max(max, parser.Calculate(new Dictionary<string, double> { { "x", i } }));
+            }
+            return max;
+        }
+
+        private bool AskQuestion(Parameter needed, int level)
+        {
             if (!String.IsNullOrEmpty(needed.Question))
             {
                 _log.Add("Asking user...", level);
                 var ask = new AskWindow();
-                _paramValues[needed] = ask.Ask(needed);
+                if (needed.ParamType != ParamType.PFuzzy)
+                    _paramValues[needed] = ask.Ask(needed);
+                else
+                {
+                    double answer = (double) ask.Ask(needed);
+                    var dict = new Dictionary<Term, double>();
+                    foreach (Term term in needed.termGroup.Terms)
+                    {
+                        Parser parser = new Parser();
+                        parser.Parse(term.TermFunction, new List<string> {"x"});
+                        dict[term] = parser.Calculate(new Dictionary<string, double> {{"x", answer}});
+                    }
+                    _paramValues[needed] = dict;
+                }
                 if (_paramValues[needed] != null)
                     return true;
             }
-
             return false;
+        }
+
+        private double CheckFuzzyCondition(Condition rl)
+        {
+            Parameter p = _parameters.First(pp => pp.ParamId == rl.Parameter.ParamId);
+            var values = (Dictionary<Term, double>) _paramValues[p];
+            Term t;
+            if (rl.Value is CreditParameter)
+            {
+                var creditParameter = rl.Value as CreditParameter;
+                CreditParameter crp = _cparam.Keys.First(cp => cp.ParamId == creditParameter.ParamId);
+                t = p.termGroup.Terms.Find(ter => ter.TermName == _cparam[crp]);
+            }
+            else
+            {
+                t = p.termGroup.Terms.Find(ter => ter.TermName == (string) rl.Value);
+            }
+
+            switch (rl.Comparision)
+            {
+                case Comparision.Equals:
+                    return values[t];
+                case Comparision.NotEquals:
+                    return (values.Where(term => term.Key.TermName != t.TermName).Max(term => term.Value));
+                case Comparision.Greater:
+                    return (values.Where(term => term.Key.ComparableNum > t.ComparableNum).Max(term => term.Value));
+                case Comparision.Less:
+                    return (values.Where(term => term.Key.ComparableNum < t.ComparableNum).Max(term => term.Value));
+                case Comparision.GreaterOrEquals:
+                    return (values.Where(term => term.Key.ComparableNum >= t.ComparableNum).Max(term => term.Value));
+                case Comparision.LessOrEquals:
+                    return (values.Where(term => term.Key.ComparableNum <= t.ComparableNum).Max(term => term.Value));
+            }
+            throw new Exception("Wrong comparision");
         }
 
         public bool CheckCondition(Condition rl)
@@ -157,7 +259,6 @@ namespace Exp1
                             CreditParameter crp = _cparam.Keys.First(cp => cp.ParamId == creditParameter.ParamId);
                             switch (rl.Comparision)
                             {
-
                                 case Comparision.Greater: return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) > 0);
                                 case Comparision.Less: return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) < 0);
                                 case Comparision.GreaterOrEquals: return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) >= 0);

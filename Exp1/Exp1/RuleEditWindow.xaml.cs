@@ -1,19 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Data.SQLite;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Text.RegularExpressions;
-using System.Windows.Interop;
 
 namespace Exp1
 {
@@ -129,17 +120,24 @@ namespace Exp1
             if (paramId != null)
             {
                 Parameter par = _parameters.First(a => a.ParamId == (int)paramId);
-                if (par.ParamType.Equals(ParamType.PFuzzy.GetStringValue()))
+                if (par.ParamType == ParamType.PFuzzy)
                 {
                     List<Term> terms= Helpers.ReadTermList(par.termGroup.TermGroupId);
                     foreach (Term term in terms)
                     {
                         value.Items.Add(new ComboBoxItem { Content = term.TermName, Tag = term.TermId });
                     }
+                    foreach (CreditParameter p in _creditParameters)
+                        if (par.ParamType == p.ParamType && p.termGroup!=null &&par.termGroup.TermGroupName == p.termGroup.TermGroupName)
+                            value.Items.Add(new ComboBoxItem { Content = p.ParamName, Tag = p.ParamId });
                 }
-                foreach (CreditParameter p in _creditParameters)
-                    if (par.ParamType == p.ParamType)
-                        value.Items.Add(new ComboBoxItem { Content = p.ParamName, Tag = p.ParamId });
+                else
+                {
+                    foreach (CreditParameter p in _creditParameters)
+                        if (par.ParamType == p.ParamType)
+                            value.Items.Add(new ComboBoxItem { Content = p.ParamName, Tag = p.ParamId });
+                }
+                
             }
             else
                 foreach (CreditParameter p in _creditParameters)
@@ -155,7 +153,7 @@ namespace Exp1
 
         void deleteBox_Click(object sender, RoutedEventArgs e)
         {
-            var wp = ((Button) sender).Parent as WrapPanel;
+            var wp = (WrapPanel)((Button)sender).Parent;
             ((Grid)wp.Parent).Children.Remove(wp);
         }
 
@@ -169,7 +167,7 @@ namespace Exp1
 
             if (changed.Name != ResultParamCombo)
             {
-                var comparision = wp.Children.FindByName(CompareCombo) as ComboBox;
+                var comparision = (ComboBox)wp.Children.FindByName(CompareCombo);
                 comparision.Items.Clear();
                 switch (par.ParamType)
                 {
@@ -179,6 +177,7 @@ namespace Exp1
                         break;
                     case ParamType.PBool:
                     case ParamType.PDouble:
+                    case ParamType.PFuzzy:
                         comparision.Items.Add(Comparision.Equals.GetStringValue());
                         comparision.Items.Add(Comparision.NotEquals.GetStringValue());
                         comparision.Items.Add(Comparision.Less.GetStringValue());
@@ -201,6 +200,7 @@ namespace Exp1
                     wp.Children.Insert(valueIndex, valueb);
                     FillValueCombo(par.ParamId, valueb);
                     break;
+                case ParamType.PFuzzy:
                 case ParamType.PString:
                     var value = new ComboBox {IsEditable = true, MinWidth = 200,Name = ValueControl,Margin = new Thickness(5, 0, 0, 0)};
                     FillValueCombo(par.ParamId, value);
@@ -273,18 +273,18 @@ namespace Exp1
                     {
                         command.CommandText = "insert into rule (rule_id, rule_result_param_id, rule_result_param_value,rule_priority) values (@rule_id, @rule_result_param_id, @rule_result_param_value,@rule_priority)";
                         command.Parameters.Add(new SQLiteParameter("@rule_id", ruleId));
-                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((wp.Children.FindByName(ResultParamCombo) as ComboBox).SelectedItem as ComboBoxItem).Tag));
-                        var _valuecontrol = wp.Children.FindByName(ValueControl);
-                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).Text : (_valuecontrol as TextBox).Text)));
+                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((ComboBoxItem)((ComboBox)wp.Children.FindByName(ResultParamCombo)).SelectedItem).Tag));
+                        var valuecontrol = wp.Children.FindByName(ValueControl);
+                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (valuecontrol is ComboBox ? (valuecontrol as ComboBox).Text : ((TextBox)valuecontrol).Text)));
                         command.Parameters.Add(new SQLiteParameter("@rule_priority", PriorityBox.Text));
                         command.ExecuteNonQuery();
                     }
                     else
                     {
                         command.CommandText = "insert into rule (rule_result_param_id, rule_result_param_value,rule_priority) values (@rule_result_param_id, @rule_result_param_value, @rule_priority);SELECT last_insert_rowid() AS [ID]";
-                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((wp.Children.FindByName(ResultParamCombo) as ComboBox).SelectedItem as ComboBoxItem).Tag));
-                        var _valuecontrol = wp.Children.FindByName(ValueControl);
-                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).Text : (_valuecontrol as TextBox).Text)));
+                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_id", ((ComboBoxItem)((ComboBox)wp.Children.FindByName(ResultParamCombo)).SelectedItem).Tag));
+                        var valuecontrol = wp.Children.FindByName(ValueControl);
+                        command.Parameters.Add(new SQLiteParameter("@rule_result_param_value", (valuecontrol is ComboBox ? (valuecontrol as ComboBox).Text : ((TextBox)valuecontrol).Text)));
                         command.Parameters.Add(new SQLiteParameter("@rule_priority", PriorityBox.Text));
                         ruleId = int.Parse(command.ExecuteScalar().ToString());
                     }
@@ -302,8 +302,8 @@ namespace Exp1
                     command.Parameters.Add(new SQLiteParameter("@rule_id", ruleId));
                     command.Parameters.Add(new SQLiteParameter("@param_id", ((ComboBoxItem) ((ComboBox) wp.Children.FindByName(ParamCombo)).SelectedItem).Tag));
                     command.Parameters.Add(new SQLiteParameter("@compare_type", ((ComboBox) wp.Children.FindByName(CompareCombo)).SelectedValue.ToString()));
-                    var _valuecontrol = wp.Children.FindByName(ValueControl);
-                    command.Parameters.Add(new SQLiteParameter("@value", (_valuecontrol is ComboBox ? (_valuecontrol as ComboBox).Text : ((TextBox) _valuecontrol).Text)));
+                    var valuecontrol = wp.Children.FindByName(ValueControl);
+                    command.Parameters.Add(new SQLiteParameter("@value", (valuecontrol is ComboBox ? (valuecontrol as ComboBox).Text : ((TextBox) valuecontrol).Text)));
                     command.ExecuteNonQuery();
                 }
             }
