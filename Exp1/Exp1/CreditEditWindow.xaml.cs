@@ -67,6 +67,20 @@ namespace Exp1
                     if (paramvalues.Keys.ToList().Find(pp => pp.ParamId == p.ParamId) != null)
                         value.Text = paramvalues.First(pp => pp.Key.ParamId == p.ParamId).Value;
                 }
+                else if (p.ParamType == ParamType.PFuzzy && p.termGroup!=null)
+                {
+                    ComboBox value = new ComboBox();
+                    value.MinWidth = 200;
+                    value.Name = valuecontrol;
+                    value.Margin = new Thickness(5, 0, 0, 0);
+                    wp.Children.Add(value);
+                    foreach (var term in p.termGroup.Terms)
+                    {
+                        value.Items.Add(term.TermName);
+                    }
+                    if (paramvalues.Keys.ToList().Find(pp => pp.ParamId == p.ParamId) != null)
+                        value.Text = paramvalues.First(pp => pp.Key.ParamId == p.ParamId).Value;
+                }
                 else
                 {
                     TextBox value = new TextBox();

@@ -71,7 +71,7 @@ namespace Exp1
             {
                 str = str.Substring(s.Length, str.Length - s.Length - 1);
                 int c = 0, i = str.Length - 1;
-                while (((i >= 0) && (!((c == 0) && (i != str.Length - 1) && (str[i]== ',')))))
+                while (((i >= 0) && (!((c == 0) && (i != str.Length - 1) && (str[i]== ';')))))
                 {
                     if (str[i] == '(')
                         c++;

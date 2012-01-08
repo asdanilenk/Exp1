@@ -10,6 +10,7 @@ namespace Exp1
         readonly List<Rule> _rules;
         readonly List<Parameter> _parameters;
         readonly Dictionary<Parameter, object> _paramValues;
+        readonly Dictionary<Parameter, Dictionary<Term,double>> _defuzparamValues;
         readonly Dictionary<CreditParameter,string> _cparam;
         readonly Logger _log;
         
@@ -19,6 +20,7 @@ namespace Exp1
             _cparam = Helpers.ReadCreditParams(creditId);
             _rules = Helpers.ReadRulesList();
             _paramValues = new Dictionary<Parameter, object>();
+            _defuzparamValues = new Dictionary<Parameter, Dictionary<Term, double>>();
             _parameters = Helpers.ReadParametersList();
             _log = new Logger();
 
@@ -75,13 +77,10 @@ namespace Exp1
                         if (_paramValues[p] == null)
                             if (ReccurentSearch(p, level + 1) == false)
                                 return false;
-                        if (rl.Value is CreditParameter && (rl.Value as CreditParameter).ParamType != ParamType.PFuzzy)
+                        double d;
+                        if (rl.Value is CreditParameter && (rl.Value as CreditParameter).ParamType != ParamType.PFuzzy || double.TryParse(rl.Value as string,out d))
                         {
-                            double defuz = Defuz(p);
-                            Dictionary<Term, string> fuz = (Dictionary<Term, string>) _paramValues[p];
-                            _paramValues[p] = defuz;
-                            ruleOk = CheckCondition(rl);
-                            _paramValues[p] = fuz;
+                            ruleOk = CheckCondition(rl) && ruleOk;
                         }
                         else
                         {
@@ -93,7 +92,8 @@ namespace Exp1
                 {
                     _rules.Remove(r);
                     Parameter p = _parameters.First(a => a.ParamId == r.Result.ParamId);
-                    if (p.ParamType == ParamType.PDouble)
+
+                    if (p.ParamType == ParamType.PDouble || (p.ParamType == ParamType.PFuzzy && !p.termGroup.Terms.Exists(term => term.TermName == r.ResultValue)))
                     {
                         var x = new Parser();
                         List<string> vars = r.ResultValue.Split(new[] { '-', '+', '/', '*', ')', '(' }).ToList().ConvertAll(s => s.Trim());
@@ -123,6 +123,9 @@ namespace Exp1
                         try
                         {
                             _paramValues[p] = x.Calculate(localvalues);
+                            if (p.ParamType == ParamType.PFuzzy)
+                                CalculateTermValues(p);
+                            
                         }
                         catch (Exception e)
                         {
@@ -138,7 +141,7 @@ namespace Exp1
                         _log.Add("Rule passed => " + p.ParamName + "=" + _paramValues[p], level);
                         return true;
                     }
-                    if (p.ParamType==ParamType.PFuzzy)
+                    if (p.ParamType == ParamType.PFuzzy)
                     {
                         Term t = p.termGroup.Terms.First(term => term.TermName == r.ResultValue);
                         localfuzzys[t] = Math.Max(rulefuzzys, localfuzzys[t]);
@@ -155,7 +158,8 @@ namespace Exp1
             if (needed.ParamType == ParamType.PFuzzy)
             {
                 Parameter p = _parameters.First(a => a.ParamId == needed.ParamId);
-                _paramValues[p] = localfuzzys;
+                _defuzparamValues[p] = localfuzzys;
+                _paramValues[p] = Defuz(p);
                 return true;
             }
 
@@ -164,14 +168,14 @@ namespace Exp1
 
         private double Defuz(Parameter parameter)
         {
-            var termValues = (Dictionary<Term,double>)_paramValues[parameter];
+            var termValues = _defuzparamValues[parameter];
             string function = null;
             foreach (var kvp in termValues)
             {
                 if (String.IsNullOrEmpty(function))
                     function = kvp.Value.ToString() + "*" + kvp.Key.TermFunction;
                 else
-                    function = String.Format("min({0},{1})", function, kvp.Value.ToString() + "*" + kvp.Key.TermFunction);
+                    function = String.Format("min({0};{1})", function, kvp.Value.ToString() + "*" + kvp.Key.TermFunction);
             }
             Parser parser = new Parser();
             parser.Parse(function, new List<string> {"x"});
@@ -191,24 +195,27 @@ namespace Exp1
             {
                 _log.Add("Asking user...", level);
                 var ask = new AskWindow();
-                if (needed.ParamType != ParamType.PFuzzy)
-                    _paramValues[needed] = ask.Ask(needed);
-                else
+                _paramValues[needed] = ask.Ask(needed);
+                if (needed.ParamType == ParamType.PFuzzy)
                 {
-                    double answer = (double) ask.Ask(needed);
-                    var dict = new Dictionary<Term, double>();
-                    foreach (Term term in needed.termGroup.Terms)
-                    {
-                        Parser parser = new Parser();
-                        parser.Parse(term.TermFunction, new List<string> {"x"});
-                        dict[term] = parser.Calculate(new Dictionary<string, double> {{"x", answer}});
-                    }
-                    _paramValues[needed] = dict;
+                    CalculateTermValues(needed);
                 }
                 if (_paramValues[needed] != null)
                     return true;
             }
             return false;
+        }
+
+        private void CalculateTermValues(Parameter needed)
+        {
+            var dict = new Dictionary<Term, double>();
+            foreach (Term term in needed.termGroup.Terms)
+            {
+                Parser parser = new Parser();
+                parser.Parse(term.TermFunction, new List<string> {"x"});
+                dict[term] = parser.Calculate(new Dictionary<string, double> { { "x", (double)_paramValues[needed] } });
+            }
+            _defuzparamValues[needed] = dict;
         }
 
         private double CheckFuzzyCondition(Condition rl)
@@ -281,7 +288,29 @@ namespace Exp1
                         }
                         break;
                     }
-                case ParamType.PDouble:
+                case ParamType.PString:
+                    {
+                        if (rl.Value is CreditParameter)
+                        {
+                            var creditParameter = rl.Value as CreditParameter;
+                            CreditParameter crp = _cparam.Keys.First(cp => cp.ParamId == creditParameter.ParamId);
+                            switch (rl.Comparision)
+                            {
+                                case Comparision.Equals: return ((string)_paramValues[p] == _cparam[crp]);
+                                case Comparision.NotEquals: return ((string)_paramValues[p] != _cparam[crp]);
+                            }
+                        }
+                        else
+                        {
+                            switch (rl.Comparision)
+                            {
+                                case Comparision.Equals: return ((string)_paramValues[p] == (string)rl.Value);
+                                case Comparision.NotEquals: return ((string)_paramValues[p] != (string)rl.Value);
+                            }
+                        }
+                        break;
+                    }
+                default:
                     {
                         if (rl.Value is CreditParameter)
                         {
@@ -309,29 +338,7 @@ namespace Exp1
                                 case Comparision.LessOrEquals: return ((double)_paramValues[p] <= (double)rl.Value);
                             }
                         }
-                        
-                        break;
-                    }
-                case ParamType.PString:
-                    {
-                        if (rl.Value is CreditParameter)
-                        {
-                            var creditParameter = rl.Value as CreditParameter;
-                            CreditParameter crp = _cparam.Keys.First(cp => cp.ParamId == creditParameter.ParamId);
-                            switch (rl.Comparision)
-                            {
-                                case Comparision.Equals: return ((string)_paramValues[p] == _cparam[crp]);
-                                case Comparision.NotEquals: return ((string)_paramValues[p] != _cparam[crp]);
-                            }
-                        }
-                        else
-                        {
-                            switch (rl.Comparision)
-                            {
-                                case Comparision.Equals: return ((string)_paramValues[p] == (string)rl.Value);
-                                case Comparision.NotEquals: return ((string)_paramValues[p] != (string)rl.Value);
-                            }
-                        }
+
                         break;
                     }
             }
