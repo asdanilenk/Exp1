@@ -262,6 +262,71 @@ namespace Exp1
             {
                 ConnectionManager.ExecuteNonQuery(String.Format(@"delete from term_group where group_id={0}", _group_id));
             }
+            var x = new Parser();
+            foreach (UIElement uie in editTermGroup.Children)
+            {
+                if (!(uie is WrapPanel)) continue;
+                var wp = uie as WrapPanel;
+                //Фильтрация по WrapPanel, в которых содержутся термы
+                if (wp.Name != TermPanel) continue;
+
+                if (String.IsNullOrEmpty(GroupNameBox.Text))
+                {
+                    MessageBox.Show("Название группы не должно быть пустым");
+                    return;  
+                }
+
+                string termName = ((TextBox) wp.Children.FindByName(TermText)).Text;
+                if (String.IsNullOrEmpty(termName))
+                {
+                    MessageBox.Show("Название терма не должно быть пустым");
+                    return;                    
+                }
+                string termFunc = ((TextBox) wp.Children.FindByName(TermFunc)).Text;
+                if (String.IsNullOrEmpty(termFunc))
+                {
+                    MessageBox.Show("Функция терма не должно быть пустой");
+                     return; 
+                }
+                try
+                {
+                    x.Parse(termFunc,new List<string>{"x"});
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
+                }
+                int left, right;
+                try
+                {
+                    left = int.Parse(((TextBox) wp.Children.FindByName(TermLeftRange)).Text);
+                    right = int.Parse(((TextBox) wp.Children.FindByName(TermRightRange)).Text);
+                }
+                catch
+                {
+                    MessageBox.Show("Границы интервала должны быть целыми числами");
+                    return;
+                }
+                if (left>=right)
+                {
+                    MessageBox.Show("Левая граница интервала должна быть меньше правой");
+                     return; 
+                }
+                
+                
+                try
+                {
+                    int.Parse(((TextBox) wp.Children.FindByName(ComparableNumText)).Text);                    
+                }
+                catch
+                {
+                    MessageBox.Show("Степень превосходства должнa быть целым числами");
+                    return;
+                }
+                
+
+            }
             // Обязательность термов в нечетких  переменных
            /* if (((ParamTypeCombo.SelectedItem as ComboBoxItem).Content.ToString() == ParamType.PFuzzy.GetStringValue())
                 && (editTermGroup.Children.FindByName(TermText) == null))
@@ -364,13 +429,14 @@ namespace Exp1
 
                     using (var command = new SQLiteCommand(ConnectionManager.Connection))
                     {
-                        command.CommandText = "insert into term (term_name, term_function, left_range, right_range, group_id) values (@term_name, @term_function, @left_range, @right_range, @group_id)";
+                        command.CommandText = "insert into term (term_name, term_function, left_range, right_range, group_id, comparable_num) values (@term_name, @term_function, @left_range, @right_range, @group_id, @comparable_num)";
                         command.Parameters.Add(new SQLiteParameter("@group_id", _group_id));
                         command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
                         command.Parameters.Add(new SQLiteParameter("@term_name", ((TextBox)wp.Children.FindByName(TermText)).Text));
                         command.Parameters.Add(new SQLiteParameter("@term_function", ((TextBox)wp.Children.FindByName(TermFunc)).Text));
                         command.Parameters.Add(new SQLiteParameter("@left_range", int.Parse(((TextBox)wp.Children.FindByName(TermLeftRange)).Text)));
                         command.Parameters.Add(new SQLiteParameter("@right_range", int.Parse(((TextBox)wp.Children.FindByName(TermRightRange)).Text)));
+                        command.Parameters.Add(new SQLiteParameter("@comparable_num", int.Parse(((TextBox)wp.Children.FindByName(ComparableNumText)).Text)));
                         command.ExecuteNonQuery();
                     }
                 }

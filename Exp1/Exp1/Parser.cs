@@ -154,9 +154,10 @@ namespace Exp1
             SearchF(str, "atan(", ref root, variables) || SearchF(str, "actan(", ref root, variables) ||
             SearchF(str, "cosh(", ref root, variables) || SearchF(str, "sinh(", ref root, variables) ||
             SearchF(str, "tanh(", ref root, variables) || SearchF(str, "ctanh(", ref root, variables) ||
+            SearchF(str, "min(", ref root, variables) || SearchF(str, "max(", ref root, variables) ||
             SearchF(str, "sqrt(", ref root, variables)) return true;
 
-            throw new Exception(UnknownFunction);
+            throw new Exception(UnknownFunction + str);
         }
 
         private static bool Check(double a, string msg)
@@ -232,7 +233,10 @@ namespace Exp1
 
             if (root.Key.Equals("atan")) return Math.Atan(Calculate(values, ref root.Left));
             if (root.Key.Equals("actan")) return PI / 2 - Math.Atan(Calculate(values, ref root.Left));
+            if (root.Key.Equals("min")) return Math.Min(Calculate(values, ref root.Left), Calculate(values, ref root.Right));
+            if (root.Key.Equals("max")) return Math.Max(Calculate(values, ref root.Left), Calculate(values, ref root.Right));
             if (root.Key.Equals("tanh")) return Math.Tanh(Calculate(values, ref root.Left));
+            
             if (root.Key.Equals("ctanh"))
             {
                 if (Check(Math.Abs(Math.Sinh(Calculate(values, ref root.Left))), DivisionByZero)) return 1 / Math.Tanh(a);

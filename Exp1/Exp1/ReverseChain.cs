@@ -47,7 +47,20 @@ namespace Exp1
                 {
                     _log.Add("Asking user...", level);
                     var ask = new AskWindow();
-                    _paramValues[needed] = ask.Ask(needed);
+                    if (needed.ParamType!=ParamType.PFuzzy)
+                        _paramValues[needed] = ask.Ask(needed);
+                    else
+                    {
+                        double answer = (double)ask.Ask(needed);
+                        var dict = new Dictionary<Term, double>();
+                        foreach (Term term in needed.termGroup.Terms)
+                        {
+                            Parser parser = new Parser();
+                            parser.Parse(term.TermFunction, new List<string> {"x"});
+                            dict[term] = parser.Calculate(new Dictionary<string, double> { { "x", answer } });
+                        }
+                        _paramValues[needed] = dict;
+                    }
                     if (_paramValues[needed] != null)
                         return true;
                 }    
@@ -58,14 +71,14 @@ namespace Exp1
             {
                 _log.Add("Processing rule:" + r, level);
                 bool ruleOk = true;
-                foreach (Condition rl in r.Conditions)
+                foreach (Condition con in r.Conditions.Where(cond=> cond.Parameter.ParamType!=ParamType.PFuzzy))
                 {
-                    _log.Add("Processing condition:" + rl, level);
-                    Parameter p = _parameters.First(a => a.ParamId == rl.Parameter.ParamId);
+                    _log.Add("Processing condition:" + con, level);
+                    Parameter p = _parameters.First(a => a.ParamId == con.Parameter.ParamId);
                     if (_paramValues[p] == null)
                         if (ReccurentSearch(p, level + 1) == false)
                             return false;
-                    if (!CheckCondition(rl))
+                    if (!CheckCondition(con))
                     {
                         _log.Add("Condition failed", level);
                         ruleOk = false;
@@ -75,6 +88,25 @@ namespace Exp1
                         _log.Add("Condition passed", level);
                     }
                 }
+                if (ruleOk)
+                foreach (Condition rl in r.Conditions.Where(cond => cond.Parameter.ParamType == ParamType.PFuzzy))
+                {
+                    _log.Add("Processing Fuzzy condition:" + rl, level);
+                    Parameter p = _parameters.First(a => a.ParamId == rl.Parameter.ParamId);
+                    if (_paramValues[p] == null)
+                        if (ReccurentSearch(p, level + 1) == false)
+                            return false;
+                   // if (!CheckFuzzyCondition(rl))
+                    {
+                        _log.Add("Fuzzy Condition failed", level);
+                        ruleOk = false;
+                    }
+                  //  else
+                    {
+                        _log.Add("Fuzzy Condition passed", level);
+                    }
+                }
+
                 if (ruleOk)
                 {
                     _rules.Remove(r);
@@ -142,7 +174,53 @@ namespace Exp1
 
             return false;
         }
-
+        /*
+        private double CheckFuzzyCondition(Condition rl)
+        {
+            Parameter p = _parameters.First(pp => pp.ParamId == rl.Parameter.ParamId);
+            const double epsilon = 0.0001;
+            if (rl.Value is CreditParameter)
+            {
+                var creditParameter = rl.Value as CreditParameter;
+                CreditParameter crp = _cparam.Keys.First(cp => cp.ParamId == creditParameter.ParamId);
+                Term t = p.termGroup.Terms.Find(ter => ter.TermName == (string)_paramValues[p]);
+                switch (rl.Comparision)
+                {
+                    case Comparision.Equals:
+                        return (Math.Abs((double)  - double.Parse(_cparam[crp])) < epsilon);
+                    case Comparision.NotEquals:
+                        return (Math.Abs((double) _paramValues[p] - double.Parse(_cparam[crp])) > epsilon);
+                    case Comparision.Greater:
+                        return ((double) _paramValues[p] > double.Parse(_cparam[crp]));
+                    case Comparision.Less:
+                        return ((double) _paramValues[p] < double.Parse(_cparam[crp]));
+                    case Comparision.GreaterOrEquals:
+                        return ((double) _paramValues[p] >= double.Parse(_cparam[crp]));
+                    case Comparision.LessOrEquals:
+                        return ((double) _paramValues[p] <= double.Parse(_cparam[crp]));
+                }
+            }
+            else
+            {
+                switch (rl.Comparision)
+                {
+                    case Comparision.Equals:
+                        return (Math.Abs((double) _paramValues[p] - (double) rl.Value) < epsilon);
+                    case Comparision.NotEquals:
+                        return (Math.Abs((double) _paramValues[p] - (double) rl.Value) > epsilon);
+                    case Comparision.Greater:
+                        return ((double) _paramValues[p] > (double) rl.Value);
+                    case Comparision.Less:
+                        return ((double) _paramValues[p] < (double) rl.Value);
+                    case Comparision.GreaterOrEquals:
+                        return ((double) _paramValues[p] >= (double) rl.Value);
+                    case Comparision.LessOrEquals:
+                        return ((double) _paramValues[p] <= (double) rl.Value);
+                }
+            }
+            return false;
+        }
+        */
         public bool CheckCondition(Condition rl)
         {
             Parameter p = _parameters.First(pp => pp.ParamId == rl.Parameter.ParamId);
