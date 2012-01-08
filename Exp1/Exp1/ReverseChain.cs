@@ -78,7 +78,7 @@ namespace Exp1
                             if (ReccurentSearch(p, level + 1) == false)
                                 return false;
                         double d;
-                        if (rl.Value is CreditParameter && (rl.Value as CreditParameter).ParamType != ParamType.PFuzzy || double.TryParse(rl.Value as string,out d))
+                        if (rl.Value is CreditParameter && (rl.Value as CreditParameter).ParamType != ParamType.PFuzzy || rl.Value is double)
                         {
                             ruleOk = CheckCondition(rl) && ruleOk;
                         }
@@ -221,7 +221,7 @@ namespace Exp1
         private double CheckFuzzyCondition(Condition rl)
         {
             Parameter p = _parameters.First(pp => pp.ParamId == rl.Parameter.ParamId);
-            var values = (Dictionary<Term, double>) _paramValues[p];
+            var values = _defuzparamValues[p];
             Term t;
             if (rl.Value is CreditParameter)
             {

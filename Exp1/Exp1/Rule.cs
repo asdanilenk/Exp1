@@ -49,7 +49,7 @@ namespace Exp1
             {
                 if (parameter.ParamType == ParamType.PDouble)
                     Value = double.Parse(value);
-                if (parameter.ParamType == ParamType.PFuzzy)
+                else if (parameter.ParamType == ParamType.PFuzzy)
                 {
                     double val;
                     if (double.TryParse(value, out val))
