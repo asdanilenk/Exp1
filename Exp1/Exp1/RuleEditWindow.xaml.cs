@@ -128,7 +128,7 @@ namespace Exp1
                         value.Items.Add(new ComboBoxItem { Content = term.TermName, Tag = term.TermId });
                     }
                     foreach (CreditParameter p in _creditParameters)
-                        if (par.ParamType == p.ParamType && par.termGroup.TermGroupName == p.termGroup.TermGroupName)
+                        if (par.ParamType == p.ParamType && p.termGroup!=null &&par.termGroup.TermGroupName == p.termGroup.TermGroupName)
                             value.Items.Add(new ComboBoxItem { Content = p.ParamName, Tag = p.ParamId });
                 }
                 else
