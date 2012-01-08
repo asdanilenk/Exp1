@@ -228,7 +228,7 @@ namespace Exp1
             {
                 using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.Connection))
                 {
-                    command.CommandText = "delete from term_param where param_id=@credit_param_id";
+                    command.CommandText = "delete from term_param where credit_param_id=@credit_param_id";
                     command.Parameters.Add(new SQLiteParameter("@credit_param_id", paramId));
                     command.ExecuteNonQuery();
 
