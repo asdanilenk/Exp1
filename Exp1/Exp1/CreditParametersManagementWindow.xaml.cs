@@ -115,8 +115,8 @@ namespace Exp1
             nameBox.MinWidth = 200;
             wp.Children.Insert(0, nameBox);
 
-            if (!p.ParamUsed)
-            {
+           /* if (!p.ParamUsed)
+            {*/
                 TextBlock partype = wp.Children.FindByName(paramtype) as TextBlock;
                 string type = partype.Text;
 
@@ -127,7 +127,8 @@ namespace Exp1
                 typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PDouble.GetStringValue() });
                 typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
                 typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PFuzzy.GetStringValue() });
-                typeBox.SelectionChanged += new SelectionChangedEventHandler(typeBox_SelectionChanged);
+
+                /*typeBox.SelectionChanged += new SelectionChangedEventHandler(typeBox_SelectionChanged);*/
 
                 typeBox.SelectedIndex = 0;
                 typeBox.Name = paramtype;
@@ -149,7 +150,7 @@ namespace Exp1
                 termgroupBox.Text = tgroup;
                 if (tgroup == "")
                 {
-                    termgroupBox.IsEnabled = false;
+                    //termgroupBox.IsEnabled = false;
                 }
 
                 termgroupBox.Name = termgroup;
@@ -157,7 +158,7 @@ namespace Exp1
                 termgroupBox.Width = 100;
                 wp.Children.Insert(2, termgroupBox);
 
-            }
+            //}
             Button paredit = wp.Children.FindByName(paramedit) as Button;
             wp.Children.Remove(parname);
 

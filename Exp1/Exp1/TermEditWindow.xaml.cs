@@ -364,13 +364,14 @@ namespace Exp1
 
                     using (var command = new SQLiteCommand(ConnectionManager.Connection))
                     {
-                        command.CommandText = "insert into term (term_name, term_function, left_range, right_range, group_id) values (@term_name, @term_function, @left_range, @right_range, @group_id)";
+                        command.CommandText = "insert into term (term_name, term_function, left_range, right_range, group_id, comparable_num) values (@term_name, @term_function, @left_range, @right_range, @group_id, @comparable_num)";
                         command.Parameters.Add(new SQLiteParameter("@group_id", _group_id));
                         command.Parameters.Add(new SQLiteParameter("@group_name", GroupNameBox.Text));
                         command.Parameters.Add(new SQLiteParameter("@term_name", ((TextBox)wp.Children.FindByName(TermText)).Text));
                         command.Parameters.Add(new SQLiteParameter("@term_function", ((TextBox)wp.Children.FindByName(TermFunc)).Text));
                         command.Parameters.Add(new SQLiteParameter("@left_range", int.Parse(((TextBox)wp.Children.FindByName(TermLeftRange)).Text)));
                         command.Parameters.Add(new SQLiteParameter("@right_range", int.Parse(((TextBox)wp.Children.FindByName(TermRightRange)).Text)));
+                        command.Parameters.Add(new SQLiteParameter("@comparable_num", int.Parse(((TextBox)wp.Children.FindByName(ComparableNumText)).Text)));
                         command.ExecuteNonQuery();
                     }
                 }

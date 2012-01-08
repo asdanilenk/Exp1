@@ -230,7 +230,7 @@ namespace Exp1
             MessageBoxResult result = MessageBox.Show("Вы уверены, что хотите удалить данную группу термов?", "Удалить?", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                ConnectionManager.ExecuteNonQuery(String.Format("delete from term where group_id={0}",(sender as Button).Tag));
+                ConnectionManager.ExecuteNonQuery(String.Format("delete from term_group where group_id={0}",(sender as Button).Tag));
                 UpdateTable();
             }
         }
