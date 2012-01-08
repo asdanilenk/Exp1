@@ -68,15 +68,26 @@ namespace Exp1
                     }
                 }
                 if (ruleOk)
-                foreach (Condition rl in r.Conditions.Where(cond => cond.Parameter.ParamType == ParamType.PFuzzy))
-                {
-                    _log.Add("Processing Fuzzy condition:" + rl, level);
-                    Parameter p = _parameters.First(a => a.ParamId == rl.Parameter.ParamId);
-                    if (_paramValues[p] == null)
-                        if (ReccurentSearch(p, level + 1) == false)
-                            return false;
-                    rulefuzzys = Math.Min(rulefuzzys, CheckFuzzyCondition(rl));
-                }
+                    foreach (Condition rl in r.Conditions.Where(cond => cond.Parameter.ParamType == ParamType.PFuzzy))
+                    {
+                        _log.Add("Processing Fuzzy condition:" + rl, level);
+                        Parameter p = _parameters.First(a => a.ParamId == rl.Parameter.ParamId);
+                        if (_paramValues[p] == null)
+                            if (ReccurentSearch(p, level + 1) == false)
+                                return false;
+                        if (rl.Value is CreditParameter && (rl.Value as CreditParameter).ParamType != ParamType.PFuzzy)
+                        {
+                            double defuz = Defuz(p);
+                            Dictionary<Term, string> fuz = (Dictionary<Term, string>) _paramValues[p];
+                            _paramValues[p] = defuz;
+                            ruleOk = CheckCondition(rl);
+                            _paramValues[p] = fuz;
+                        }
+                        else
+                        {
+                            rulefuzzys = Math.Min(rulefuzzys, CheckFuzzyCondition(rl));
+                        }
+                    }
 
                 if (ruleOk)
                 {
@@ -112,7 +123,6 @@ namespace Exp1
                         try
                         {
                             _paramValues[p] = x.Calculate(localvalues);
-                            
                         }
                         catch (Exception e)
                         {
@@ -150,6 +160,29 @@ namespace Exp1
             }
 
             return AskQuestion(needed, level);
+        }
+
+        private double Defuz(Parameter parameter)
+        {
+            var termValues = (Dictionary<Term,double>)_paramValues[parameter];
+            string function = null;
+            foreach (var kvp in termValues)
+            {
+                if (String.IsNullOrEmpty(function))
+                    function = kvp.Value.ToString() + "*" + kvp.Key.TermFunction;
+                else
+                    function = String.Format("min({0},{1})", function, kvp.Value.ToString() + "*" + kvp.Key.TermFunction);
+            }
+            Parser parser = new Parser();
+            parser.Parse(function, new List<string> {"x"});
+            int left = parameter.termGroup.Terms[0].LeftRange;
+            int right = parameter.termGroup.Terms[0].RightRange;
+            double max = double.MinValue;
+            for (double i = left; i < right; i += ((double)right - left) / 1000)
+            {
+                max = Math.Max(max, parser.Calculate(new Dictionary<string, double> { { "x", i } }));
+            }
+            return max;
         }
 
         private bool AskQuestion(Parameter needed, int level)
@@ -226,7 +259,6 @@ namespace Exp1
                             CreditParameter crp = _cparam.Keys.First(cp => cp.ParamId == creditParameter.ParamId);
                             switch (rl.Comparision)
                             {
-
                                 case Comparision.Greater: return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) > 0);
                                 case Comparision.Less: return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) < 0);
                                 case Comparision.GreaterOrEquals: return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) >= 0);
