@@ -129,6 +129,14 @@ namespace Exp1
             if (paramId != null)
             {
                 Parameter par = _parameters.First(a => a.ParamId == (int)paramId);
+                if (par.ParamType.Equals(ParamType.PFuzzy.GetStringValue()))
+                {
+                    List<Term> terms= Helpers.ReadTermList(par.termGroup.TermGroupId);
+                    foreach (Term term in terms)
+                    {
+                        value.Items.Add(new ComboBoxItem { Content = term.TermName, Tag = term.TermId });
+                    }
+                }
                 foreach (CreditParameter p in _creditParameters)
                     if (par.ParamType == p.ParamType)
                         value.Items.Add(new ComboBoxItem { Content = p.ParamName, Tag = p.ParamId });

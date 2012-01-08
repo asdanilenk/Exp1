@@ -17,9 +17,6 @@ using System.Windows.Interop;
 
 namespace Exp1
 {
-    /// <summary>
-    /// Interaction logic for EditRule.xaml
-    /// </summary>
     public partial class TermEditWindow : Window
     {
         private const string ResultParamCombo = "resultparamcombo";

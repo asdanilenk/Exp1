@@ -25,6 +25,7 @@ namespace Exp1
         private const string paramedit = "paramedit";
         private const string paramdelete = "paramdelete";
 
+        private const string termgroup = "termgroup";
         public CreditParametersManagementWindow()
         {
             InitializeComponent();
@@ -60,6 +61,13 @@ namespace Exp1
                 typeBox.Text = parameter.ParamType.GetStringValue();
                 typeBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(typeBox);
+
+                TextBlock groupBox = new TextBlock();
+                groupBox.Name = termgroup;
+                groupBox.MinWidth = 50;
+                groupBox.Text = (parameter.termGroup != null ? parameter.termGroup.TermGroupName : "");
+                groupBox.Margin = new Thickness(5, 0, 0, 0);
+                wp.Children.Add(groupBox);
 
                 Button editButton = new Button();
                 editButton.Name = paramedit;
@@ -118,11 +126,37 @@ namespace Exp1
                 typeBox.Items.Add(new ComboBoxItem() { Content= ParamType.PString.GetStringValue() });
                 typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PDouble.GetStringValue() });
                 typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
+                typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PFuzzy.GetStringValue() });
+                typeBox.SelectionChanged += new SelectionChangedEventHandler(typeBox_SelectionChanged);
+
                 typeBox.SelectedIndex = 0;
                 typeBox.Name = paramtype;
                 typeBox.Text = type;
                 typeBox.Width = 100;
                 wp.Children.Insert(1, typeBox);
+
+                ////////////////
+                TextBlock termgroupBlock = wp.Children.FindByName(termgroup) as TextBlock;
+                string tgroup = termgroupBlock.Text;
+
+                wp.Children.Remove(termgroupBlock);
+
+                ComboBox termgroupBox = new ComboBox();
+
+                FillTermGroupCombo(termgroupBox);
+
+                termgroupBox.SelectedIndex = 0;
+                termgroupBox.Text = tgroup;
+                if (tgroup == "")
+                {
+                    termgroupBox.IsEnabled = false;
+                }
+
+                termgroupBox.Name = termgroup;
+                //termgroupBox.Text = tgroup;
+                termgroupBox.Width = 100;
+                wp.Children.Insert(2, termgroupBox);
+
             }
             Button paredit = wp.Children.FindByName(paramedit) as Button;
             wp.Children.Remove(parname);
@@ -170,6 +204,13 @@ namespace Exp1
             UpdateTable();
         }
 
+        private void FillTermGroupCombo(ComboBox termGroup)
+        {
+            foreach (TermGroup tg in Helpers.ReadTermGroupList())
+                termGroup.Items.Add(new ComboBoxItem { Tag = tg.TermGroupId, Content = tg.TermGroupName });
+            //termGroup.SelectionChanged += ParameterSelectionChanged;
+        }
+
         void okButton_Click(object sender, RoutedEventArgs e)
         {
             Button okButton = sender as Button;
@@ -182,6 +223,26 @@ namespace Exp1
                 query += String.Format(@",param_type='{0}' ",((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString());
             query += String.Format("where param_id={0}", paramId);
             ConnectionManager.ExecuteNonQuery(query);
+
+            if (!p.ParamUsed)
+            {
+                using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.Connection))
+                {
+                    command.CommandText = "delete from term_param where param_id=@credit_param_id";
+                    command.Parameters.Add(new SQLiteParameter("@credit_param_id", paramId));
+                    command.ExecuteNonQuery();
+
+                    if ((wp.Children.FindByName(termgroup) as ComboBox).IsEnabled)
+                    {
+                        command.CommandText = "insert into term_param (term_group_id,credit_param_id) values (@term_group_id,@credit_param_id)";
+                        command.Parameters.Add(new SQLiteParameter("@term_group_id", ((wp.Children.FindByName(termgroup) as ComboBox).SelectedItem as ComboBoxItem).Tag.ToString()));
+                        command.Parameters.Add(new SQLiteParameter("@credit_param_id", paramId));
+                        command.ExecuteNonQuery();
+                    }
+                }
+
+            }
+
             UpdateTable();
         }
 
@@ -192,20 +253,37 @@ namespace Exp1
 
             using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.Connection))
             {
-                command.CommandText = "insert into credit_param (param_name,param_type) values (@param_name,@param_type)";
+                command.CommandText = "insert into credit_param (param_name,param_type) values (@param_name,@param_type);SELECT last_insert_rowid();";
                 command.Parameters.Add(new SQLiteParameter("@param_name",(wp.Children.FindByName(paramname) as TextBox).Text));
                 command.Parameters.Add(new SQLiteParameter("@param_type",((wp.Children.FindByName(paramtype) as ComboBox).SelectedItem as ComboBoxItem).Content.ToString()));
-                command.ExecuteNonQuery();
+                //command.ExecuteNonQuery();
+
+                int paramId = int.Parse(command.ExecuteScalar().ToString());
+
+                if ((wp.Children.FindByName(termgroup) as ComboBox).IsEnabled)
+                {
+                    command.CommandText = "insert into term_param (term_group_id,credit_param_id) values (@term_group_id,@credit_param_id)";
+                    command.Parameters.Add(new SQLiteParameter("@term_group_id", ((wp.Children.FindByName(termgroup) as ComboBox).SelectedItem as ComboBoxItem).Tag.ToString()));
+                    command.Parameters.Add(new SQLiteParameter("@credit_param_id", paramId));
+                    command.ExecuteNonQuery();
+                }    
             }
             UpdateTable();
         }
 
         void deleteButton_Click(object sender, RoutedEventArgs e)
         {
+            int paramId = int.Parse((sender as Button).Tag.ToString());
             MessageBoxResult result = MessageBox.Show("Вы уверены что хотите удалить данный параметр?", "Удалить?", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                ConnectionManager.ExecuteNonQuery(String.Format("delete from credit_param where param_id={0}",(sender as Button).Tag));
+                using (SQLiteCommand command = new SQLiteCommand(ConnectionManager.Connection))
+                {
+                    command.CommandText = "delete from term_param where credit_param_id=@credit_param_id";
+                    command.Parameters.Add(new SQLiteParameter("@credit_param_id", paramId));
+                    command.ExecuteNonQuery();
+                }
+                ConnectionManager.ExecuteNonQuery(String.Format("delete from credit_param where param_id={0}",paramId));
                 UpdateTable();
             }
         }
@@ -229,10 +307,24 @@ namespace Exp1
             typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PString.GetStringValue() });
             typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PBool.GetStringValue() });
             typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PDouble.GetStringValue() });
+            typeBox.Items.Add(new ComboBoxItem() { Content = ParamType.PFuzzy.GetStringValue() });
+
+            typeBox.SelectionChanged += new SelectionChangedEventHandler(typeBox_SelectionChanged);
+
             typeBox.Name = paramtype;
             typeBox.Width = 100;
             typeBox.SelectedIndex = 0;
             wp.Children.Add(typeBox);
+
+            ComboBox termGroup = new ComboBox();
+            termGroup.IsEnabled = false;
+            FillTermGroupCombo(termGroup);
+            termGroup.Name = termgroup;
+            termGroup.SelectedIndex = 0;
+            termGroup.MinWidth = 50;
+            //groupBox.Text = "";
+            termGroup.Margin = new Thickness(5, 0, 0, 0);
+            wp.Children.Add(termGroup);
 
             foreach (UIElement uie in paramEdit.Children)
                 if (uie is WrapPanel)
@@ -264,6 +356,24 @@ namespace Exp1
             cancelImage.Source = Helpers.BitmapSourceFromBitmap(Exp1.Properties.Resources.cancel);
             cancelButton.Content = cancelImage;
             wp.Children.Add(cancelButton);
+        }
+
+        void typeBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            WrapPanel parent = (sender as ComboBox).Parent as WrapPanel;
+            if (parent != null)
+            {
+                string text = (((ComboBox)sender).SelectedItem as ComboBoxItem).Content.ToString();
+                if (text == ParamType.PFuzzy.GetStringValue())
+                {
+                    parent.Children.FindByName(termgroup).IsEnabled = true;
+                }
+                else
+                {
+                    if (parent.Children.FindByName(termgroup) != null)
+                        parent.Children.FindByName(termgroup).IsEnabled = false;
+                }
+            }
         }
     }
 }
