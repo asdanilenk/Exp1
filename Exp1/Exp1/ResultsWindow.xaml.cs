@@ -22,12 +22,18 @@ namespace Exp1
         {
             InitializeComponent();
             this.ResultBlock.Text = result;
+            logGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+            TextBox textBox = new TextBox()
+            {
+                TextWrapping = TextWrapping.Wrap,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Visible,
+                AcceptsReturn = true
+            };
+            Grid.SetRow(textBox, logGrid.RowDefinitions.Count - 1);
+            logGrid.Children.Add(textBox);
             foreach (string logentry in logger.entries)
             {
-                logGrid.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
-                TextBlock textBlock = new TextBlock() { Text = logentry };
-                Grid.SetRow(textBlock, logGrid.RowDefinitions.Count - 1);
-                logGrid.Children.Add(textBlock);
+                textBox.Text += logentry + "\r\n";
             }
         }
 
