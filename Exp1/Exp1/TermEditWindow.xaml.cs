@@ -258,10 +258,6 @@ namespace Exp1
 
         private void SaveButtonClick(object sender, RoutedEventArgs e)
         {
-            if (_terms != null)
-            {
-                ConnectionManager.ExecuteNonQuery(String.Format(@"delete from term_group where group_id={0}", _group_id));
-            }
             var x = new Parser();
             foreach (UIElement uie in editTermGroup.Children)
             {
@@ -324,8 +320,10 @@ namespace Exp1
                     MessageBox.Show("Степень превосходства должнa быть целым числами");
                     return;
                 }
-                
-
+            }
+            if (_terms != null)
+            {
+                ConnectionManager.ExecuteNonQuery(String.Format(@"delete from term_group where group_id={0}", _group_id));
             }
             // Обязательность термов в нечетких  переменных
            /* if (((ParamTypeCombo.SelectedItem as ComboBoxItem).Content.ToString() == ParamType.PFuzzy.GetStringValue())

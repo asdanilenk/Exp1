@@ -63,6 +63,36 @@ namespace Exp1
             }
             return false;
         }
+
+        private bool SearchF2(string str, string s1, ref Node root, List<string> variables)
+        {
+            string s = s1;
+            if (str.StartsWith(s) && str.EndsWith(")"))
+            {
+                str = str.Substring(s.Length, str.Length - s.Length - 1);
+                int c = 0, i = str.Length - 1;
+                while (((i >= 0) && (!((c == 0) && (i != str.Length - 1) && (str[i]== ',')))))
+                {
+                    if (str[i] == '(')
+                        c++;
+                    if (str[i] == ')')
+                        c--;
+                    i--;
+                }
+
+                if ((i != -1))
+                {
+                    string str1 = str.Substring(0, i);
+                    string str3 = str.Substring(i + 1);
+                    root = new Node(s.Substring(0,s.Length-1));
+                    Parse(str1, ref root.Left, variables);
+                    Parse(str3, ref root.Right, variables);
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
         public bool Parse(string str, List<string> variables)
         {
             return Parse(str, ref _root, variables);
@@ -154,7 +184,7 @@ namespace Exp1
             SearchF(str, "atan(", ref root, variables) || SearchF(str, "actan(", ref root, variables) ||
             SearchF(str, "cosh(", ref root, variables) || SearchF(str, "sinh(", ref root, variables) ||
             SearchF(str, "tanh(", ref root, variables) || SearchF(str, "ctanh(", ref root, variables) ||
-            SearchF(str, "min(", ref root, variables) || SearchF(str, "max(", ref root, variables) ||
+            SearchF2(str, "min(", ref root, variables) || SearchF2(str, "max(", ref root, variables) ||
             SearchF(str, "sqrt(", ref root, variables)) return true;
 
             throw new Exception(UnknownFunction + str);
