@@ -155,16 +155,18 @@ namespace Exp1
             var term_rigth_quot = new TextBlock { Name = TermSymbols, VerticalAlignment = VerticalAlignment.Center, Text = "  ]  " };
             wp.Children.Add(term_rigth_quot);
 
-            
-            
-            var deleteBox = new Button { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0) , Name=btnDelete};
-            deleteBox.Click += deleteBox_Click;
-            deleteBox.Content = new Image { Source = Helpers.BitmapSourceFromBitmap(Properties.Resources.delete) };
-            wp.Children.Add(deleteBox);
 
-            var CheckBoxUsed = new CheckBox { IsChecked = termUsed, VerticalAlignment = VerticalAlignment.Center};
+            if (!termUsed)
+            {
+                var deleteBox = new Button { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0), Name = btnDelete };
+                deleteBox.Click += deleteBox_Click;
+                deleteBox.Content = new Image { Source = Helpers.BitmapSourceFromBitmap(Properties.Resources.delete) };
+                wp.Children.Add(deleteBox);
+            }
+
+            /*var CheckBoxUsed = new CheckBox { IsChecked = termUsed, VerticalAlignment = VerticalAlignment.Center};
             CheckBoxUsed.IsEnabled = false;
-            wp.Children.Add(CheckBoxUsed);
+            wp.Children.Add(CheckBoxUsed);*/
           
         }
 
