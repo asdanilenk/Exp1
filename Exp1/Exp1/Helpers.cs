@@ -212,7 +212,7 @@ namespace Exp1
 
         public static Dictionary<string, double> ToValueList(this Dictionary<Parameter, object> param)
         {
-            return param.Where(par => par.Key.ParamType == ParamType.PDouble && par.Value != null).ToDictionary(par => par.Key.ParamName, par => (double) par.Value);
+            return param.Where(par => (par.Key.ParamType == ParamType.PDouble || par.Key.ParamType == ParamType.PFuzzy) && par.Value != null).ToDictionary(par => par.Key.ParamName, par => (double)par.Value);
         }
     }
 }
