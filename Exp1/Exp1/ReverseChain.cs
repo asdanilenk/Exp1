@@ -216,7 +216,12 @@ namespace Exp1
             {
                 Parser parser = new Parser();
                 parser.Parse(term.TermFunction, new List<string> {"x"});
-                dict[term] = parser.Calculate(new Dictionary<string, double> { { "x", (double)_paramValues[needed] } });
+                double value;
+                if (_paramValues[needed] is double)
+                    value = (double) _paramValues[needed];
+                else
+                    value = double.Parse(_paramValues[needed].ToString());
+                dict[term] = parser.Calculate(new Dictionary<string, double> { { "x", value } });
             }
             _defuzparamValues[needed] = dict;
         }

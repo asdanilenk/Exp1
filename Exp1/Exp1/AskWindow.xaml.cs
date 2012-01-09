@@ -50,6 +50,8 @@ namespace Exp1
                     value.TextChanged += ValueTextChanged;
                     value.Tag = ParamType.PDouble;
                 }
+                else if (par.ParamType == ParamType.PFuzzy)
+                    value.Tag = ParamType.PFuzzy;
                 else
                     value.Tag = ParamType.PString;
                 value.SelectAll();
@@ -62,7 +64,8 @@ namespace Exp1
                 UIElement uie = main.Children.FindByName(ValueControl);
                 if (uie is TextBox)
                 {
-                    if ((ParamType)(uie as TextBox).Tag == ParamType.PDouble)
+                    ParamType pt = (ParamType) (uie as TextBox).Tag;
+                    if (pt == ParamType.PDouble || pt == ParamType.PFuzzy)
                         return double.Parse((uie as TextBox).Text);
                     return (uie as TextBox).Text;
                 }
