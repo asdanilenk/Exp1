@@ -55,5 +55,12 @@ namespace Exp1
             using (var command = new SQLiteCommand(sql, Connection))
                 command.ExecuteNonQuery();
         }
+        public static void ExecuteNonQueryIgnoringFK(string sql)
+        {
+            ExecuteNonQuery("PRAGMA foreign_keys = OFF;");
+            ExecuteNonQuery(sql);
+            ExecuteNonQuery("PRAGMA foreign_keys = ON;");
+        }
+
     }
 }

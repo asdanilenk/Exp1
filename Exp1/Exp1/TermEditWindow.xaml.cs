@@ -323,7 +323,7 @@ namespace Exp1
             }
             if (_terms != null)
             {
-                ConnectionManager.ExecuteNonQuery(String.Format(@"delete from term_group where group_id={0}", _group_id));
+                ConnectionManager.ExecuteNonQueryIgnoringFK(String.Format(@"delete from term_group where group_id={0}", _group_id));
             }
             // Обязательность термов в нечетких  переменных
            /* if (((ParamTypeCombo.SelectedItem as ComboBoxItem).Content.ToString() == ParamType.PFuzzy.GetStringValue())
@@ -393,6 +393,7 @@ namespace Exp1
                         }
                         else
                         {
+                            ConnectionManager.ExecuteNonQueryIgnoringFK("delete from term where term_id=" + term_id);
                             command.CommandText = "insert into term (term_id, term_name, term_function, left_range, right_range, group_id, comparable_num) values (@term_id, @term_name, @term_function, @left_range, @right_range, @group_id, @comparable_num)";
                             command.Parameters.Add(new SQLiteParameter("@group_id", _group_id));
                             command.Parameters.Add(new SQLiteParameter("@term_id", term_id));
