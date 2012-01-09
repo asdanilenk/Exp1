@@ -1,46 +1,86 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
   <Class Name="Exp1.Credit">
-    <Position X="6.25" Y="0.75" Width="1.5" />
+    <Position X="10.75" Y="4" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Credit.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Exp1.CreditParameter">
-    <Position X="3.5" Y="0.5" Width="1.5" />
+    <Position X="6.75" Y="1" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAQEAAAAAAAEACAAAIAACAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAQEAAAIAAAEACAAAIAACAAAAAAAAAA=</HashCode>
       <FileName>Param.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="termGroup" />
+      <Field Name="ParamType" />
+    </ShowAsAssociation>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="Exp1.Parameter">
-    <Position X="3.5" Y="3" Width="1.5" />
+    <Position X="7" Y="4" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAA=</HashCode>
       <FileName>Param.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Exp1.Rule">
-    <Position X="6.5" Y="3.75" Width="1.5" />
+    <Position X="4.75" Y="6.75" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AACAAAAAAAAAAAAGABAAAAQAAAAAAAAAAAAAAAAAAgA=</HashCode>
       <FileName>Rule.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="Result" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Field Name="Conditions" />
+    </ShowAsCollectionAssociation>
   </Class>
   <Class Name="Exp1.Condition">
-    <Position X="3.5" Y="5" Width="1.5" />
+    <Position X="3.75" Y="3.75" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAQAAAAAAAgAAQAAAA=</HashCode>
       <FileName>Rule.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="Comparision" />
+      <Field Name="Parameter" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Exp1.Term">
+    <Position X="13" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAQBAAAAAAAAQEAAAAAABDAAAAAAAAACIAAAAAAAA=</HashCode>
+      <FileName>Param.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Exp1.TermGroup">
+    <Position X="9.75" Y="1" Width="2" />
+    <TypeIdentifier>
+      <HashCode>gAEACAAAAAAAAAQEAAAAAAAAAAAAAgAAAAAAAAAAAAA=</HashCode>
+      <FileName>Param.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="Terms" />
+    </ShowAsCollectionAssociation>
+    <Lollipop Position="0.2" />
   </Class>
   <Enum Name="Exp1.Comparision">
-    <Position X="0.5" Y="5" Width="1.5" />
+    <Position X="0.5" Y="3.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAEAAQQAAAAQAAAE=</HashCode>
       <FileName>Rule.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Exp1.ParamType">
+    <Position X="4" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAACAAAAEAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Param.cs</FileName>
     </TypeIdentifier>
   </Enum>
   <Font Name="Segoe UI" Size="9" />
