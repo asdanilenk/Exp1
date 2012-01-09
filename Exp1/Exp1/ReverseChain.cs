@@ -144,7 +144,10 @@ namespace Exp1
                     if (p.ParamType == ParamType.PFuzzy)
                     {
                         Term t = p.termGroup.Terms.First(term => term.TermName == r.ResultValue);
-                        localfuzzys[t] = Math.Max(rulefuzzys, localfuzzys[t]);
+                        if (localfuzzys.Keys.ToList().Exists(term => term.TermName == t.TermName))
+                            localfuzzys[t] = Math.Max(rulefuzzys, localfuzzys[t]);
+                        else
+                            localfuzzys[t] = rulefuzzys;
                     }
                     else
                     {
