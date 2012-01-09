@@ -5,15 +5,14 @@ using System.Windows;
 
 namespace Exp1
 {
-    class ReverseChain
+    internal class ReverseChain
     {
-        readonly List<Rule> _rules;
-        readonly List<Parameter> _parameters;
-        readonly Dictionary<Parameter, object> _paramValues;
-        readonly Dictionary<Parameter, Dictionary<Term,double>> _defuzparamValues;
-        readonly Dictionary<CreditParameter,string> _cparam;
-        readonly Logger _log;
-        
+        private readonly Dictionary<CreditParameter, string> _cparam;
+        private readonly Dictionary<Parameter, Dictionary<Term, double>> _defuzparamValues;
+        private readonly Logger _log;
+        private readonly Dictionary<Parameter, object> _paramValues;
+        private readonly List<Parameter> _parameters;
+        private readonly List<Rule> _rules;
 
         public ReverseChain(int creditId)
         {
@@ -26,7 +25,7 @@ namespace Exp1
 
             foreach (Parameter par in _parameters)
                 _paramValues.Add(par, null);
-            
+
             //FIXME
             Parameter kredit = _parameters.First(p => p.ParamName == "Кредит");
             bool result = ReccurentSearch(kredit, 0);
@@ -41,7 +40,7 @@ namespace Exp1
             _log.Add("Searching for " + needed.ParamName + " :", level);
             List<Rule> goodrules = _rules.FindAll(r => r.Result.ParamId == needed.ParamId);
             _log.Add("Rules found: " + goodrules.Count, level);
-            if (goodrules.Count==0 || goodrules.All(rule => rule.Conditions.Exists(cond => cond.Parameter.ParamId == needed.ParamId)))
+            if (goodrules.Count == 0 || goodrules.All(rule => rule.Conditions.Exists(cond => cond.Parameter.ParamId == needed.ParamId)))
             {
                 return AskQuestion(needed, level);
             }
@@ -51,8 +50,8 @@ namespace Exp1
             {
                 _log.Add("Processing rule:" + r, level);
                 bool ruleOk = true;
-                double rulefuzzys = 1; 
-                foreach (Condition con in r.Conditions.Where(cond=> cond.Parameter.ParamType!=ParamType.PFuzzy))
+                double rulefuzzys = 1;
+                foreach (Condition con in r.Conditions.Where(cond => cond.Parameter.ParamType != ParamType.PFuzzy))
                 {
                     _log.Add("Processing condition:" + con, level);
                     Parameter p = _parameters.First(a => a.ParamId == con.Parameter.ParamId);
@@ -78,25 +77,32 @@ namespace Exp1
                             if (ReccurentSearch(p, level + 1) == false)
                                 return false;
                         double d;
-                        if (rl.Value is CreditParameter && (rl.Value as CreditParameter).ParamType != ParamType.PFuzzy || rl.Value is double)
+                        if ((rl.Value is CreditParameter && (rl.Value as CreditParameter).ParamType != ParamType.PFuzzy) ||
+                            rl.Value is double)
                         {
-                            ruleOk = CheckCondition(rl) && ruleOk;
+                            bool result = CheckCondition(rl);
+                            ruleOk = result && ruleOk;
+                            _log.Add("Fuzzy condition is not Fuzzy itself. Result is " + result, level);
                         }
                         else
                         {
-                            rulefuzzys = Math.Min(rulefuzzys, CheckFuzzyCondition(rl));
+                            double result = CheckFuzzyCondition(rl);
+                            rulefuzzys = Math.Min(rulefuzzys, result);
+                            _log.Add("Fuzzy condition returned probability " + result, level);
                         }
                     }
+                _log.Add("Finished processinf conditions", level);
 
                 if (ruleOk)
                 {
                     _rules.Remove(r);
                     Parameter p = _parameters.First(a => a.ParamId == r.Result.ParamId);
-
-                    if (p.ParamType == ParamType.PDouble || (p.ParamType == ParamType.PFuzzy && !p.termGroup.Terms.Exists(term => term.TermName == r.ResultValue)))
+                    _log.Add("Calculating result parameter " + r.Result.ParamName + " using function " + r.ResultValue, level);
+                    if (p.ParamType == ParamType.PDouble ||
+                        (p.ParamType == ParamType.PFuzzy && !p.termGroup.Terms.Exists(term => term.TermName == r.ResultValue)))
                     {
                         var x = new Parser();
-                        List<string> vars = r.ResultValue.Split(new[] { '-', '+', '/', '*', ')', '(' }).ToList().ConvertAll(s => s.Trim());
+                        List<string> vars = r.ResultValue.Split(new[] {'-', '+', '/', '*', ')', '('}).ToList().ConvertAll(s => s.Trim());
                         foreach (string var in vars)
                         {
                             Parameter par = _parameters.Find(f => f.ParamName == var);
@@ -117,15 +123,14 @@ namespace Exp1
                             return false;
                         }
 
-                        Dictionary<string,double> localvalues = _paramValues.ToValueList();
+                        Dictionary<string, double> localvalues = _paramValues.ToValueList();
                         foreach (var crp in _cparam.Where(crp => crp.Key.ParamType == ParamType.PDouble))
                             localvalues.Add(crp.Key.ParamName, double.Parse(crp.Value));
                         try
                         {
                             _paramValues[p] = x.Calculate(localvalues);
                             if (p.ParamType == ParamType.PFuzzy)
-                                CalculateTermValues(p);
-                            
+                                CalculateTermValues(p, level);
                         }
                         catch (Exception e)
                         {
@@ -148,6 +153,7 @@ namespace Exp1
                             localfuzzys[t] = Math.Max(rulefuzzys, localfuzzys[t]);
                         else
                             localfuzzys[t] = rulefuzzys;
+                        _log.Add("Rule passed => " + p.ParamName + "=" + _paramValues[p], level);
                     }
                     else
                     {
@@ -162,15 +168,16 @@ namespace Exp1
             {
                 Parameter p = _parameters.First(a => a.ParamId == needed.ParamId);
                 _defuzparamValues[p] = localfuzzys;
-                _paramValues[p] = Defuz(p);
+                _paramValues[p] = Defuz(p, level);
                 return true;
             }
 
             return AskQuestion(needed, level);
         }
 
-        private double Defuz(Parameter parameter)
+        private double Defuz(Parameter parameter, int level)
         {
+            _log.Add("Defuzzing variable:" + parameter.ParamName, level);
             var termValues = _defuzparamValues[parameter];
             string function = null;
             foreach (var kvp in termValues)
@@ -180,15 +187,17 @@ namespace Exp1
                 else
                     function = String.Format("min({0};{1})", function, kvp.Value.ToString() + "*" + kvp.Key.TermFunction);
             }
+            _log.Add("Compiled function: " + function, level);
             Parser parser = new Parser();
             parser.Parse(function, new List<string> {"x"});
             int left = parameter.termGroup.Terms[0].LeftRange;
             int right = parameter.termGroup.Terms[0].RightRange;
             double max = double.MinValue;
-            for (double i = left; i < right; i += ((double)right - left) / 1000)
+            for (double i = left; i < right; i += ((double) right - left)/1000)
             {
-                max = Math.Max(max, parser.Calculate(new Dictionary<string, double> { { "x", i } }));
+                max = Math.Max(max, parser.Calculate(new Dictionary<string, double> {{"x", i}}));
             }
+            _log.Add("Max value is: " + max, level);
             return max;
         }
 
@@ -196,12 +205,13 @@ namespace Exp1
         {
             if (!String.IsNullOrEmpty(needed.Question))
             {
-                _log.Add("Asking user...", level);
+                _log.Add("Asking user for " + needed.ParamType.GetStringValue() + " variable " + needed.ParamName + " ...", level);
                 var ask = new AskWindow();
                 _paramValues[needed] = ask.Ask(needed);
+                _log.Add("User answered : " + _paramValues[needed], level);
                 if (needed.ParamType == ParamType.PFuzzy)
                 {
-                    CalculateTermValues(needed);
+                    CalculateTermValues(needed, level);
                 }
                 if (_paramValues[needed] != null)
                     return true;
@@ -209,7 +219,7 @@ namespace Exp1
             return false;
         }
 
-        private void CalculateTermValues(Parameter needed)
+        private void CalculateTermValues(Parameter needed, int level)
         {
             var dict = new Dictionary<Term, double>();
             foreach (Term term in needed.termGroup.Terms)
@@ -221,7 +231,8 @@ namespace Exp1
                     value = (double) _paramValues[needed];
                 else
                     value = double.Parse(_paramValues[needed].ToString());
-                dict[term] = parser.Calculate(new Dictionary<string, double> { { "x", value } });
+                dict[term] = parser.Calculate(new Dictionary<string, double> {{"x", value}});
+                _log.Add("Term value for " + term.TermName + " : " + dict[term], level + 1);
             }
             _defuzparamValues[needed] = dict;
         }
@@ -274,24 +285,36 @@ namespace Exp1
                             CreditParameter crp = _cparam.Keys.First(cp => cp.ParamId == creditParameter.ParamId);
                             switch (rl.Comparision)
                             {
-                                case Comparision.Greater: return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) > 0);
-                                case Comparision.Less: return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) < 0);
-                                case Comparision.GreaterOrEquals: return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) >= 0);
-                                case Comparision.LessOrEquals: return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) <= 0);
-                                case Comparision.Equals: return (bool.Parse(_paramValues[p].ToString()) == bool.Parse(_cparam[crp]));
-                                case Comparision.NotEquals: return (bool.Parse(_paramValues[p].ToString()) != bool.Parse(_cparam[crp]));
+                                case Comparision.Greater:
+                                    return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) > 0);
+                                case Comparision.Less:
+                                    return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) < 0);
+                                case Comparision.GreaterOrEquals:
+                                    return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) >= 0);
+                                case Comparision.LessOrEquals:
+                                    return ((bool.Parse(_paramValues[p].ToString())).CompareTo(bool.Parse(_cparam[crp])) <= 0);
+                                case Comparision.Equals:
+                                    return (bool.Parse(_paramValues[p].ToString()) == bool.Parse(_cparam[crp]));
+                                case Comparision.NotEquals:
+                                    return (bool.Parse(_paramValues[p].ToString()) != bool.Parse(_cparam[crp]));
                             }
                         }
                         else
                         {
                             switch (rl.Comparision)
                             {
-                                case Comparision.Greater: return ((bool.Parse(_paramValues[p].ToString())).CompareTo((bool)rl.Value) > 0);
-                                case Comparision.Less: return ((bool.Parse(_paramValues[p].ToString())).CompareTo((bool)rl.Value) < 0);
-                                case Comparision.GreaterOrEquals: return ((bool.Parse(_paramValues[p].ToString())).CompareTo((bool)rl.Value) >= 0);
-                                case Comparision.LessOrEquals: return ((bool.Parse(_paramValues[p].ToString())).CompareTo((bool)rl.Value) <= 0);
-                                case Comparision.Equals: return (bool.Parse(_paramValues[p].ToString()) == (bool)rl.Value);
-                                case Comparision.NotEquals: return (bool.Parse(_paramValues[p].ToString()) != (bool)rl.Value);
+                                case Comparision.Greater:
+                                    return ((bool.Parse(_paramValues[p].ToString())).CompareTo((bool) rl.Value) > 0);
+                                case Comparision.Less:
+                                    return ((bool.Parse(_paramValues[p].ToString())).CompareTo((bool) rl.Value) < 0);
+                                case Comparision.GreaterOrEquals:
+                                    return ((bool.Parse(_paramValues[p].ToString())).CompareTo((bool) rl.Value) >= 0);
+                                case Comparision.LessOrEquals:
+                                    return ((bool.Parse(_paramValues[p].ToString())).CompareTo((bool) rl.Value) <= 0);
+                                case Comparision.Equals:
+                                    return (bool.Parse(_paramValues[p].ToString()) == (bool) rl.Value);
+                                case Comparision.NotEquals:
+                                    return (bool.Parse(_paramValues[p].ToString()) != (bool) rl.Value);
                             }
                         }
                         break;
@@ -304,16 +327,20 @@ namespace Exp1
                             CreditParameter crp = _cparam.Keys.First(cp => cp.ParamId == creditParameter.ParamId);
                             switch (rl.Comparision)
                             {
-                                case Comparision.Equals: return ((string)_paramValues[p] == _cparam[crp]);
-                                case Comparision.NotEquals: return ((string)_paramValues[p] != _cparam[crp]);
+                                case Comparision.Equals:
+                                    return ((string) _paramValues[p] == _cparam[crp]);
+                                case Comparision.NotEquals:
+                                    return ((string) _paramValues[p] != _cparam[crp]);
                             }
                         }
                         else
                         {
                             switch (rl.Comparision)
                             {
-                                case Comparision.Equals: return ((string)_paramValues[p] == (string)rl.Value);
-                                case Comparision.NotEquals: return ((string)_paramValues[p] != (string)rl.Value);
+                                case Comparision.Equals:
+                                    return ((string) _paramValues[p] == (string) rl.Value);
+                                case Comparision.NotEquals:
+                                    return ((string) _paramValues[p] != (string) rl.Value);
                             }
                         }
                         break;
@@ -326,24 +353,36 @@ namespace Exp1
                             CreditParameter crp = _cparam.Keys.First(cp => cp.ParamId == creditParameter.ParamId);
                             switch (rl.Comparision)
                             {
-                                case Comparision.Equals: return (Math.Abs((double)_paramValues[p] - double.Parse(_cparam[crp])) < epsilon);
-                                case Comparision.NotEquals: return (Math.Abs((double)_paramValues[p] - double.Parse(_cparam[crp])) > epsilon);
-                                case Comparision.Greater: return ((double)_paramValues[p] > double.Parse(_cparam[crp]));
-                                case Comparision.Less: return ((double)_paramValues[p] < double.Parse(_cparam[crp]));
-                                case Comparision.GreaterOrEquals: return ((double)_paramValues[p] >= double.Parse(_cparam[crp]));
-                                case Comparision.LessOrEquals: return ((double)_paramValues[p] <= double.Parse(_cparam[crp]));
+                                case Comparision.Equals:
+                                    return (Math.Abs((double) _paramValues[p] - double.Parse(_cparam[crp])) < epsilon);
+                                case Comparision.NotEquals:
+                                    return (Math.Abs((double) _paramValues[p] - double.Parse(_cparam[crp])) > epsilon);
+                                case Comparision.Greater:
+                                    return ((double) _paramValues[p] > double.Parse(_cparam[crp]));
+                                case Comparision.Less:
+                                    return ((double) _paramValues[p] < double.Parse(_cparam[crp]));
+                                case Comparision.GreaterOrEquals:
+                                    return ((double) _paramValues[p] >= double.Parse(_cparam[crp]));
+                                case Comparision.LessOrEquals:
+                                    return ((double) _paramValues[p] <= double.Parse(_cparam[crp]));
                             }
                         }
                         else
                         {
                             switch (rl.Comparision)
                             {
-                                case Comparision.Equals: return (Math.Abs((double)_paramValues[p] - (double)rl.Value) < epsilon);
-                                case Comparision.NotEquals: return (Math.Abs((double)_paramValues[p] - (double)rl.Value) > epsilon);
-                                case Comparision.Greater: return ((double)_paramValues[p] > (double)rl.Value);
-                                case Comparision.Less: return ((double)_paramValues[p] < (double)rl.Value);
-                                case Comparision.GreaterOrEquals: return ((double)_paramValues[p] >= (double)rl.Value);
-                                case Comparision.LessOrEquals: return ((double)_paramValues[p] <= (double)rl.Value);
+                                case Comparision.Equals:
+                                    return (Math.Abs((double) _paramValues[p] - (double) rl.Value) < epsilon);
+                                case Comparision.NotEquals:
+                                    return (Math.Abs((double) _paramValues[p] - (double) rl.Value) > epsilon);
+                                case Comparision.Greater:
+                                    return ((double) _paramValues[p] > (double) rl.Value);
+                                case Comparision.Less:
+                                    return ((double) _paramValues[p] < (double) rl.Value);
+                                case Comparision.GreaterOrEquals:
+                                    return ((double) _paramValues[p] >= (double) rl.Value);
+                                case Comparision.LessOrEquals:
+                                    return ((double) _paramValues[p] <= (double) rl.Value);
                             }
                         }
 
