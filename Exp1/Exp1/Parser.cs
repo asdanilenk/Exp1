@@ -185,7 +185,7 @@ namespace Exp1
             SearchF(str, "cosh(", ref root, variables) || SearchF(str, "sinh(", ref root, variables) ||
             SearchF(str, "tanh(", ref root, variables) || SearchF(str, "ctanh(", ref root, variables) ||
             SearchF2(str, "min(", ref root, variables) || SearchF2(str, "max(", ref root, variables) ||
-            SearchF(str, "sqrt(", ref root, variables)) return true;
+            SearchF(str, "sqrt(", ref root, variables) || SearchF(str, "abs(", ref root, variables)) return true;
 
             throw new Exception(UnknownFunction + str);
         }
@@ -266,6 +266,7 @@ namespace Exp1
             if (root.Key.Equals("min")) return Math.Min(Calculate(values, ref root.Left), Calculate(values, ref root.Right));
             if (root.Key.Equals("max")) return Math.Max(Calculate(values, ref root.Left), Calculate(values, ref root.Right));
             if (root.Key.Equals("tanh")) return Math.Tanh(Calculate(values, ref root.Left));
+            if (root.Key.Equals("abs")) return Math.Abs(Calculate(values, ref root.Left));
             
             if (root.Key.Equals("ctanh"))
             {

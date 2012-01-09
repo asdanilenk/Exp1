@@ -76,7 +76,6 @@ namespace Exp1
                         if (_paramValues[p] == null)
                             if (ReccurentSearch(p, level + 1) == false)
                                 return false;
-                        double d;
                         if ((condition.Value is CreditParameter && (condition.Value as CreditParameter).ParamType != ParamType.PFuzzy) ||
                             condition.Value is double)
                         {
@@ -241,6 +240,10 @@ namespace Exp1
                     value = (double) _paramValues[needed];
                 else
                     value = double.Parse(_paramValues[needed].ToString());
+                if (value > term.RightRange)
+                    value = term.RightRange;
+                if (value < term.LeftRange)
+                    value = term.LeftRange;
                 dict[term] = parser.Calculate(new Dictionary<string, double> {{"x", value}});
                 _log.Add("Term value for " + term.TermName + " : " + dict[term], level + 1);
             }

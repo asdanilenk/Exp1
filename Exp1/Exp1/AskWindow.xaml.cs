@@ -44,14 +44,12 @@ namespace Exp1
                 var value = new TextBox { Width = 400, Name = ValueControl, Margin = new Thickness(5, 0, 0, 0) };
                 Grid.SetRow(value, 1);
                 main.Children.Add(value);
-                if (par.ParamType == ParamType.PDouble)
+                if (par.ParamType == ParamType.PDouble || par.ParamType == ParamType.PFuzzy)
                 {
                     value.Text = "0";
                     value.TextChanged += ValueTextChanged;
-                    value.Tag = ParamType.PDouble;
+                    value.Tag = par.ParamType;
                 }
-                else if (par.ParamType == ParamType.PFuzzy)
-                    value.Tag = ParamType.PFuzzy;
                 else
                     value.Tag = ParamType.PString;
                 value.SelectAll();
