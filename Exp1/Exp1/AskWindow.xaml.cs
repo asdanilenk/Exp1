@@ -81,7 +81,7 @@ namespace Exp1
         }
 
 
-        private string _previousText = String.Empty;
+        private string _previousText = "0";
         void ValueTextChanged(object sender, TextChangedEventArgs e)
         {
             double num;

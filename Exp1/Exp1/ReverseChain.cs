@@ -217,13 +217,14 @@ namespace Exp1
                 _log.Add("Asking user for " + needed.ParamType.GetStringValue() + " variable " + needed.ParamName + " ...", level);
                 AskWindow ask = new AskWindow();
                 _paramValues[needed] = ask.Ask(needed);
+                if (_paramValues[needed] == null)
+                    return false;
                 _log.Add("User answered : " + _paramValues[needed], level);
                 if (needed.ParamType == ParamType.PFuzzy)
                 {
                     CalculateTermValues(needed, level);
                 }
-                if (_paramValues[needed] != null)
-                    return true;
+                return true;
             }
             return false;
         }
