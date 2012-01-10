@@ -51,20 +51,19 @@ namespace Exp1
 
                 TextBlock nameBox = new TextBlock();
                 nameBox.Name = paramname;
-                nameBox.MinWidth = 200;
+                nameBox.MinWidth = 400;
                 nameBox.Text = parameter.ParamName;
                 wp.Children.Add(nameBox);
 
                 TextBlock typeBox = new TextBlock();
                 typeBox.Name = paramtype;
-                typeBox.MinWidth = 10;
+                typeBox.MinWidth = 80;
                 typeBox.Text = parameter.ParamType.GetStringValue();
                 typeBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(typeBox);
 
                 TextBlock groupBox = new TextBlock();
                 groupBox.Name = termgroup;
-                groupBox.MinWidth = 50;
                 groupBox.Text = (parameter.termGroup != null ? parameter.termGroup.TermGroupName : "");
                 groupBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(groupBox);

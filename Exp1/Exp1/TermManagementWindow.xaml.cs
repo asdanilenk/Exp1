@@ -67,7 +67,7 @@ namespace Exp1
                 TextBlock nameBox = new TextBlock();
                 nameBox.Name = groupname;
                 
-                nameBox.MinWidth = 100;
+                nameBox.MinWidth = 200;
                 nameBox.Text = group.TermGroupName;
                 wp.Children.Add(nameBox);
 

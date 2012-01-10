@@ -51,21 +51,21 @@ namespace Exp1
                 paramEdit.Children.Add(wp);
 
                 TextBlock nameBox = new TextBlock();
-                nameBox.MinWidth = 200;
+                nameBox.MinWidth = 300;
                 nameBox.Name = paramname;
                 nameBox.Text = parameter.ParamName;
                 wp.Children.Add(nameBox);
 
                 TextBlock typeBox = new TextBlock();
                 typeBox.Name = paramtype;
-                typeBox.MinWidth = 50;
+                typeBox.MinWidth = 80;
                 typeBox.Text = parameter.ParamType.GetStringValue();
                 typeBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(typeBox);
 
                 TextBlock groupBox = new TextBlock();
                 groupBox.Name = termgroup;
-                groupBox.MinWidth = 50;
+                groupBox.MinWidth = 200;
                 groupBox.Text = (parameter.termGroup != null ? parameter.termGroup.TermGroupName: "");
                 groupBox.Margin = new Thickness(5, 0, 0, 0);
                 wp.Children.Add(groupBox);
