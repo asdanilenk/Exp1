@@ -155,16 +155,18 @@ namespace Exp1
             var term_rigth_quot = new TextBlock { Name = TermSymbols, VerticalAlignment = VerticalAlignment.Center, Text = "  ]  " };
             wp.Children.Add(term_rigth_quot);
 
-            
-            
-            var deleteBox = new Button { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0) , Name=btnDelete};
-            deleteBox.Click += deleteBox_Click;
-            deleteBox.Content = new Image { Source = Helpers.BitmapSourceFromBitmap(Properties.Resources.delete) };
-            wp.Children.Add(deleteBox);
 
-            var CheckBoxUsed = new CheckBox { IsChecked = termUsed, VerticalAlignment = VerticalAlignment.Center};
+            if (!termUsed)
+            {
+                var deleteBox = new Button { Height = 20, Width = 20, Margin = new Thickness(10, 0, 0, 0), Name = btnDelete };
+                deleteBox.Click += deleteBox_Click;
+                deleteBox.Content = new Image { Source = Helpers.BitmapSourceFromBitmap(Properties.Resources.delete) };
+                wp.Children.Add(deleteBox);
+            }
+
+            /*var CheckBoxUsed = new CheckBox { IsChecked = termUsed, VerticalAlignment = VerticalAlignment.Center};
             CheckBoxUsed.IsEnabled = false;
-            wp.Children.Add(CheckBoxUsed);
+            wp.Children.Add(CheckBoxUsed);*/
           
         }
 
@@ -258,69 +260,6 @@ namespace Exp1
 
         private void SaveButtonClick(object sender, RoutedEventArgs e)
         {
-            var x = new Parser();
-            foreach (UIElement uie in editTermGroup.Children)
-            {
-                if (!(uie is WrapPanel)) continue;
-                var wp = uie as WrapPanel;
-                //Фильтрация по WrapPanel, в которых содержутся термы
-                if (wp.Name != TermPanel) continue;
-
-                if (String.IsNullOrEmpty(GroupNameBox.Text))
-                {
-                    MessageBox.Show("Название группы не должно быть пустым");
-                    return;  
-                }
-
-                string termName = ((TextBox) wp.Children.FindByName(TermText)).Text;
-                if (String.IsNullOrEmpty(termName))
-                {
-                    MessageBox.Show("Название терма не должно быть пустым");
-                    return;                    
-                }
-                string termFunc = ((TextBox) wp.Children.FindByName(TermFunc)).Text;
-                if (String.IsNullOrEmpty(termFunc))
-                {
-                    MessageBox.Show("Функция терма не должно быть пустой");
-                     return; 
-                }
-                try
-                {
-                    x.Parse(termFunc,new List<string>{"x"});
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                    return;
-                }
-                int left, right;
-                try
-                {
-                    left = int.Parse(((TextBox) wp.Children.FindByName(TermLeftRange)).Text);
-                    right = int.Parse(((TextBox) wp.Children.FindByName(TermRightRange)).Text);
-                }
-                catch
-                {
-                    MessageBox.Show("Границы интервала должны быть целыми числами");
-                    return;
-                }
-                if (left>=right)
-                {
-                    MessageBox.Show("Левая граница интервала должна быть меньше правой");
-                     return; 
-                }
-                
-                
-                try
-                {
-                    int.Parse(((TextBox) wp.Children.FindByName(ComparableNumText)).Text);                    
-                }
-                catch
-                {
-                    MessageBox.Show("Степень превосходства должнa быть целым числами");
-                    return;
-                }
-            }
             if (_terms != null)
             {
                 ConnectionManager.ExecuteNonQueryIgnoringFK(String.Format(@"delete from term_group where group_id={0}", _group_id));
