@@ -166,7 +166,7 @@ namespace Exp1
                 else
                     _log.Add("Rule failed", level);
             }
-            if (needed.ParamType == ParamType.PFuzzy)
+            if (needed.ParamType == ParamType.PFuzzy && fuzzyTermValues.Count()>0)
             {
                 Parameter p = _parameters.First(a => a.ParamId == needed.ParamId);
                 _fuzparamValues[p] = fuzzyTermValues;
